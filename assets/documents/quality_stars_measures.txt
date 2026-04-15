@@ -1,0 +1,173 @@
+UnitedHealthcare Commercial Plan — Quality & Stars Measures Reference (Synthetic Sample)
+===========================================================================================
+IMPORTANT: This is a synthetic document generated for educational and demonstration purposes only.
+It does not represent actual UnitedHealthcare plan performance data or CMS Star ratings.
+===========================================================================================
+
+OVERVIEW: CMS STARS RATING PROGRAM
+-------------------------------------
+The Centers for Medicare & Medicaid Services (CMS) Stars Rating Program evaluates health plans
+on a scale of 1 to 5 stars across clinical quality, member experience, and administrative
+effectiveness. For commercial plans, analogous quality frameworks (HEDIS, NCQA) use similar
+measure sets to assess plan performance.
+
+Key performance thresholds:
+  - 4-Star rating: Generally requires performance at or above the 70th–75th percentile nationally
+  - 5-Star rating: Requires performance at or above the 90th percentile nationally
+  - Impact: Plans achieving 4+ stars qualify for quality bonus payments and higher CMS rebates.
+    5-star plans receive the maximum bonus and may market to members year-round. Plans below
+    3 stars for 3 consecutive years face potential contract termination.
+
+Care gap closure programs are the primary lever for improving Stars performance. Members who are
+eligible for a measure but have not yet received the qualifying service represent an actionable
+care gap. Outreach and care management interventions targeting these members simultaneously
+improve the plan's Stars score and deliver meaningful clinical benefit to members.
+
+
+MEASURE: COLORECTAL CANCER SCREENING (COL-E)
+----------------------------------------------
+Description:    Percentage of members age 45–75 who are continuously enrolled and have received
+                appropriate colorectal cancer screening.
+
+Eligible Population:
+  - Members age 45–75 as of the end of the measurement year
+  - Continuously enrolled in the health plan for the measurement year
+  - Exclusions: members with a history of colorectal cancer or total colectomy
+
+Numerator — Member is compliant if ANY of the following are documented:
+  - Colonoscopy within the last 10 years
+  - Flexible sigmoidoscopy within the last 5 years
+  - Annual fecal occult blood test (FOBT) or fecal immunochemical test (FIT) in the measurement year
+  - Multi-target stool DNA (Cologuard) within the last 3 years
+  - CT colonography within the last 5 years
+
+Care Gap Definition:
+  Members who are eligible but have NO qualifying colorectal cancer screening service on record
+  within the applicable lookback window represent an open care gap. These members should be
+  prioritized for outreach and their PCP notified to facilitate scheduling.
+
+Current Plan Performance Benchmark (4-Star threshold): 72% compliance
+
+
+MEASURE: DIABETES CARE — EYE EXAM (EED)
+-----------------------------------------
+Description:    Percentage of members with diabetes (Type 1 or Type 2) age 18–75 who received
+                a retinal or dilated eye exam during the measurement year.
+
+Eligible Population:
+  - Members with a diagnosis of diabetes (ICD-10: E10.x, E11.x)
+  - Age 18–75 as of the end of the measurement year
+  - Continuously enrolled for at least 11 of 12 months
+
+Numerator:
+  - Documented retinal exam or dilated eye exam by an ophthalmologist or optometrist
+  - Reading of a retinal photograph (teleretinal screening) also qualifies
+  - Exam must occur within the measurement year (January 1 – December 31)
+
+4-Star Benchmark:    79% of eligible diabetic members with a documented eye exam
+Current Gap:         Members with diabetes who have not had an eye exam in over 12 months
+
+
+MEASURE: DIABETES CARE — HbA1c POOR CONTROL (HBD)
+----------------------------------------------------
+Description:    Percentage of members with diabetes age 18–75 whose most recent HbA1c result
+                is greater than 9.0% (poor control). This is a NEGATIVE measure — lower
+                percentage is better.
+
+Eligible Population:
+  - Members with Type 1 or Type 2 diabetes, age 18–75
+  - At least one HbA1c lab result in the measurement year required for inclusion
+
+Numerator (Negative):
+  - Most recent HbA1c value in the measurement year is >9.0%
+
+4-Star Benchmark:    Fewer than 21% of eligible diabetic members with HbA1c >9.0%
+Interpretation:      A result below 21% means the plan is performing well on glycemic control.
+                     Members with HbA1c >9% represent both a quality gap and a clinical risk
+                     requiring care management intervention.
+
+
+MEASURE: MEDICATION ADHERENCE — DIABETES (MAD)
+------------------------------------------------
+Description:    Percentage of members on oral diabetes medications with a proportion of days
+                covered (PDC) of 80% or greater during the measurement year.
+
+Eligible Population:
+  - Members age 18–75 with ≥2 fills of an oral diabetes medication (metformin, sulfonylureas,
+    DPP-4 inhibitors, SGLT-2 inhibitors, or thiazolidinediones) during the measurement year
+
+Numerator:
+  - Member has PDC ≥80% for their index medication class across the measurement year
+
+PDC Calculation:
+  PDC = (Days supply of medication on hand across measurement period) ÷ (Days in measurement period)
+  PDC ≥0.80 = adherent
+
+4-Star Benchmark:    87% of eligible members with PDC ≥80%
+Outreach Note:       Members with PDC between 60–79% are the highest-yield targets for
+                     adherence outreach — they are close to the threshold and often have
+                     addressable barriers (cost, side effects, complexity).
+
+
+MEASURE: MEDICATION ADHERENCE — HYPERTENSION (MAH)
+----------------------------------------------------
+Description:    Percentage of members on RAS antagonists (ACE inhibitors or ARBs) with PDC ≥80%.
+
+Eligible Population:
+  - Members age 18–85 with ≥2 fills of an ACE inhibitor or ARB during the measurement year
+  - Diagnosis of hypertension (ICD-10: I10) required
+
+Numerator:
+  - PDC ≥80% for ACE inhibitor or ARB class across the measurement year
+
+4-Star Benchmark:    87% of eligible members adherent (PDC ≥80%)
+
+
+MEASURE: BREAST CANCER SCREENING (BCS)
+----------------------------------------
+Description:    Percentage of women age 50–74 who had a mammogram in the last 2 years.
+
+Eligible Population:
+  - Women age 50–74 as of the end of the measurement year
+  - Continuously enrolled; no history of bilateral mastectomy
+
+Numerator:
+  - At least one mammogram (screening or diagnostic) on record within the past 2 years
+
+4-Star Benchmark:    78% of eligible women with a mammogram in the last 2 years
+
+
+MEASURE: STATIN USE IN PERSONS WITH CARDIOVASCULAR DISEASE (SPC)
+------------------------------------------------------------------
+Description:    Percentage of members age 21–75 with cardiovascular disease (CVD) who are
+                currently on statin therapy.
+
+Eligible Population:
+  - Members with a diagnosis of IVD (ischemic vascular disease), AMI, CABG, PCI, or peripheral
+    vascular disease
+  - Age 21–75; continuously enrolled
+
+Numerator:
+  - At least one statin prescription fill during the measurement year
+
+4-Star Benchmark:    88% of eligible CVD members on statin therapy
+Note:                This measure focuses on treatment initiation and continuation rather than
+                     adherence. Members with CVD and no statin fill represent a prescribing gap
+                     requiring provider outreach, not just member outreach.
+
+
+CARE GAP IDENTIFICATION AND OUTREACH
+--------------------------------------
+Members who are eligible for any of the above measures but have not yet received the qualifying
+service represent actionable care gaps. Health plans use claims data, lab results, and pharmacy
+data to identify these gaps on a rolling basis.
+
+Best practices for care gap closure:
+  - Prioritize members with multiple simultaneous open gaps (highest impact per outreach contact)
+  - Leverage predictive risk scores to focus clinical resources on members most likely to respond
+  - Coordinate outreach with the member's attributed PCP to reinforce clinical messaging
+  - Track gap closure rates by cohort (age band, chronic condition, geography) to identify
+    populations with structural barriers to care access
+
+Closing care gaps improves the plan's Stars score and — more importantly — ensures that members
+with preventable and manageable conditions receive timely, evidence-based care.

@@ -1,0 +1,111 @@
+UnitedHealthcare Commercial Plan — Medical Benefits Summary (Synthetic Sample)
+===============================================================================
+IMPORTANT: This is a synthetic document generated for educational and demonstration purposes only.
+It does not represent actual UnitedHealthcare plan benefits or coverage decisions.
+===============================================================================
+
+ANNUAL WELLNESS VISIT
+---------------------
+The Annual Wellness Visit (AWV) is covered at 100% — no copay, no deductible — once per calendar
+year for all enrolled members. The AWV includes a comprehensive health risk assessment, review of
+current medications, vitals, and personalized health advice. Preventive screenings ordered in
+conjunction with the AWV and consistent with USPSTF guidelines are also covered at 100% with no
+cost share when performed by an in-network provider.
+
+Members are encouraged to schedule their AWV as a dedicated appointment and not combine it with
+the treatment of acute conditions, which would convert the visit to a diagnostic visit and trigger
+applicable cost-sharing.
+
+
+PREVENTIVE SCREENINGS — COVERED AT 100%
+-----------------------------------------
+The following preventive screenings are covered at no cost share when performed by an in-network
+provider and ordered in accordance with USPSTF guidelines:
+
+  Colorectal Cancer Screening (Members age 45–75):
+    - Colonoscopy: every 10 years for average-risk members; covered at 100%
+    - Annual FIT (Fecal Immunochemical Test) or stool-based DNA test: annually as an alternative
+      to colonoscopy; covered at 100%
+    - If a polyp or other abnormality is found and removed during a screening colonoscopy, the
+      procedure retains its preventive designation and is not reclassified as diagnostic.
+
+  Breast Cancer Screening:
+    - Annual screening mammogram for women age 40 and older; covered at 100%
+    - 3D mammography (tomosynthesis) covered when ordered by an in-network provider
+
+  Cervical Cancer Screening:
+    - Pap smear every 3 years for women age 21–65 (cytology alone)
+    - Pap smear with HPV co-testing every 5 years for women age 30–65 (preferred interval)
+    - Covered at 100% at the recommended screening frequency
+
+
+SPECIALIST VISITS
+-----------------
+  PPO / EPO plans:  $40 copay per specialist visit; no referral required
+  HMO plans:        $40 copay per specialist visit; PCP referral required except as noted below
+
+  Referral Waiver: No referral is required for OB/GYN visits (all plan types) or initial mental
+  health and substance use disorder visits (all plan types).
+
+
+MENTAL HEALTH AND SUBSTANCE USE DISORDER
+------------------------------------------
+Mental health and substance use disorder (SUD) benefits are provided in full parity with medical
+and surgical benefits, in compliance with the Mental Health Parity and Addiction Equity Act (MHPAEA).
+
+  - Outpatient therapy visits: $30 copay per visit
+  - Inpatient psychiatric: subject to inpatient facility cost-sharing (see separate schedule)
+  - Telehealth mental health visits: available at the same $30 copay as in-person visits
+  - In-network provider access preferred; out-of-network benefits available at higher cost-sharing
+  - Intensive Outpatient Programs (IOP) and Partial Hospitalization Programs (PHP): covered with
+    prior authorization; treated as outpatient services for cost-sharing purposes
+  - Medication-Assisted Treatment (MAT) for opioid use disorder: covered; prescriptions subject
+    to standard pharmacy benefit
+
+
+PHYSICAL THERAPY
+----------------
+Physical therapy (PT) is covered for medically necessary conditions including post-surgical
+rehabilitation, musculoskeletal injuries, and neurological conditions.
+
+  - Member cost share: $40 copay per visit
+  - Annual benefit limit: 30 visits per calendar year (in-network)
+  - Prior authorization is not required for the first 12 visits
+  - Prior authorization is required beginning with the 13th visit in a calendar year;
+    documentation of functional improvement and an updated treatment plan must be submitted
+    by the treating therapist
+  - Occupational therapy and speech therapy are subject to the same visit limit and PA thresholds
+    but under separate annual accumulators
+
+
+EMERGENCY CARE
+--------------
+  - Emergency Room visit copay: $250 per visit (in-network and out-of-network)
+  - The ER copay is waived if the member is admitted to the hospital directly from the ER
+  - Observation status: billed as outpatient; standard outpatient cost-sharing applies; the ER
+    copay does not apply when admission to observation follows the initial ER evaluation
+  - Ambulance services: 20% coinsurance after deductible for medically necessary transport
+
+
+DURABLE MEDICAL EQUIPMENT (DME)
+---------------------------------
+  - Cost share: 20% coinsurance after the annual deductible
+  - Prior authorization is required for any single DME item or rental with a purchase price
+    or cumulative rental cost exceeding $500
+  - CPAP/APAP devices: covered with documentation of a qualifying sleep study (polysomnography
+    or home sleep apnea test) and a diagnosis of obstructive sleep apnea; supplies (masks,
+    tubing, filters) covered per replacement schedule
+  - Orthotics and prosthetics: covered with physician order and PA; subject to plan medical
+    necessity criteria
+
+
+OUT-OF-POCKET MAXIMUM
+----------------------
+  In-network annual out-of-pocket maximum:
+    Individual:  $4,000
+    Family:      $8,000
+
+  The out-of-pocket maximum accumulates all in-network copays, coinsurance, and deductible
+  payments. Once the member or family maximum is reached, the plan covers 100% of in-network
+  covered services for the remainder of the calendar year. Out-of-network cost-sharing
+  accumulates to a separate, higher out-of-pocket maximum.

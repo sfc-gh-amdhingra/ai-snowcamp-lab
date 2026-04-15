@@ -1,0 +1,757 @@
+name: member_intelligence
+description: |
+  Health plan member 360 semantic view for payer analytics.
+  Covers member demographics, medical claims, pharmacy claims, and provider data
+  for a commercial payer population modelled on UnitedHealthcare/Optum.
+  Use for: cost-of-care analytics, care gap identification, medication adherence
+  analysis, HEDIS/Stars measure tracking, and provider utilization.
+
+tables:
+  - name: members
+    description: >
+      Health plan enrollees with demographics, plan enrollment details, and
+      primary chronic condition flags. One row per member.
+    base_table:
+      database: OPTUM_LAB_DB
+      schema: PAYER
+      table: MEMBERS
+    primary_key:
+      columns:
+        - member_id
+    dimensions:
+      - name: member_id
+        synonyms:
+          - member
+          - enrollee
+          - patient id
+          - member number
+          - member identifier
+        description: Unique identifier for each health plan member.
+        expr: MEMBER_ID
+        data_type: TEXT
+        sample_values:
+          - MBR000001
+          - MBR004523
+          - MBR009999
+
+      - name: member_name
+        synonyms:
+          - member name
+          - enrollee name
+          - patient name
+          - name
+        description: Full name of the health plan member.
+        expr: NAME
+        data_type: TEXT
+
+      - name: gender
+        synonyms:
+          - sex
+          - member gender
+          - enrollee gender
+        description: Gender of the member. Values are M, F, or Other.
+        expr: GENDER
+        data_type: TEXT
+        sample_values:
+          - M
+          - F
+          - Other
+
+      - name: date_of_birth
+        synonyms:
+          - dob
+          - birth date
+          - date of birth
+          - birthday
+        description: Member date of birth.
+        expr: DOB
+        data_type: DATE
+
+      - name: plan_type
+        synonyms:
+          - health plan type
+          - insurance type
+          - plan
+          - coverage type
+          - benefit type
+        description: >
+          Type of health insurance plan. HMO = requires referrals;
+          PPO = flexible network; EPO = in-network only, no referrals;
+          HDHP = high-deductible health plan.
+        expr: PLAN_TYPE
+        data_type: TEXT
+        sample_values:
+          - HMO
+          - PPO
+          - EPO
+          - HDHP
+
+      - name: plan_name
+        synonyms:
+          - plan
+          - insurance plan
+          - benefit plan
+          - health plan
+          - product
+        description: Name of the health insurance product/plan.
+        expr: PLAN_NAME
+        data_type: TEXT
+        sample_values:
+          - UHC Choice Plus PPO
+          - UHC Navigate HMO
+          - UHC Choice HDHP
+
+      - name: plan_id
+        synonyms:
+          - plan code
+          - plan identifier
+        description: Identifier for the health plan product.
+        expr: PLAN_ID
+        data_type: TEXT
+
+      - name: chronic_condition
+        synonyms:
+          - condition
+          - diagnosis
+          - disease
+          - health condition
+          - comorbidity
+          - chronic disease
+          - primary condition
+        description: >
+          Primary chronic condition for the member. A member may have
+          multiple comorbidities but this field captures the primary flag.
+          Values: None, Hypertension, Diabetes, Heart Disease, COPD.
+        expr: CHRONIC_CONDITION
+        data_type: TEXT
+        sample_values:
+          - None
+          - Hypertension
+          - Diabetes
+          - Heart Disease
+          - COPD
+
+      - name: pcp
+        synonyms:
+          - primary care physician
+          - primary care provider
+          - primary doctor
+          - assigned physician
+          - PCP name
+        description: Assigned primary care physician for the member.
+        expr: PCP
+        data_type: TEXT
+
+      - name: smoker_ind
+        synonyms:
+          - smoker
+          - smoking status
+          - tobacco use
+          - tobacco user
+        description: Whether the member is a current smoker (TRUE or FALSE).
+        expr: SMOKER_IND
+        data_type: BOOLEAN
+
+      - name: enrollment_start
+        synonyms:
+          - enrollment date
+          - member since
+          - start date
+          - effective date
+          - coverage start
+        description: Date the member enrolled in the health plan.
+        expr: ENROLLMENT_START
+        data_type: DATE
+
+      - name: enrollment_end
+        synonyms:
+          - termination date
+          - disenrollment date
+          - end date
+          - coverage end
+          - term date
+        description: >
+          Date the member's coverage ended. NULL means the member is
+          currently active/enrolled.
+        expr: ENROLLMENT_END
+        data_type: DATE
+
+    measures:
+      - name: member_count
+        synonyms:
+          - number of members
+          - total members
+          - member population
+          - headcount
+          - enrolled members
+          - lives
+        description: Count of distinct health plan members.
+        expr: COUNT(DISTINCT MEMBER_ID)
+        data_type: NUMBER
+        agg: COUNT_DISTINCT
+
+      - name: active_member_count
+        synonyms:
+          - active members
+          - currently enrolled
+          - active enrollees
+          - active lives
+        description: Count of members who are currently active (enrollment_end is NULL).
+        expr: COUNT(DISTINCT CASE WHEN ENROLLMENT_END IS NULL THEN MEMBER_ID END)
+        data_type: NUMBER
+        agg: COUNT_DISTINCT
+
+  - name: medical_claims
+    description: >
+      Medical claims submitted by providers. Includes ICD-10 diagnosis codes,
+      CPT procedure codes, billed/allowed/paid amounts, and claim status.
+      One row per claim line.
+    base_table:
+      database: OPTUM_LAB_DB
+      schema: PAYER
+      table: MEDICAL_CLAIMS
+    primary_key:
+      columns:
+        - claim_id
+    dimensions:
+      - name: claim_id
+        synonyms:
+          - claim number
+          - claim identifier
+          - medical claim
+        description: Unique identifier for each medical claim.
+        expr: CLAIM_ID
+        data_type: TEXT
+
+      - name: service_date
+        synonyms:
+          - date of service
+          - visit date
+          - service date
+          - claim date
+          - date seen
+          - appointment date
+        description: Date the medical service was provided to the member.
+        expr: SERVICE_DATE
+        data_type: DATE
+
+      - name: icd10_code
+        synonyms:
+          - diagnosis code
+          - ICD code
+          - diagnosis
+          - condition code
+          - ICD-10
+          - principal diagnosis
+        description: >
+          ICD-10-CM diagnosis code on the claim. Common examples:
+          E11.9 = Type 2 Diabetes; I10 = Hypertension; Z00.00 = Preventive exam;
+          J44.1 = COPD; I25.10 = Atherosclerotic heart disease.
+        expr: ICD10_CODE
+        data_type: TEXT
+        sample_values:
+          - E11.9
+          - I10
+          - Z00.00
+          - J44.1
+          - I25.10
+          - Z12.11
+          - F32.1
+
+      - name: procedure_code
+        synonyms:
+          - CPT code
+          - procedure
+          - service code
+          - billing code
+        description: CPT procedure code billed by the provider.
+        expr: PROCEDURE_CODE
+        data_type: TEXT
+
+      - name: claim_status
+        synonyms:
+          - status
+          - claim result
+          - payment status
+          - adjudication status
+        description: >
+          Processing status of the claim after adjudication.
+          Approved = paid; Denied = not covered; Pending = under review.
+        expr: CLAIM_STATUS
+        data_type: TEXT
+        sample_values:
+          - Approved
+          - Denied
+          - Pending
+
+      - name: service_type
+        synonyms:
+          - type of service
+          - place of service
+          - visit type
+          - care setting
+          - care type
+          - encounter type
+        description: >
+          Category of medical service. Preventive = wellness visits and
+          screenings; Office Visit = routine outpatient; Inpatient = hospital
+          admission; ER = emergency room; Outpatient = same-day facility.
+        expr: SERVICE_TYPE
+        data_type: TEXT
+        sample_values:
+          - Office Visit
+          - Outpatient
+          - Inpatient
+          - ER
+          - Preventive
+
+    measures:
+      - name: total_paid_amount
+        synonyms:
+          - paid amount
+          - plan paid
+          - amount paid
+          - total cost
+          - medical cost
+          - claims cost
+          - medical spend
+          - healthcare cost
+          - cost of care
+        description: >
+          Total amount paid by the health plan for medical claims.
+          Only counts Approved claims unless otherwise filtered.
+        expr: SUM(PAID_AMT)
+        data_type: NUMBER
+        agg: SUM
+
+      - name: total_billed_amount
+        synonyms:
+          - billed amount
+          - charged amount
+          - total billed
+          - provider charges
+        description: Total amount billed by providers before contract adjustments.
+        expr: SUM(BILLED_AMT)
+        data_type: NUMBER
+        agg: SUM
+
+      - name: total_allowed_amount
+        synonyms:
+          - allowed amount
+          - contracted rate
+          - negotiated rate
+          - allowable
+        description: Total allowed amount under the provider contract.
+        expr: SUM(ALLOWED_AMT)
+        data_type: NUMBER
+        agg: SUM
+
+      - name: claim_count
+        synonyms:
+          - number of claims
+          - claim volume
+          - claims
+          - visits
+          - encounters
+          - utilization
+        description: Total number of distinct medical claims.
+        expr: COUNT(DISTINCT CLAIM_ID)
+        data_type: NUMBER
+        agg: COUNT_DISTINCT
+
+      - name: avg_paid_per_claim
+        synonyms:
+          - average claim cost
+          - cost per visit
+          - average paid
+          - average cost per claim
+        description: Average paid amount per medical claim.
+        expr: AVG(PAID_AMT)
+        data_type: NUMBER
+        agg: AVG
+
+  - name: pharmacy_claims
+    description: >
+      Pharmacy prescription claims. Includes drug name, NDC code, therapeutic
+      class, days supply, and paid amounts. One row per prescription fill.
+    base_table:
+      database: OPTUM_LAB_DB
+      schema: PAYER
+      table: PHARMACY_CLAIMS
+    primary_key:
+      columns:
+        - rx_id
+    dimensions:
+      - name: rx_id
+        synonyms:
+          - prescription id
+          - pharmacy claim id
+          - fill id
+          - Rx number
+        description: Unique identifier for each pharmacy claim / prescription fill.
+        expr: RX_ID
+        data_type: TEXT
+
+      - name: drug_name
+        synonyms:
+          - drug
+          - medication
+          - prescription
+          - medicine
+          - drug brand
+          - brand name
+        description: Brand or generic name of the dispensed medication.
+        expr: DRUG_NAME
+        data_type: TEXT
+        sample_values:
+          - Metformin
+          - Lisinopril
+          - Atorvastatin
+          - Ozempic (semaglutide)
+          - Mounjaro (tirzepatide)
+          - Wegovy (semaglutide)
+          - Eliquis (apixaban)
+          - Albuterol Inhaler
+
+      - name: ndc_code
+        synonyms:
+          - NDC
+          - national drug code
+          - drug code
+          - NDC number
+        description: National Drug Code (NDC) identifying the specific drug product.
+        expr: NDC_CODE
+        data_type: TEXT
+
+      - name: drug_class
+        synonyms:
+          - drug category
+          - therapeutic class
+          - medication class
+          - drug type
+          - therapeutic area
+          - formulary tier category
+        description: >
+          Therapeutic class of the medication. Used for adherence analysis
+          and formulary tier assignment.
+        expr: DRUG_CLASS
+        data_type: TEXT
+        sample_values:
+          - Diabetes
+          - Cardiovascular
+          - Respiratory
+          - Mental Health
+          - GLP-1/Diabetes
+          - GLP-1/Obesity
+          - Anticoagulant
+          - Specialty Biologic
+
+      - name: fill_date
+        synonyms:
+          - dispensed date
+          - fill date
+          - prescription date
+          - refill date
+          - date filled
+        description: Date the prescription was dispensed at the pharmacy.
+        expr: FILL_DATE
+        data_type: DATE
+
+      - name: days_supply
+        synonyms:
+          - supply
+          - days
+          - prescription days
+          - refill days
+          - days dispensed
+        description: >
+          Number of days of medication supply dispensed per fill.
+          Typically 30 days (retail) or 90 days (mail-order/maintenance).
+        expr: DAYS_SUPPLY
+        data_type: NUMBER
+
+    measures:
+      - name: total_pharmacy_spend
+        synonyms:
+          - pharmacy cost
+          - drug spend
+          - Rx cost
+          - pharmacy paid
+          - medication cost
+          - prescription cost
+          - pharmacy expense
+        description: Total amount paid by the health plan for pharmacy claims.
+        expr: SUM(PAID_AMT)
+        data_type: NUMBER
+        agg: SUM
+
+      - name: rx_count
+        synonyms:
+          - prescriptions
+          - fills
+          - number of prescriptions
+          - claim count
+          - Rx volume
+          - fills count
+        description: Total number of distinct pharmacy claim fills.
+        expr: COUNT(DISTINCT RX_ID)
+        data_type: NUMBER
+        agg: COUNT_DISTINCT
+
+      - name: avg_days_supply
+        synonyms:
+          - average days supply
+          - refill frequency
+          - average supply
+        description: Average days of supply per prescription fill.
+        expr: AVG(DAYS_SUPPLY)
+        data_type: NUMBER
+        agg: AVG
+
+      - name: avg_pharmacy_cost_per_fill
+        synonyms:
+          - average cost per fill
+          - average drug cost
+          - average Rx cost
+        description: Average paid amount per pharmacy fill.
+        expr: AVG(PAID_AMT)
+        data_type: NUMBER
+        agg: AVG
+
+  - name: providers
+    description: >
+      Healthcare provider directory. Includes specialty, NPI, network participation
+      status, geographic location, and average cost per visit benchmarks.
+    base_table:
+      database: OPTUM_LAB_DB
+      schema: PAYER
+      table: PROVIDERS
+    primary_key:
+      columns:
+        - provider_id
+    dimensions:
+      - name: provider_id
+        synonyms:
+          - provider identifier
+          - doctor id
+          - physician id
+          - provider number
+        description: Unique identifier for each healthcare provider.
+        expr: PROVIDER_ID
+        data_type: TEXT
+
+      - name: provider_name
+        synonyms:
+          - doctor
+          - physician
+          - provider name
+          - clinician
+          - doctor name
+        description: Full name of the healthcare provider.
+        expr: NAME
+        data_type: TEXT
+
+      - name: specialty
+        synonyms:
+          - specialization
+          - provider type
+          - medical specialty
+          - specialty type
+          - clinical specialty
+        description: Clinical specialty of the provider.
+        expr: SPECIALTY
+        data_type: TEXT
+        sample_values:
+          - Family Medicine
+          - Internal Medicine
+          - Cardiology
+          - Endocrinology
+          - Pulmonology
+          - Orthopedics
+          - Psychiatry
+          - Emergency Medicine
+          - Physical Therapy
+
+      - name: npi
+        synonyms:
+          - NPI
+          - national provider identifier
+          - provider NPI
+          - NPI number
+        description: National Provider Identifier (NPI) — unique 10-digit provider ID.
+        expr: NPI
+        data_type: TEXT
+
+      - name: network_status
+        synonyms:
+          - in-network
+          - out-of-network
+          - network
+          - participation
+          - contracted
+          - network participation
+        description: Whether the provider is contracted in-network or out-of-network.
+        expr: NETWORK_STATUS
+        data_type: TEXT
+        sample_values:
+          - In-Network
+          - Out-of-Network
+
+      - name: location
+        synonyms:
+          - city
+          - address
+          - location
+          - where
+          - geographic area
+          - state
+          - market
+        description: City and state where the provider primarily practices.
+        expr: LOCATION
+        data_type: TEXT
+
+    measures:
+      - name: avg_cost_benchmark
+        synonyms:
+          - average cost
+          - cost per visit
+          - benchmark cost
+          - typical cost
+          - average cost per visit
+          - provider cost benchmark
+        description: >
+          Average cost per visit for this provider based on historical benchmarking.
+          Use for comparing provider efficiency within a specialty.
+        expr: AVG(AVG_COST_PER_VISIT)
+        data_type: NUMBER
+        agg: AVG
+
+      - name: provider_count
+        synonyms:
+          - number of providers
+          - provider volume
+          - count of doctors
+          - provider headcount
+        description: Count of distinct providers.
+        expr: COUNT(DISTINCT PROVIDER_ID)
+        data_type: NUMBER
+        agg: COUNT_DISTINCT
+
+relationships:
+  - name: members_to_medical_claims
+    left_table: members
+    right_table: medical_claims
+    relationship_columns:
+      - left_column: member_id
+        right_column: member_id
+    join_type: LEFT_OUTER
+    relationship_type: ONE_TO_MANY
+
+  - name: members_to_pharmacy_claims
+    left_table: members
+    right_table: pharmacy_claims
+    relationship_columns:
+      - left_column: member_id
+        right_column: member_id
+    join_type: LEFT_OUTER
+    relationship_type: ONE_TO_MANY
+
+  - name: providers_to_medical_claims
+    left_table: providers
+    right_table: medical_claims
+    relationship_columns:
+      - left_column: provider_id
+        right_column: provider_id
+    join_type: LEFT_OUTER
+    relationship_type: ONE_TO_MANY
+
+verified_queries:
+  - name: top_conditions_by_cost
+    question: "What are the top 5 chronic conditions by total paid medical claims amount?"
+    verified_at: "2026-04-15"
+    sql: |
+      SELECT
+        m.chronic_condition,
+        SUM(mc.paid_amt)           AS total_paid_amt,
+        COUNT(DISTINCT mc.claim_id) AS claim_count,
+        COUNT(DISTINCT m.member_id) AS member_count
+      FROM OPTUM_LAB_DB.PAYER.MEMBERS m
+      JOIN OPTUM_LAB_DB.PAYER.MEDICAL_CLAIMS mc ON m.member_id = mc.member_id
+      WHERE mc.claim_status = 'Approved'
+      GROUP BY 1
+      ORDER BY 2 DESC
+      LIMIT 5
+
+  - name: pharmacy_spend_by_drug_class
+    question: "What is the total pharmacy spend by drug class, ranked highest to lowest?"
+    verified_at: "2026-04-15"
+    sql: |
+      SELECT
+        drug_class,
+        SUM(paid_amt)           AS total_pharmacy_spend,
+        COUNT(DISTINCT rx_id)   AS fill_count,
+        ROUND(AVG(paid_amt), 2) AS avg_cost_per_fill
+      FROM OPTUM_LAB_DB.PAYER.PHARMACY_CLAIMS
+      GROUP BY 1
+      ORDER BY 2 DESC
+
+  - name: members_without_preventive_visit
+    question: "How many members have not had a preventive visit in the last 12 months?"
+    verified_at: "2026-04-15"
+    sql: |
+      SELECT COUNT(DISTINCT m.member_id) AS members_without_preventive_visit
+      FROM OPTUM_LAB_DB.PAYER.MEMBERS m
+      WHERE m.enrollment_end IS NULL
+        AND NOT EXISTS (
+          SELECT 1
+          FROM OPTUM_LAB_DB.PAYER.MEDICAL_CLAIMS mc
+          WHERE mc.member_id = m.member_id
+            AND mc.service_type = 'Preventive'
+            AND mc.service_date >= DATEADD(YEAR, -1, CURRENT_DATE())
+        )
+
+  - name: provider_avg_cost_by_specialty_in_network
+    question: "What is the average paid amount per claim by provider specialty, for in-network providers only?"
+    verified_at: "2026-04-15"
+    sql: |
+      SELECT
+        p.specialty,
+        ROUND(AVG(mc.paid_amt), 2)  AS avg_paid_per_claim,
+        COUNT(DISTINCT mc.claim_id) AS claim_count,
+        COUNT(DISTINCT p.provider_id) AS provider_count
+      FROM OPTUM_LAB_DB.PAYER.PROVIDERS p
+      JOIN OPTUM_LAB_DB.PAYER.MEDICAL_CLAIMS mc ON p.provider_id = mc.provider_id
+      WHERE p.network_status = 'In-Network'
+        AND mc.claim_status = 'Approved'
+      GROUP BY 1
+      ORDER BY 2 DESC
+
+  - name: monthly_pharmacy_trend
+    question: "What is the monthly trend in pharmacy spend for the past 12 months?"
+    verified_at: "2026-04-15"
+    sql: |
+      SELECT
+        DATE_TRUNC('MONTH', fill_date) AS month,
+        SUM(paid_amt)                  AS total_pharmacy_spend,
+        COUNT(DISTINCT rx_id)          AS fill_count
+      FROM OPTUM_LAB_DB.PAYER.PHARMACY_CLAIMS
+      WHERE fill_date >= DATEADD(YEAR, -1, CURRENT_DATE())
+      GROUP BY 1
+      ORDER BY 1
+
+  - name: diabetes_members_top_pharmacy_spend
+    question: "Which members with diabetes have the highest total pharmacy spend?"
+    verified_at: "2026-04-15"
+    sql: |
+      SELECT
+        m.member_id,
+        m.name,
+        m.chronic_condition,
+        SUM(rx.paid_amt)         AS total_pharmacy_spend,
+        COUNT(DISTINCT rx.rx_id) AS fill_count
+      FROM OPTUM_LAB_DB.PAYER.MEMBERS m
+      JOIN OPTUM_LAB_DB.PAYER.PHARMACY_CLAIMS rx ON m.member_id = rx.member_id
+      WHERE m.chronic_condition = 'Diabetes'
+      GROUP BY 1, 2, 3
+      ORDER BY 4 DESC
+      LIMIT 10

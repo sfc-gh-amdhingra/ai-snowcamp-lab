@@ -1,0 +1,109 @@
+UnitedHealthcare Commercial Plan — Formulary Guidelines (Synthetic Sample)
+==========================================================================
+IMPORTANT: This is a synthetic document generated for educational and demonstration purposes only.
+It does not represent actual UnitedHealthcare plan benefits or coverage decisions.
+==========================================================================
+
+DRUG TIER STRUCTURE
+-------------------
+The plan formulary organizes covered medications into five tiers. Member cost-sharing is determined
+by the tier assigned to each medication at the time of dispensing.
+
+  Tier 1 — Preferred Generic:       $10 copay per 30-day supply
+  Tier 2 — Non-Preferred Generic:   $25 copay per 30-day supply
+  Tier 3 — Preferred Brand:         $50 copay per 30-day supply
+  Tier 4 — Non-Preferred Brand:     $90 copay per 30-day supply
+  Tier 5 — Specialty Medications:   25% coinsurance, not to exceed $250 per 30-day supply
+
+Tier placement is reviewed annually. Members may request a formulary exception if a clinically
+necessary medication is not on formulary or is placed at a higher tier than expected.
+
+
+PRIOR AUTHORIZATION (PA) REQUIREMENTS
+--------------------------------------
+Prior Authorization is required before the plan will cover certain medications. PA ensures that
+medications are used appropriately and that clinically appropriate alternatives have been considered.
+
+Drug classes requiring Prior Authorization include:
+  - GLP-1 receptor agonists (e.g., semaglutide, tirzepatide, liraglutide)
+  - Specialty biologics (e.g., TNF inhibitors, IL-17 inhibitors, PCSK9 inhibitors)
+  - Brand-name medications when a therapeutically equivalent generic is available
+  - Opioid analgesics prescribed for more than 7 consecutive days
+  - Certain oncology oral medications
+  - Human growth hormone and related peptides
+
+PA requests must be submitted by the prescribing provider. Approvals are typically valid for
+12 months and must be renewed. Members receiving PA-required medications should confirm renewal
+timelines with their provider.
+
+
+GLP-1 RECEPTOR AGONISTS — DETAILED COVERAGE CRITERIA
+------------------------------------------------------
+The following GLP-1 medications are covered under Tier 5 (Specialty) and require Prior Authorization:
+
+  - Ozempic (semaglutide injection, 0.5 mg / 1 mg / 2 mg)
+  - Wegovy (semaglutide injection, 2.4 mg — weight management indication)
+  - Mounjaro (tirzepatide injection — dual GIP/GLP-1 agonist)
+  - Victoza (liraglutide injection, 1.2 mg / 1.8 mg)
+
+PA Approval Criteria — Diabetes Indication:
+  1. Documented diagnosis of Type 2 diabetes mellitus (ICD-10: E11.x)
+  2. HbA1c ≥7.5% at time of PA request, or documented inadequate glycemic control
+  3. Trial and inadequate response to metformin at maximally tolerated dose for ≥90 days,
+     unless metformin is contraindicated or not tolerated (documentation required)
+  4. Prescriber attestation that medication is consistent with the patient's overall
+     diabetes management plan
+
+PA Approval Criteria — Weight Management Indication (Wegovy only):
+  1. BMI ≥30 kg/m², OR BMI ≥27 kg/m² with at least one obesity-related comorbidity
+     (hypertension, dyslipidemia, type 2 diabetes, obstructive sleep apnea, or cardiovascular disease)
+  2. Documentation of prior structured weight loss program (≥6 months) with insufficient response
+  3. No active eating disorder diagnosis
+
+Initial supply is limited to a 3-month supply. Continued authorization requires documentation of
+≥5% body weight reduction (weight management) or meaningful improvement in glycemic parameters
+(diabetes) after the initial authorization period.
+
+All GLP-1 medications must be dispensed through a designated Specialty Pharmacy (see below).
+
+
+STEP THERAPY REQUIREMENTS
+--------------------------
+Step therapy requires members to try one or more preferred medications before the plan will cover
+a higher-cost alternative.
+
+  Diabetes:
+    Step 1: Metformin (Tier 1) — must be trialed before insulin analogs or GLP-1 receptor agonists
+            are approved, unless contraindicated.
+    Step 2: Sulfonylurea or DPP-4 inhibitor (Tier 1/2)
+    Step 3: GLP-1 receptor agonist or insulin analog (Tier 4/5, PA required)
+
+  Cardiovascular — Dyslipidemia:
+    Step 1: Generic statin (simvastatin, lovastatin, pravastatin — Tier 1) must be trialed before
+            brand-name statins or PCSK9 inhibitors are approved.
+    Step 2: Atorvastatin or rosuvastatin (Tier 1/2) if lower-intensity statin inadequate
+    Step 3: Brand statin or PCSK9 inhibitor (Tier 4/5, PA required)
+
+
+MAIL-ORDER PHARMACY
+-------------------
+Members may obtain a 90-day supply of maintenance medications through the plan's designated
+mail-order pharmacy at a cost of 2x the 30-day copay (effectively one month free per quarter).
+
+After two fills at a retail pharmacy for a maintenance medication, mail-order dispensing becomes
+mandatory. Members who continue to fill maintenance medications at retail after two fills will be
+responsible for the full retail cost without plan contribution.
+
+Maintenance medication categories subject to mandatory mail-order include: antihypertensives,
+statins, oral diabetes medications, thyroid agents, and long-term psychiatric medications.
+
+
+SPECIALTY PHARMACY
+------------------
+All Tier 5 specialty medications must be dispensed through a plan-designated Specialty Pharmacy.
+Specialty medications obtained at retail or non-designated pharmacies will not be covered except
+in documented emergency situations. The plan's specialty pharmacy can be reached through the
+member portal or the number on the back of the member ID card.
+
+Specialty pharmacy services include: clinical pharmacist support, adherence monitoring, copay
+assistance coordination, and home delivery with temperature-controlled shipping where required.

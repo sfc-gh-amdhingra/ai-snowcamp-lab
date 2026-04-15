@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build a Member Intelligence Agent on Snowflake — Optum AI Snowcamp Lab</title>
+<style>
+  :root {
+    --sf-blue: #29B5E8;
+    --sf-navy: #11224D;
+    --sf-dark: #1B2740;
+    --sf-light-bg: #F7FAFD;
+    --sf-border: #DDE6EF;
+    --sf-text: #1A2332;
+    --sf-muted: #5A6A7E;
+    --sf-green: #00C569;
+    --sf-yellow: #FFC130;
+    --sf-red: #FF4B4B;
+    --sf-purple: #7B68EE;
+    --sidebar-w: 280px;
+    --coco-bg: #0D1117;
+    --coco-border: #29B5E8;
+    --code-bg: #F3F7FA;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--sf-text);
+    background: var(--sf-light-bg);
+    line-height: 1.65;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--sf-navy);
+    display: flex; align-items: center; gap: 14px;
+    padding: 0 28px; height: 56px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+  }
+  .topbar-logo { display: flex; align-items: center; gap: 10px; }
+  .topbar-logo svg { width: 32px; height: 32px; }
+  .topbar-title {
+    font-size: 14px; font-weight: 600; color: #fff;
+    letter-spacing: .3px;
+  }
+  .topbar-sep { color: rgba(255,255,255,.3); font-size: 18px; }
+  .topbar-sub { font-size: 12px; color: rgba(255,255,255,.55); }
+  .topbar-badge {
+    margin-left: auto;
+    background: var(--sf-blue); color: #fff;
+    font-size: 11px; font-weight: 700; padding: 3px 10px;
+    border-radius: 12px; letter-spacing: .4px;
+  }
+
+  /* ── LAYOUT ── */
+  .layout { display: flex; min-height: calc(100vh - 56px); }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w); flex-shrink: 0;
+    background: #fff; border-right: 1px solid var(--sf-border);
+    position: sticky; top: 56px; height: calc(100vh - 56px);
+    overflow-y: auto; padding: 24px 0;
+  }
+  .sidebar-meta {
+    padding: 0 20px 16px;
+    border-bottom: 1px solid var(--sf-border);
+    margin-bottom: 12px;
+  }
+  .sidebar-meta .label { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--sf-muted); text-transform: uppercase; }
+  .sidebar-meta .value { font-size: 13px; font-weight: 600; color: var(--sf-navy); margin-top: 2px; }
+  .sidebar-meta .duration { color: var(--sf-blue); font-weight: 700; font-size: 18px; }
+  .sidebar-meta .duration span { font-size: 12px; color: var(--sf-muted); font-weight: 400; }
+
+  .step-list { list-style: none; }
+  .step-item a {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 20px; text-decoration: none;
+    color: var(--sf-text); font-size: 13px;
+    transition: background .15s;
+  }
+  .step-item a:hover { background: var(--sf-light-bg); }
+  .step-item.active a { background: #EBF7FD; color: var(--sf-navy); font-weight: 600; border-right: 3px solid var(--sf-blue); }
+  .step-num {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--sf-border); color: var(--sf-muted);
+    font-size: 11px; font-weight: 700; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step-item.active .step-num { background: var(--sf-blue); color: #fff; }
+  .step-item.done .step-num { background: var(--sf-green); color: #fff; }
+  .step-time { margin-left: auto; font-size: 11px; color: var(--sf-muted); white-space: nowrap; }
+
+  /* ── MAIN ── */
+  .main { flex: 1; max-width: 860px; padding: 40px 48px 80px; }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, var(--sf-navy) 0%, #1B3A6B 100%);
+    border-radius: 12px; padding: 36px 40px;
+    color: #fff; margin-bottom: 36px;
+    position: relative; overflow: hidden;
+  }
+  .hero::after {
+    content: ''; position: absolute; right: -40px; top: -40px;
+    width: 220px; height: 220px; border-radius: 50%;
+    background: rgba(41,181,232,.15);
+  }
+  .hero-tag {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--sf-blue); margin-bottom: 10px;
+  }
+  .hero h1 { font-size: 26px; font-weight: 700; line-height: 1.3; margin-bottom: 12px; }
+  .hero p { font-size: 15px; color: rgba(255,255,255,.75); max-width: 620px; }
+  .hero-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
+  .chip {
+    font-size: 11px; font-weight: 600; padding: 4px 10px;
+    border-radius: 12px; border: 1px solid rgba(255,255,255,.2);
+    color: rgba(255,255,255,.8); background: rgba(255,255,255,.08);
+  }
+
+  /* ── SECTION HEADING ── */
+  .step-header {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 24px; padding-bottom: 16px;
+    border-bottom: 2px solid var(--sf-border);
+  }
+  .step-header .num {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--sf-blue); color: #fff;
+    font-size: 16px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-header h2 { font-size: 22px; font-weight: 700; color: var(--sf-navy); }
+  .step-header .mins {
+    margin-left: auto; background: var(--sf-light-bg);
+    border: 1px solid var(--sf-border); border-radius: 8px;
+    padding: 4px 12px; font-size: 12px; font-weight: 600;
+    color: var(--sf-muted); white-space: nowrap;
+  }
+
+  /* ── SECTION DIVIDER ── */
+  .section { margin-bottom: 52px; scroll-margin-top: 80px; }
+
+  /* ── PROSE ── */
+  p { margin-bottom: 14px; font-size: 15px; }
+  ul, ol { margin: 12px 0 16px 20px; }
+  li { margin-bottom: 6px; font-size: 15px; }
+  h3 { font-size: 16px; font-weight: 700; color: var(--sf-navy); margin: 22px 0 10px; }
+  h4 { font-size: 14px; font-weight: 700; color: var(--sf-muted); margin: 18px 0 8px; text-transform: uppercase; letter-spacing: .5px; }
+  strong { color: var(--sf-navy); }
+  a { color: var(--sf-blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--code-bg); border: 1px solid var(--sf-border);
+    border-radius: 8px; overflow: hidden; margin: 16px 0;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+  .code-block .code-header {
+    background: #E8EFF6; padding: 7px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--sf-border);
+  }
+  .code-block .code-lang {
+    font-size: 11px; font-weight: 700; color: var(--sf-muted);
+    text-transform: uppercase; letter-spacing: .8px;
+  }
+  .code-block .code-hint { font-size: 11px; color: var(--sf-muted); font-style: italic; }
+  .code-block pre {
+    padding: 16px 18px; font-size: 13px; line-height: 1.6;
+    overflow-x: auto; color: var(--sf-text);
+    white-space: pre;
+  }
+  .code-block pre .comment { color: #7A8FA6; }
+  .code-block pre .keyword { color: #0057B8; font-weight: 600; }
+  .code-block pre .string { color: #067D17; }
+  .code-block pre .fn { color: #8B2FC9; }
+
+  /* ── COCO PROMPT ── */
+  .coco-block {
+    background: var(--coco-bg); border: 1px solid var(--coco-border);
+    border-radius: 10px; overflow: hidden; margin: 20px 0;
+  }
+  .coco-header {
+    background: rgba(41,181,232,.12); padding: 10px 16px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid rgba(41,181,232,.25);
+  }
+  .coco-icon {
+    width: 22px; height: 22px; border-radius: 4px;
+    background: var(--sf-blue); display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0;
+  }
+  .coco-header-text { font-size: 12px; font-weight: 700; color: var(--sf-blue); letter-spacing: .5px; }
+  .coco-header-sub { font-size: 11px; color: rgba(41,181,232,.7); margin-left: auto; }
+  .coco-block pre {
+    padding: 18px 20px; font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 13px; color: #C9D1D9; line-height: 1.7;
+    overflow-x: auto; white-space: pre-wrap; word-break: break-word;
+  }
+  .coco-block .hl { color: #79C0FF; }
+  .coco-block .hl2 { color: #A5D6FF; }
+
+  /* ── CREATIVE BOX ── */
+  .creative-box {
+    border: 2px dashed var(--sf-purple); border-radius: 10px;
+    padding: 22px 24px; margin: 20px 0;
+    background: rgba(123,104,238,.04);
+  }
+  .creative-box .creative-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--sf-purple); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .creative-box p { font-size: 14px; color: var(--sf-text); margin-bottom: 10px; }
+  .creative-box ul { color: var(--sf-text); font-size: 14px; }
+
+  /* ── CALLOUT BOXES ── */
+  .callout {
+    border-radius: 8px; padding: 14px 18px; margin: 16px 0;
+    display: flex; gap: 12px; align-items: flex-start;
+    font-size: 14px;
+  }
+  .callout .icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout-info { background: #EBF7FD; border-left: 4px solid var(--sf-blue); }
+  .callout-warn { background: #FFF8EC; border-left: 4px solid var(--sf-yellow); }
+  .callout-tip  { background: #EDFAF4; border-left: 4px solid var(--sf-green); }
+  .callout-note { background: #F3F0FF; border-left: 4px solid var(--sf-purple); }
+
+  /* ── LEARN/BUILD CARDS ── */
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+  .card {
+    border: 1px solid var(--sf-border); border-radius: 10px;
+    padding: 20px; background: #fff;
+  }
+  .card h4 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 12px; }
+  .card ul { margin: 0 0 0 16px; }
+  .card li { font-size: 13px; margin-bottom: 5px; }
+  .card.learn h4 { color: var(--sf-blue); }
+  .card.build h4 { color: var(--sf-green); }
+
+  /* ── DATA TABLE ── */
+  .data-schema {
+    border: 1px solid var(--sf-border); border-radius: 8px;
+    overflow: hidden; margin: 16px 0;
+  }
+  .data-schema table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-schema th {
+    background: var(--sf-navy); color: #fff;
+    padding: 10px 14px; text-align: left;
+    font-size: 11px; letter-spacing: .6px; text-transform: uppercase;
+  }
+  .data-schema tr:nth-child(even) td { background: #F7FAFD; }
+  .data-schema td { padding: 9px 14px; border-bottom: 1px solid var(--sf-border); color: var(--sf-text); }
+  .data-schema td:first-child { font-family: monospace; font-weight: 700; color: var(--sf-navy); font-size: 12px; }
+  .data-schema .col-key { color: var(--sf-blue); font-size: 11px; font-weight: 700; }
+
+  /* ── STEP NAV ── */
+  .step-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--sf-border);
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 20px; border-radius: 7px; font-size: 13px;
+    font-weight: 600; text-decoration: none; transition: opacity .15s;
+  }
+  .btn:hover { opacity: .85; text-decoration: none; }
+  .btn-primary { background: var(--sf-blue); color: #fff; }
+  .btn-outline { border: 1.5px solid var(--sf-border); color: var(--sf-muted); background: #fff; }
+
+  /* ── QUERY CARDS ── */
+  .query-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .query-card {
+    background: #fff; border: 1px solid var(--sf-border);
+    border-radius: 8px; padding: 14px 16px;
+    cursor: default;
+  }
+  .query-card .q-icon { font-size: 20px; margin-bottom: 6px; }
+  .query-card .q-text { font-size: 13px; font-style: italic; color: var(--sf-navy); line-height: 1.4; }
+  .query-card .q-tag { margin-top: 8px; font-size: 10px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--sf-muted); }
+
+  /* ── ARCH DIAGRAM ── */
+  .arch {
+    background: #fff; border: 1px solid var(--sf-border);
+    border-radius: 10px; padding: 24px; margin: 20px 0;
+    text-align: center;
+  }
+  .arch-flow {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0; flex-wrap: wrap;
+  }
+  .arch-node {
+    background: var(--sf-light-bg); border: 1.5px solid var(--sf-border);
+    border-radius: 8px; padding: 10px 14px; font-size: 12px;
+    font-weight: 600; color: var(--sf-navy); text-align: center;
+    min-width: 90px;
+  }
+  .arch-node.highlight { background: #EBF7FD; border-color: var(--sf-blue); color: var(--sf-blue); }
+  .arch-node.final { background: var(--sf-navy); color: #fff; border-color: var(--sf-navy); }
+  .arch-arrow { color: var(--sf-blue); font-size: 20px; padding: 0 6px; font-weight: 700; }
+  .arch-label { font-size: 11px; color: var(--sf-muted); margin-top: 16px; }
+
+  /* ── CONCLUSION ── */
+  .conclusion-card {
+    background: linear-gradient(135deg, var(--sf-navy) 0%, #1B3A6B 100%);
+    color: #fff; border-radius: 12px; padding: 36px;
+    margin-top: 20px;
+  }
+  .conclusion-card h3 { color: var(--sf-blue); font-size: 13px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+  .conclusion-card h2 { font-size: 22px; margin-bottom: 16px; }
+  .conclusion-card p { color: rgba(255,255,255,.75); font-size: 14px; }
+  .next-steps { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+  .next-step {
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+    border-radius: 8px; padding: 14px 16px;
+  }
+  .next-step .ns-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .next-step .ns-desc { font-size: 12px; color: rgba(255,255,255,.6); }
+
+  /* ── SCROLLBAR ── */
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--sf-border); border-radius: 2px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { padding: 24px 20px 60px; }
+    .cards, .query-grid, .next-steps { grid-template-columns: 1fr; }
+    .arch-flow { flex-direction: column; }
+    .arch-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <!-- Snowflake snowflake icon (simplified SVG) -->
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="20" cy="20" r="20" fill="#29B5E8"/>
+      <path d="M20 7v26M20 7l-4 4M20 7l4 4M7 20h26M7 20l4-4M7 20l4 4M33 20l-4-4M33 20l-4 4M20 33l-4-4M20 33l4-4M11.5 11.5l17 17M11.5 28.5l17-17" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <span class="topbar-title">Snowflake AI Snowcamp</span>
+  </div>
+  <span class="topbar-sep">|</span>
+  <span class="topbar-sub">Optum / UHG India — Hands-On Lab</span>
+  <span class="topbar-badge">90–95 min</span>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-meta">
+      <div class="label">Total Duration</div>
+      <div class="duration">95 <span>min</span></div>
+      <div style="margin-top:10px">
+        <div class="label">Difficulty</div>
+        <div class="value">Beginner–Intermediate</div>
+      </div>
+      <div style="margin-top:10px">
+        <div class="label">Requires</div>
+        <div class="value">Snowflake Trial Account</div>
+      </div>
+    </div>
+    <ul class="step-list">
+      <li class="step-item active"><a href="#s1"><span class="step-num">1</span>Overview<span class="step-time">5 min</span></a></li>
+      <li class="step-item"><a href="#s2"><span class="step-num">2</span>Prerequisites<span class="step-time">5 min</span></a></li>
+      <li class="step-item"><a href="#s3"><span class="step-num">3</span>Setup &amp; Data Load<span class="step-time">10 min</span></a></li>
+      <li class="step-item"><a href="#s4"><span class="step-num">4</span>Semantic View Autopilot<span class="step-time">15 min</span></a></li>
+      <li class="step-item"><a href="#s5"><span class="step-num">5</span>Cortex Search<span class="step-time">10 min</span></a></li>
+      <li class="step-item"><a href="#s6"><span class="step-num">6</span>Build Your Agent via CoCo<span class="step-time">15 min</span></a></li>
+      <li class="step-item"><a href="#s7"><span class="step-num">7</span>Snowflake Intelligence<span class="step-time">15 min</span></a></li>
+      <li class="step-item"><a href="#s8"><span class="step-num">8</span>Ask Your Agent<span class="step-time">10 min</span></a></li>
+      <li class="step-item"><a href="#s9"><span class="step-num">9</span>Wrap-up &amp; Next Steps<span class="step-time">5 min</span></a></li>
+    </ul>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-tag">Optum AI Snowcamp — Hands-On Lab</div>
+      <h1>Build a Member Intelligence Agent<br>From Claims Data to Agentic AI on Snowflake</h1>
+      <p>Starting from a synthetic payer dataset, you will build a working AI agent that answers questions about member cost drivers, care gaps, and benefit policies — all in plain English, entirely on Snowflake.</p>
+      <div class="hero-chips">
+        <span class="chip">Cortex Analyst</span>
+        <span class="chip">Semantic Views</span>
+        <span class="chip">Cortex Search</span>
+        <span class="chip">Cortex Agents</span>
+        <span class="chip">Snowflake Intelligence</span>
+        <span class="chip">Cortex Code (CoCo)</span>
+      </div>
+    </div>
+
+    <!-- ── STEP 1: OVERVIEW ── -->
+    <section class="section" id="s1">
+      <div class="step-header">
+        <div class="num">1</div>
+        <h2>Overview</h2>
+        <span class="mins">5 min</span>
+      </div>
+
+      <p>Optum teams spend significant time answering recurring questions about member cost drivers, quality gaps, and care utilization. Answers are often locked inside claims databases and scattered benefit policy documents — requiring manual SQL or analyst requests that take days.</p>
+
+      <p>In this lab, you will build a <strong>Member Intelligence Agent</strong>: an agentic AI experience that lets any team member ask natural language questions and get answers that draw on <em>both</em> structured claims data and unstructured policy documents — all governed, all within Snowflake.</p>
+
+      <!-- Architecture diagram -->
+      <div class="arch">
+        <div class="arch-flow">
+          <div class="arch-node">Synthetic<br>Payer Data</div>
+          <span class="arch-arrow">→</span>
+          <div class="arch-node highlight">Semantic<br>View</div>
+          <span class="arch-arrow">→</span>
+          <div class="arch-node highlight">Cortex<br>Analyst</div>
+          <span class="arch-arrow">→</span>
+          <div class="arch-node">Cortex<br>Agent</div>
+          <span class="arch-arrow">→</span>
+          <div class="arch-node final">Snowflake<br>Intelligence</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:20px;margin-top:16px">
+          <div class="arch-node" style="min-width:70px;font-size:11px">Benefit<br>Policy Docs</div>
+          <span class="arch-arrow">→</span>
+          <div class="arch-node highlight" style="min-width:70px;font-size:11px">Cortex<br>Search</div>
+          <span class="arch-arrow" style="color:transparent">→</span>
+          <div class="arch-node" style="min-width:70px;font-size:11px;border:none;background:transparent"></div>
+          <span class="arch-arrow" style="color:transparent">→</span>
+          <div class="arch-node" style="min-width:70px;border:none;background:transparent"></div>
+        </div>
+        <div class="arch-label">Structured queries (Cortex Analyst) + document retrieval (Cortex Search) orchestrated by a single Cortex Agent, surfaced via Snowflake Intelligence</div>
+      </div>
+
+      <div class="cards">
+        <div class="card learn">
+          <h4>What You Will Learn</h4>
+          <ul>
+            <li>How to create a <strong>semantic view</strong> that maps business language to physical tables</li>
+            <li>How <strong>Cortex Analyst</strong> translates natural language to SQL</li>
+            <li>How <strong>Cortex Search</strong> enables RAG over policy documents</li>
+            <li>How to build and configure a <strong>Cortex Agent</strong> with multiple tools</li>
+            <li>How to use <strong>Cortex Code (CoCo)</strong> to scaffold and iterate AI artifacts</li>
+            <li>How to surface everything through <strong>Snowflake Intelligence</strong></li>
+          </ul>
+        </div>
+        <div class="card build">
+          <h4>What You Will Build</h4>
+          <ul>
+            <li>A synthetic payer database loaded from Azure Blob Storage (members, claims, pharmacy, providers)</li>
+            <li>A <code>member_intelligence</code> semantic view via Autopilot</li>
+            <li>A Cortex Search service over benefit policy text</li>
+            <li>A <strong>Member Intelligence Cortex Agent</strong> with your own persona and instructions</li>
+            <li>A live Snowflake Intelligence session answering real Optum-style questions</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Use Case Context — Why This Matters for Optum</h3>
+      <p>This lab is grounded in three of Optum's highest-priority AI patterns:</p>
+      <ul>
+        <li><strong>Cost-of-care analytics</strong> — which members, providers, and conditions are driving cost?</li>
+        <li><strong>Quality / Stars gap identification</strong> — which members are missing preventive services or medication adherence milestones?</li>
+        <li><strong>Member &amp; contact center support</strong> — answering questions about benefits, coverage, and claims status using both structured data and policy documents</li>
+      </ul>
+      <p>The same agent pattern you build today is a direct starting point for production use cases on SDRP.</p>
+
+      <h3>The Dataset — What You Will Be Working With</h3>
+      <p>This lab uses a <strong>fully synthetic, HIPAA-safe payer dataset</strong> modelled on a commercial health plan population. It was purpose-built for this lab — no real patient or member data is used at any point. The data closely mirrors the schemas and business logic that Optum's data engineering teams work with every day on SDRP.</p>
+
+      <div class="cards" style="margin-top:14px">
+        <div class="card" style="border-left:3px solid var(--sf-blue)">
+          <h4 style="color:var(--sf-navy)">Structured Data (4 Tables)</h4>
+          <ul>
+            <li><strong>Members</strong> — 10,000 synthetic health plan enrollees with demographics, plan type, PCP assignment, and chronic condition flags (diabetes, hypertension, COPD, etc.)</li>
+            <li><strong>Medical Claims</strong> — 80,000 claim lines with ICD-10 diagnosis codes, CPT procedure codes, billed/allowed/paid amounts, and claim status</li>
+            <li><strong>Pharmacy Claims</strong> — 35,000 prescription fills covering drug names, NDC codes, days supply, drug class, and paid amounts</li>
+            <li><strong>Providers</strong> — 2,000 providers with specialty, NPI, network status, and average cost per visit</li>
+          </ul>
+        </div>
+        <div class="card" style="border-left:3px solid var(--sf-green)">
+          <h4 style="color:var(--sf-navy)">Unstructured Data (3 Policy Documents)</h4>
+          <ul>
+            <li><strong>Formulary Guidelines</strong> — drug tiers, prior authorization rules, step therapy requirements, GLP-1 and specialty drug policies</li>
+            <li><strong>Medical Benefits Summary</strong> — coverage rules for preventive care, specialist referrals, mental health, physical therapy, and durable medical equipment</li>
+            <li><strong>Quality &amp; Stars Measures</strong> — HEDIS measure definitions, Stars thresholds, eligible member criteria for colorectal screening, diabetes care, medication adherence</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Agent Outcome — What Your Agent Will Be Able to Do</h3>
+      <p>By the end of this lab you will have a running <strong>Member Intelligence Agent</strong> that any Optum team member — analyst, care manager, or operations lead — can query in plain English. The agent will be able to:</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0">
+        <div style="background:#fff;border:1px solid var(--sf-border);border-radius:8px;padding:14px 16px">
+          <div style="font-size:18px;margin-bottom:6px">📊</div>
+          <div style="font-size:13px;font-weight:700;color:var(--sf-navy);margin-bottom:4px">Answer structured analytics questions</div>
+          <div style="font-size:13px;color:var(--sf-muted)">"Which members with diabetes have the highest pharmacy spend this year?" — answered with a live SQL query over claims data, no analyst required.</div>
+        </div>
+        <div style="background:#fff;border:1px solid var(--sf-border);border-radius:8px;padding:14px 16px">
+          <div style="font-size:18px;margin-bottom:6px">📋</div>
+          <div style="font-size:13px;font-weight:700;color:var(--sf-navy);margin-bottom:4px">Retrieve policy &amp; benefits information</div>
+          <div style="font-size:13px;color:var(--sf-muted)">"What are the prior authorization requirements for GLP-1 medications?" — answered from the formulary document, with source cited.</div>
+        </div>
+        <div style="background:#fff;border:1px solid var(--sf-border);border-radius:8px;padding:14px 16px">
+          <div style="font-size:18px;margin-bottom:6px">🔍</div>
+          <div style="font-size:13px;font-weight:700;color:var(--sf-navy);margin-bottom:4px">Identify care gaps &amp; quality opportunities</div>
+          <div style="font-size:13px;color:var(--sf-muted)">"Show me members eligible for the colorectal cancer screening Stars measure who haven't been screened" — combining claims data with HEDIS criteria from policy docs.</div>
+        </div>
+        <div style="background:#fff;border:1px solid var(--sf-border);border-radius:8px;padding:14px 16px">
+          <div style="font-size:18px;margin-bottom:6px">💡</div>
+          <div style="font-size:13px;font-weight:700;color:var(--sf-navy);margin-bottom:4px">Surface trends &amp; explain the "why"</div>
+          <div style="font-size:13px;color:var(--sf-muted)">"Why did pharmacy costs increase in Q3?" — the agent reasons across multiple data sources to give a synthesized, contextual answer, not just a number.</div>
+        </div>
+      </div>
+
+      <div class="callout callout-info" style="margin-top:6px">
+        <span class="icon">🎯</span>
+        <div>The agent you build is <strong>your design</strong>. In Step 6 you will define its persona, name, tone, guardrails, and focus area — making it specific to how your team at Optum would actually want to use it. Two attendees can build very different agents on the same dataset.</div>
+      </div>
+    </section>
+
+    <!-- ── STEP 2: PREREQUISITES ── -->
+    <section class="section" id="s2">
+      <div class="step-header">
+        <div class="num">2</div>
+        <h2>Prerequisites</h2>
+        <span class="mins">5 min</span>
+      </div>
+
+      <h3>What You Need</h3>
+      <ul>
+        <li>A <strong>Snowflake Trial Account</strong> — sign up at <a href="https://signup.snowflake.com" target="_blank">signup.snowflake.com</a> (free, no credit card required)</li>
+        <li>When signing up, select <strong>Microsoft Azure</strong> as the cloud provider and <strong>Central India (Pune)</strong> as the region — this keeps the lab geographically close and on the same cloud as Optum's production environment</li>
+        <li>A modern web browser (Chrome or Edge recommended)</li>
+        <li>The <strong>lab asset bundle</strong> — a ZIP file provided by your facilitator containing:<br>
+          <code>setup.sql</code> &nbsp;·&nbsp; <code>member_intelligence.yaml</code> &nbsp;·&nbsp; <code>benefit_policies/</code> (3 text files)
+        </li>
+      </ul>
+
+      <div class="callout callout-info">
+        <span class="icon">🌐</span>
+        <div>
+          <strong>Why Azure Central India?</strong> Optum's production workloads run on Microsoft Azure. Using the same cloud for this lab means the architecture you build today translates directly to your real environment — same cloud, same governance model, same data residency story.<br><br>
+          Azure Central India has native support for Snowflake Cortex embedding models and several AI functions. For the full LLM model suite required by Cortex Analyst, Cortex Agents, and Snowflake Intelligence, we enable <strong>cross-region inference</strong> to route requests to Azure US — staying entirely within the Azure global network (no public internet traversal).
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <span class="icon">ℹ️</span>
+        <div>All Snowflake features used in this lab — Cortex Analyst, Cortex Search, Cortex Agents, Snowflake Intelligence, and Cortex Code — are available on free trial accounts. No additional entitlements are required. Cross-region inference does not incur data egress charges.</div>
+      </div>
+
+      <h3>Snowflake Features Used</h3>
+      <div class="data-schema">
+        <table>
+          <tr><th>Feature</th><th>Purpose in This Lab</th><th>Where in Snowsight</th></tr>
+          <tr><td>Semantic View Autopilot</td><td>Auto-generate a semantic view from your payer tables using AI — no YAML hand-coding required</td><td>AI &amp; ML → Analyst → Create new → Autopilot</td></tr>
+          <tr><td>Cortex Analyst</td><td>Text-to-SQL over structured payer data via the generated semantic view</td><td>AI &amp; ML → Analyst</td></tr>
+          <tr><td>Cortex Search</td><td>Vector search and RAG over benefit policy documents</td><td>AI &amp; ML → Search</td></tr>
+          <tr><td>Cortex Agents</td><td>Orchestrate Analyst + Search into a single AI agent</td><td>AI &amp; ML → Agents</td></tr>
+          <tr><td>Cortex Code (CoCo)</td><td>Generate agent instructions, persona, and tool descriptions; iterate mid-lab</td><td>Bottom-right chat icon in Snowsight, or CLI</td></tr>
+          <tr><td>Snowflake Intelligence</td><td>Enterprise chat UI — surface your agent to any business user</td><td>intelligence.snowflake.com</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── STEP 3: SETUP ── -->
+    <section class="section" id="s3">
+      <div class="step-header">
+        <div class="num">3</div>
+        <h2>Setup &amp; Data Load</h2>
+        <span class="mins">10 min</span>
+      </div>
+
+      <p>This step has two parts: first enable cross-region LLM inference (required for Azure Central India), then run <code>setup.sql</code> to create your tables, load the lab data, and configure your lab environment. Both are done from a SQL Worksheet and take about 3–4 minutes total.</p>
+
+      <h3>Step 3a — Enable Cross-Region Inference <span style="font-size:12px;font-weight:400;color:var(--sf-red);margin-left:8px">Required</span></h3>
+      <p>Azure Central India has native support for Snowflake Cortex embedding models, but the full LLM suite needed for Cortex Analyst, Cortex Agents, and Snowflake Intelligence requires cross-region inference to route requests to Azure US data centers. Traffic stays entirely within the <strong>Azure global network</strong> — it does not traverse the public internet.</p>
+
+      <p>In Snowsight, open a new <strong>SQL Worksheet</strong>, switch your role to <code>ACCOUNTADMIN</code>, and run:</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">SQL — Enable Cross-Region Inference</span><span class="code-hint">Run as ACCOUNTADMIN · Required for Azure Central India</span></div>
+        <pre><span class="keyword">USE ROLE</span> accountadmin;
+
+<span class="comment">-- Enable cross-region LLM inference for Azure US and AWS US regions.
+-- This is required for Cortex Analyst, Cortex Agents, and Snowflake Intelligence
+-- from Azure Central India. Traffic stays within the Azure global network
+-- when routing to Azure US (East US 2), and uses mTLS over the internet
+-- only if falling back to AWS US (rare).</span>
+<span class="keyword">ALTER ACCOUNT SET</span> cortex_enabled_cross_region = <span class="string">'AZURE_US,AWS_US'</span>;
+
+<span class="comment">-- Verify the setting was applied</span>
+<span class="keyword">SHOW PARAMETERS LIKE</span> <span class="string">'CORTEX_ENABLED_CROSS_REGION'</span> <span class="keyword">IN ACCOUNT</span>;</pre>
+      </div>
+
+      <div class="callout callout-tip">
+        <span class="icon">💡</span>
+        <div>
+          <strong>Already set?</strong> If your trial account was created after March 9, 2026, Snowflake defaults new accounts to <code>ANY_REGION</code> — cross-region inference is already on. The <code>SHOW PARAMETERS</code> command will confirm this. You can still run the <code>ALTER ACCOUNT</code> above to pin it explicitly to <code>AZURE_US,AWS_US</code>, which is good practice for a payer context (limits inference to US regions only).
+          <br><br>
+          <strong>Why AZURE_US first, AWS_US second?</strong> Listing <code>AZURE_US</code> first tells Snowflake to prefer Azure US (East US 2, West US 2) for inference — keeping data within Azure's network. <code>AWS_US</code> is the fallback for any models not yet available on Azure.
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <span class="icon">🗂️</span>
+        <div>
+          <strong>About the dataset:</strong> The lab uses a <strong>purpose-built synthetic payer dataset</strong> modelled on a commercial health plan population (similar to a UnitedHealthcare fully-insured plan) — ~127,000 rows across four tables. It is hosted on <strong>Azure Blob Storage</strong> in the Snowflake SE Azure sandbox, loaded directly into your trial account via <code>COPY INTO</code>. <strong>No real member, patient, or PHI data is used at any point.</strong>
+          <br><br>
+          The data is designed to produce realistic answers to payer analytics questions — cost variation by condition, pharmacy adherence gaps, care quality opportunities — so your agent responses feel genuine, not toy-like.
+        </div>
+      </div>
+
+      <h3>Step 3b — Run the Lab Setup Script</h3>
+
+      <p>Open <code>setup.sql</code> from the lab bundle in a <strong>new SQL Worksheet</strong>. Make sure your role is <code>ACCOUNTADMIN</code>. Run the entire script — it completes in under 2 minutes.</p>
+
+      <p>The script does everything in one pass:</p>
+      <ol>
+        <li>Creates <code>OPTUM_LAB_DB</code> database and <code>PAYER</code> schema</li>
+        <li>Creates the four payer tables (MEMBERS, MEDICAL_CLAIMS, PHARMACY_CLAIMS, PROVIDERS)</li>
+        <li>Creates an external stage pointing to Azure Blob Storage with a time-limited SAS token</li>
+        <li>Runs <code>COPY INTO</code> to load all four tables from Azure</li>
+        <li>Creates <code>OPTUM_LAB_ROLE</code>, grants it to your user, and provisions the lab warehouse</li>
+        <li>Creates internal stages for lab artifacts (semantic model YAML, policy documents)</li>
+      </ol>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">SQL — setup.sql (structure)</span><span class="code-hint">Full script provided in lab bundle · Run as ACCOUNTADMIN</span></div>
+        <pre><span class="keyword">USE ROLE</span> accountadmin;
+
+<span class="comment">-- Database and schema</span>
+<span class="keyword">CREATE OR REPLACE DATABASE</span> optum_lab_db;
+<span class="keyword">CREATE OR REPLACE SCHEMA</span>   optum_lab_db.payer;
+<span class="keyword">USE DATABASE</span> optum_lab_db; <span class="keyword">USE SCHEMA</span> payer;
+
+<span class="comment">-- Tables (members, medical_claims, pharmacy_claims, providers)</span>
+<span class="keyword">CREATE OR REPLACE TABLE</span> members          ( member_id <span class="keyword">VARCHAR</span>, name <span class="keyword">VARCHAR</span>, ... );
+<span class="keyword">CREATE OR REPLACE TABLE</span> medical_claims   ( claim_id  <span class="keyword">VARCHAR</span>, member_id <span class="keyword">VARCHAR</span>, ... );
+<span class="keyword">CREATE OR REPLACE TABLE</span> pharmacy_claims  ( rx_id     <span class="keyword">VARCHAR</span>, member_id <span class="keyword">VARCHAR</span>, ... );
+<span class="keyword">CREATE OR REPLACE TABLE</span> providers        ( provider_id <span class="keyword">VARCHAR</span>, name <span class="keyword">VARCHAR</span>, ... );
+
+<span class="comment">-- External stage: Azure Blob Storage (Snowflake SE Azure sandbox)
+-- SAS token is time-limited; included in the distributed setup.sql</span>
+<span class="keyword">CREATE OR REPLACE STAGE</span> optum_lab_source
+  <span class="keyword">URL</span> = <span class="string">'azure://sfselabs.blob.core.windows.net/optum-snowcamp/data/'</span>
+  <span class="keyword">CREDENTIALS</span> = (AZURE_SAS_TOKEN = <span class="string">'&lt;included in distributed script&gt;'</span>)
+  <span class="keyword">FILE_FORMAT</span> = (TYPE = <span class="string">'CSV'</span> SKIP_HEADER = 1
+                 FIELD_OPTIONALLY_ENCLOSED_BY = <span class="string">'"'</span> NULL_IF = (<span class="string">'NULL'</span>,<span class="string">''</span>));
+
+<span class="comment">-- Load data from Azure</span>
+<span class="keyword">COPY INTO</span> members         <span class="keyword">FROM</span> @optum_lab_source/members.csv         ON_ERROR = CONTINUE;
+<span class="keyword">COPY INTO</span> medical_claims  <span class="keyword">FROM</span> @optum_lab_source/medical_claims.csv  ON_ERROR = CONTINUE;
+<span class="keyword">COPY INTO</span> pharmacy_claims <span class="keyword">FROM</span> @optum_lab_source/pharmacy_claims.csv ON_ERROR = CONTINUE;
+<span class="keyword">COPY INTO</span> providers       <span class="keyword">FROM</span> @optum_lab_source/providers.csv       ON_ERROR = CONTINUE;
+
+<span class="comment">-- Role, warehouse, and grants</span>
+<span class="keyword">CREATE OR REPLACE ROLE</span>      optum_lab_role;
+<span class="keyword">CREATE OR REPLACE WAREHOUSE</span> optum_lab_wh <span class="keyword">WITH</span> warehouse_size = <span class="string">'MEDIUM'</span>;
+<span class="keyword">SET</span> current_user = (<span class="keyword">SELECT</span> <span class="fn">CURRENT_USER</span>());
+<span class="keyword">GRANT ROLE</span> optum_lab_role <span class="keyword">TO USER</span> <span class="fn">IDENTIFIER</span>($current_user);
+<span class="keyword">GRANT USAGE ON DATABASE</span>  optum_lab_db <span class="keyword">TO ROLE</span> optum_lab_role;
+<span class="keyword">GRANT USAGE ON SCHEMA</span>    optum_lab_db.payer <span class="keyword">TO ROLE</span> optum_lab_role;
+<span class="keyword">GRANT SELECT ON ALL TABLES IN SCHEMA</span> optum_lab_db.payer <span class="keyword">TO ROLE</span> optum_lab_role;
+<span class="keyword">GRANT USAGE ON WAREHOUSE</span> optum_lab_wh <span class="keyword">TO ROLE</span> optum_lab_role;
+
+<span class="comment">-- Snowflake Intelligence schema + agent creation privilege</span>
+<span class="keyword">CREATE DATABASE IF NOT EXISTS</span> snowflake_intelligence;
+<span class="keyword">CREATE SCHEMA  IF NOT EXISTS</span> snowflake_intelligence.agents;
+<span class="keyword">GRANT CREATE AGENT ON SCHEMA</span> snowflake_intelligence.agents <span class="keyword">TO ROLE</span> optum_lab_role;
+
+<span class="comment">-- Internal stages for lab artifacts (used in Steps 4 and 5)</span>
+<span class="keyword">USE ROLE</span> optum_lab_role;
+<span class="keyword">CREATE OR REPLACE STAGE</span> optum_lab_db.payer.semantic_models
+  <span class="keyword">ENCRYPTION</span> = (TYPE = <span class="string">'SNOWFLAKE_SSE'</span>) <span class="keyword">DIRECTORY</span> = (ENABLE = <span class="keyword">true</span>);
+<span class="keyword">CREATE OR REPLACE STAGE</span> optum_lab_db.payer.policy_docs
+  <span class="keyword">ENCRYPTION</span> = (TYPE = <span class="string">'SNOWFLAKE_SSE'</span>) <span class="keyword">DIRECTORY</span> = (ENABLE = <span class="keyword">true</span>);
+
+<span class="keyword">SELECT</span> <span class="string">'Setup complete. Switch your role to OPTUM_LAB_ROLE.'</span> <span class="keyword">AS</span> status;</pre>
+      </div>
+
+      <div class="callout callout-tip">
+        <span class="icon">💡</span>
+        <div>
+          After the script completes, switch your active role in Snowsight to <strong>OPTUM_LAB_ROLE</strong> — you will use this role for all remaining steps (Steps 4–9). The Azure external stage is only needed during setup; once the data is loaded it is no longer required.
+        </div>
+      </div>
+
+      <h3>Data Schema — What You Are Working With</h3>
+      <p>These four tables represent a simplified payer data model familiar to anyone who has worked with Optum's SDRP or claims processing pipelines:</p>
+
+      <div class="data-schema">
+        <table>
+          <tr><th>Table</th><th>Key Columns</th><th>Row Count</th></tr>
+          <tr>
+            <td>MEMBERS</td>
+            <td>member_id <span class="col-key">PK</span> · name · dob · gender · plan_id · plan_name · plan_type · pcp · chronic_condition · smoker_ind · enrollment_start · enrollment_end</td>
+            <td>~10,000</td>
+          </tr>
+          <tr>
+            <td>MEDICAL_CLAIMS</td>
+            <td>claim_id <span class="col-key">PK</span> · member_id <span class="col-key">FK</span> · service_date · provider_id · icd10_code · procedure_code · billed_amt · allowed_amt · paid_amt · claim_status · service_type</td>
+            <td>~80,000</td>
+          </tr>
+          <tr>
+            <td>PHARMACY_CLAIMS</td>
+            <td>rx_id <span class="col-key">PK</span> · member_id <span class="col-key">FK</span> · drug_name · ndc_code · drug_class · days_supply · paid_amt · fill_date · prescriber_id</td>
+            <td>~35,000</td>
+          </tr>
+          <tr>
+            <td>PROVIDERS</td>
+            <td>provider_id <span class="col-key">PK</span> · name · specialty · npi · network_status · location · avg_cost_per_visit</td>
+            <td>~2,000</td>
+          </tr>
+        </table>
+      </div>
+
+      <h3>Verify the Load</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">SQL — Verification Query</span><span class="code-hint">Run in SQL Worksheet</span></div>
+        <pre><span class="keyword">SELECT</span> <span class="string">'MEMBERS'</span>         <span class="keyword">AS</span> tbl, <span class="fn">COUNT</span>(*) <span class="keyword">AS</span> rows <span class="keyword">FROM</span> members
+<span class="keyword">UNION ALL SELECT</span> <span class="string">'MEDICAL_CLAIMS'</span>, <span class="fn">COUNT</span>(*) <span class="keyword">FROM</span> medical_claims
+<span class="keyword">UNION ALL SELECT</span> <span class="string">'PHARMACY_CLAIMS'</span>,<span class="fn">COUNT</span>(*) <span class="keyword">FROM</span> pharmacy_claims
+<span class="keyword">UNION ALL SELECT</span> <span class="string">'PROVIDERS'</span>,      <span class="fn">COUNT</span>(*) <span class="keyword">FROM</span> providers;</pre>
+      </div>
+      <p>You should see non-zero row counts for all four tables before proceeding.</p>
+    </section>
+
+    <!-- ── STEP 4: SEMANTIC VIEW via AUTOPILOT ── -->
+    <section class="section" id="s4">
+      <div class="step-header">
+        <div class="num">4</div>
+        <h2>Cortex Analyst — Semantic View Autopilot</h2>
+        <span class="mins">15 min</span>
+      </div>
+
+      <p>Cortex Analyst translates natural language questions into SQL — but it needs a <strong>semantic view</strong> to understand your data. A semantic view maps business concepts like <em>"total cost of care"</em>, <em>"care gap"</em>, and <em>"medication adherence"</em> to the physical tables and columns in your database.</p>
+      <p>Rather than hand-authoring a YAML file, you will use <strong>Semantic View Autopilot</strong> — Snowflake's AI-powered feature that inspects your tables and generates a complete, business-ready semantic view automatically.</p>
+
+      <div class="callout callout-info">
+        <span class="icon">🤖</span>
+        <div><strong>What is Semantic View Autopilot?</strong> It is an AI assistant built into Snowsight's Analyst interface that reads your table schemas, column names, and data samples, then generates a semantic view YAML — including dimensions, measures, relationships, and verified sample queries — with zero manual YAML editing required. You review, refine, and save.</div>
+      </div>
+
+      <h3>Step 4a — Open Cortex Analyst</h3>
+      <p>In Snowsight, navigate to <strong>AI &amp; ML → Analyst</strong> in the left navigation. Make sure your role is set to <code>OPTUM_LAB_ROLE</code>.</p>
+
+      <h3>Step 4b — Run Autopilot on Your Payer Tables</h3>
+      <ol>
+        <li>Click <strong>Create new</strong> (top right) and select <strong>Autopilot</strong>.</li>
+        <li>In the table selector, add all four lab tables:<br>
+          <code>OPTUM_LAB_DB.PAYER.MEMBERS</code><br>
+          <code>OPTUM_LAB_DB.PAYER.MEDICAL_CLAIMS</code><br>
+          <code>OPTUM_LAB_DB.PAYER.PHARMACY_CLAIMS</code><br>
+          <code>OPTUM_LAB_DB.PAYER.PROVIDERS</code>
+        </li>
+        <li>In the <strong>Business context</strong> field, add a short description to help Autopilot generate better business language:<br>
+          <em>"This is a health plan payer dataset. We want to analyze member cost of care, pharmacy medication adherence, preventive care gaps, and provider utilization."</em></li>
+        <li>Click <strong>Generate</strong>. Autopilot will take 30–60 seconds to inspect the schema and produce the semantic view.</li>
+      </ol>
+
+      <div class="callout callout-tip">
+        <span class="icon">💡</span>
+        <div>While Autopilot runs, it will show you which tables and columns it is analyzing. Watch the column-level inference — it maps <code>paid_amt</code> to a "Total Paid Amount" measure, <code>icd10_code</code> to a "Diagnosis" dimension, and so on. This is the "business translation layer" that makes Cortex Analyst accurate.</div>
+      </div>
+
+      <h3>Step 4c — Review the Generated Semantic View</h3>
+      <p>Autopilot will present a draft semantic view. Review the following sections before saving:</p>
+
+      <div class="data-schema">
+        <table>
+          <tr><th>Section</th><th>What to Check</th></tr>
+          <tr><td>Relationships</td><td>Confirm <code>MEMBERS.member_id → MEDICAL_CLAIMS.member_id</code> and <code>MEMBERS.member_id → PHARMACY_CLAIMS.member_id</code> join keys are correct</td></tr>
+          <tr><td>Measures</td><td>Confirm cost metrics use <code>SUM(paid_amt)</code> from the correct table (medical vs pharmacy). Check that <code>days_supply</code> is recognized as an adherence metric.</td></tr>
+          <tr><td>Dimensions</td><td>Confirm <code>chronic_condition</code>, <code>plan_type</code>, <code>specialty</code>, and <code>icd10_code</code> are listed as filterable dimensions</td></tr>
+          <tr><td>Verified queries</td><td>Review any sample questions Autopilot generated. Try one in the test panel to confirm it returns correct SQL.</td></tr>
+        </table>
+      </div>
+
+      <p>If anything looks wrong, use the inline editor to adjust individual fields — or click <strong>Regenerate</strong> with a more specific business context description.</p>
+
+      <h3>Step 4d — Save and Test</h3>
+      <ol>
+        <li>Give the semantic view the name <code>member_intelligence</code>.</li>
+        <li>Select stage: <code>OPTUM_LAB_DB.PAYER → SEMANTIC_MODELS</code>.</li>
+        <li>Click <strong>Save</strong>.</li>
+        <li>In the test panel on the right, try this question:<br>
+          <em>"What are the top 5 chronic conditions by total paid amount?"</em><br>
+          You should see a SQL query generated and a data table returned.</li>
+      </ol>
+
+      <div class="callout callout-note">
+        <span class="icon">📋</span>
+        <div><strong>Fallback:</strong> If Autopilot is not yet available in your trial region, a pre-built <code>member_intelligence.yaml</code> is included in your lab bundle. Upload it via <strong>Create new → Upload your YAML file</strong>, selecting the same stage. Continue with Step 4d to test it.</div>
+      </div>
+    </section>
+
+    <!-- ── STEP 5: CORTEX SEARCH ── -->
+    <section class="section" id="s5">
+      <div class="step-header">
+        <div class="num">5</div>
+        <h2>Cortex Search — Index Benefit Policy Documents</h2>
+        <span class="mins">10 min</span>
+      </div>
+
+      <p>Your agent needs to answer questions that can't be answered from claims tables alone — questions like <em>"What is the prior authorization process for GLP-1 medications?"</em> or <em>"Does our plan cover physical therapy for non-surgical back pain?"</em>. These answers live in benefit policy documents.</p>
+      <p>You will use <strong>Cortex Search</strong> to index three synthetic policy documents and make them retrievable by your agent.</p>
+
+      <h3>Step 5a — Upload Policy Documents to Stage</h3>
+      <p>In Snowsight, navigate to <strong>Data → Databases → OPTUM_LAB_DB → PAYER → Stages → POLICY_DOCS</strong>. Click <strong>+ Files</strong> and upload the three files from the <code>benefit_policies/</code> folder in your lab bundle:</p>
+      <ul>
+        <li><code>formulary_guidelines.txt</code> — drug formulary tiers, PA requirements, GLP-1 and specialty drug rules</li>
+        <li><code>medical_benefits_summary.txt</code> — coverage rules for preventive care, specialist visits, mental health, PT</li>
+        <li><code>quality_stars_measures.txt</code> — HEDIS/Stars measure definitions, thresholds, member eligibility criteria</li>
+      </ul>
+
+      <h3>Step 5b — Create the Cortex Search Service</h3>
+      <p>Run the following SQL in your worksheet to create a table from the staged documents and build the search service on it:</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">SQL — Cortex Search Setup</span><span class="code-hint">Run in SQL Worksheet</span></div>
+        <pre><span class="keyword">USE DATABASE</span> optum_lab_db;
+<span class="keyword">USE SCHEMA</span> payer;
+
+<span class="comment">-- Parse staged policy docs into a searchable table</span>
+<span class="keyword">CREATE OR REPLACE TABLE</span> policy_documents <span class="keyword">AS</span>
+<span class="keyword">SELECT</span>
+  <span class="fn">REPLACE</span>(RELATIVE_PATH, <span class="string">'.txt'</span>, <span class="string">''</span>) <span class="keyword">AS</span> doc_name,
+  <span class="fn">$1</span>::<span class="keyword">VARCHAR</span>                        <span class="keyword">AS</span> content
+<span class="keyword">FROM</span> @policy_docs (file_format => <span class="string">'text_format'</span>);
+
+<span class="comment">-- Create Cortex Search service over policy content</span>
+<span class="keyword">CREATE OR REPLACE CORTEX SEARCH SERVICE</span> benefit_policy_search
+  <span class="keyword">ON</span> content
+  <span class="keyword">ATTRIBUTES</span> doc_name
+  <span class="keyword">WAREHOUSE</span> = optum_lab_wh
+  <span class="keyword">TARGET_LAG</span> = <span class="string">'1 hour'</span>
+  <span class="keyword">EMBEDDING_MODEL</span> = <span class="string">'snowflake-arctic-embed-m-v1.5'</span>
+<span class="keyword">AS</span> (
+  <span class="keyword">SELECT</span> doc_name, content <span class="keyword">FROM</span> policy_documents
+);</pre>
+      </div>
+
+      <div class="callout callout-info">
+        <span class="icon">ℹ️</span>
+        <div>The Cortex Search service will take 1–2 minutes to build its embedding index. You will see it appear in <strong>AI &amp; ML → Search</strong> once it is ready. You can proceed to Step 6 while it indexes.</div>
+      </div>
+
+      <h3>Step 5c — Test the Search Service (Optional)</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">SQL — Test Search</span><span class="code-hint">Optional validation</span></div>
+        <pre><span class="keyword">SELECT</span> <span class="fn">SNOWFLAKE.CORTEX.SEARCH_PREVIEW</span>(
+  <span class="string">'OPTUM_LAB_DB.PAYER.BENEFIT_POLICY_SEARCH'</span>,
+  <span class="string">'prior authorization for GLP-1 medications'</span>,
+  3
+);</pre>
+      </div>
+      <p>You should see relevant chunks from <code>formulary_guidelines.txt</code> in the results.</p>
+    </section>
+
+    <!-- ── STEP 6: BUILD THE AGENT via CoCo ── -->
+    <section class="section" id="s6">
+      <div class="step-header">
+        <div class="num">6</div>
+        <h2>Build Your Member Intelligence Agent via CoCo</h2>
+        <span class="mins">15 min</span>
+      </div>
+
+      <p>Now you wire it all together. A <strong>Cortex Agent</strong> is an AI entity that orchestrates tools — Cortex Analyst for structured queries, Cortex Search for document retrieval — and responds to questions using both. This is where your personal creativity comes in: <strong>you define how the agent thinks, what it knows, and what kind of assistant it becomes.</strong></p>
+
+      <h3>Step 6a — Use CoCo to Scaffold the Agent</h3>
+      <p>Open CoCo in Snowsight and use the prompt below to generate the CREATE AGENT SQL and the agent's instructions. <strong>Then make it your own</strong> — see the creativity prompt below.</p>
+
+      <div class="coco-block">
+        <div class="coco-header">
+          <div class="coco-icon">C</div>
+          <span class="coco-header-text">Cortex Code Prompt — Agent Scaffold</span>
+          <span class="coco-header-sub">Paste into CoCo in Snowsight</span>
+        </div>
+        <pre>I want to create a Snowflake <span class="hl">Cortex Agent</span> for a healthcare payer (Optum/UHG).
+
+The agent has access to two tools:
+  1. <span class="hl">Cortex Analyst</span> tool using semantic view at:
+     <span class="hl2">OPTUM_LAB_DB.PAYER.SEMANTIC_MODELS >> member_intelligence.yaml</span>
+     Description: Member 360 data — medical claims, pharmacy claims, members, providers.
+     Use for structured questions about cost, utilization, care gaps, and adherence.
+
+  2. <span class="hl">Cortex Search</span> tool using service:
+     <span class="hl2">OPTUM_LAB_DB.PAYER.BENEFIT_POLICY_SEARCH</span>
+     Description: Benefit policy and formulary documents.
+     Use for questions about coverage rules, PA requirements, HEDIS/Stars criteria.
+
+Please generate:
+  a) The SQL to <span class="hl">CREATE the Cortex Agent</span> in schema SNOWFLAKE_INTELLIGENCE.AGENTS
+  b) A set of <span class="hl2">orchestration instructions</span> that tell the agent:
+     - When to use Analyst vs Search vs both
+     - How to format responses (use tables for structured data, prose for policy questions)
+     - How to cite sources (mention the document name for policy answers)
+     - 5 starter example questions to show users what the agent can do
+  c) Suggest a <span class="hl">display name and persona</span> for this agent appropriate for a payer organization.</pre>
+      </div>
+
+      <!-- CREATIVE BOX -->
+      <div class="creative-box">
+        <div class="creative-label">
+          <span>✦</span> Your Turn — Make This Agent Yours
+        </div>
+        <p>CoCo will give you a solid starting point. Now <strong>customize the agent's persona, instructions, and tone</strong> to reflect how you'd actually want a Member Intelligence Agent to behave at Optum. Some ideas to spark your thinking:</p>
+        <ul>
+          <li><strong>Give it a name and voice</strong> — e.g. "OptumInsight Assistant", "Care Analytics AI", or something your team would actually use</li>
+          <li><strong>Scope its expertise</strong> — should it focus on cost analytics only? Quality/Stars? Pharmacy? Or be the generalist member 360 agent?</li>
+          <li><strong>Define its tone</strong> — clinical and precise? Accessible for non-technical managers? Proactive in surfacing trends?</li>
+          <li><strong>Add a guardrail</strong> — e.g. "Never speculate on individual member diagnoses. Always recommend consulting a clinician for clinical decisions."</li>
+          <li><strong>Add a signature behavior</strong> — e.g. "When showing cost data, always compare to the plan average as context."</li>
+        </ul>
+        <p style="margin-top:10px;font-size:13px;color:var(--sf-muted)">Ask CoCo: <em>"Update the agent instructions to reflect [your persona idea]. Keep the tool routing logic but change the tone and add this guardrail: [your rule]."</em></p>
+      </div>
+
+      <h3>Step 6b — Create the Agent in Snowsight</h3>
+      <ol>
+        <li>In Snowsight, navigate to <strong>AI &amp; ML → Agents</strong> and click <strong>+ Create agent</strong>.</li>
+        <li>Set Schema: <code>SNOWFLAKE_INTELLIGENCE.AGENTS</code> &nbsp;·&nbsp; Agent name: <em>your choice</em> &nbsp;·&nbsp; Display name: <em>your choice</em></li>
+        <li>Click <strong>Edit</strong> on the new agent and paste in the <strong>Orchestration Instructions</strong> generated (and customized) by CoCo.</li>
+        <li>Add <strong>Example Questions</strong> from CoCo's output — these appear as quick-start prompts in Snowflake Intelligence.</li>
+        <li>Under <strong>Tools → Cortex Analyst</strong>, click <strong>+ Add</strong>:<br>
+          Semantic model: <code>OPTUM_LAB_DB.PAYER.SEMANTIC_MODELS → member_intelligence.yaml</code><br>
+          Name: <code>Member_And_Claims_Data</code> &nbsp;·&nbsp; Warehouse: <code>OPTUM_LAB_WH</code></li>
+        <li>Under <strong>Tools → Cortex Search Services</strong>, click <strong>+ Add</strong>:<br>
+          Search service: <code>OPTUM_LAB_DB.PAYER → BENEFIT_POLICY_SEARCH</code><br>
+          Title column: <code>DOC_NAME</code> &nbsp;·&nbsp; Name: <code>Benefit_Policies</code></li>
+        <li>Click <strong>Save</strong>.</li>
+      </ol>
+
+      <div class="callout callout-tip">
+        <span class="icon">💡</span>
+        <div>If you want to iterate on your instructions after testing in Step 7, come back here and ask CoCo: <em>"My agent is answering policy questions with too much detail. Rewrite the instruction for concise policy responses."</em> CoCo can help you tune the agent mid-lab.</div>
+      </div>
+    </section>
+
+    <!-- ── STEP 7: SNOWFLAKE INTELLIGENCE ── -->
+    <section class="section" id="s7">
+      <div class="step-header">
+        <div class="num">7</div>
+        <h2>Snowflake Intelligence — Open Your Agent</h2>
+        <span class="mins">15 min</span>
+      </div>
+
+      <p>Snowflake Intelligence is the enterprise chat interface built on top of Cortex Agents. It's the "AI front door" your agent will be accessed through — no code, no SQL, just a conversation.</p>
+
+      <h3>Step 7a — Access Snowflake Intelligence</h3>
+      <ol>
+        <li>Navigate to <a href="https://intelligence.snowflake.com" target="_blank">intelligence.snowflake.com</a> and sign in with your trial account credentials.</li>
+        <li>Make sure you are signed in with the correct role (<code>ACCOUNTADMIN</code> or <code>OPTUM_LAB_ROLE</code>).</li>
+        <li>In the left panel, you should see the agent you just created. Click on it to open a new conversation.</li>
+      </ol>
+
+      <div class="callout callout-warn">
+        <span class="icon">⚠️</span>
+        <div>If your agent does not appear, confirm that it was created in the <code>SNOWFLAKE_INTELLIGENCE.AGENTS</code> schema and that your current role has access to that schema. Run <code>GRANT USAGE ON SCHEMA SNOWFLAKE_INTELLIGENCE.AGENTS TO ROLE OPTUM_LAB_ROLE;</code> if needed.</div>
+      </div>
+
+      <h3>Step 7b — Ask Your First Question</h3>
+      <p>Start with the example questions CoCo surfaced in Step 6, or try your own. Observe how the agent:</p>
+      <ul>
+        <li>Routes structured questions to <strong>Cortex Analyst</strong> (generates SQL → returns data table or chart)</li>
+        <li>Routes policy questions to <strong>Cortex Search</strong> (retrieves document chunks → synthesizes prose response)</li>
+        <li>Combines both for hybrid questions (e.g. <em>"Which members with diabetes are on a Tier 1 insulin formulary?"</em>)</li>
+      </ul>
+
+      <div class="callout callout-tip">
+        <span class="icon">💡</span>
+        <div><strong>Transparency:</strong> Click the expand icon on any response to see which tool the agent used, what SQL was generated, or which document chunk was retrieved. This is Snowflake's "show your work" feature — critical for trust in enterprise AI.</div>
+      </div>
+
+      <h3>Step 7c — Iterate with CoCo (If Time Allows)</h3>
+      <p>If the agent's responses aren't quite right, open CoCo alongside Snowflake Intelligence and ask it to refine the instructions:</p>
+      <div class="coco-block">
+        <div class="coco-header">
+          <div class="coco-icon">C</div>
+          <span class="coco-header-text">Cortex Code Prompt — Iteration</span>
+          <span class="coco-header-sub">Mid-lab tuning</span>
+        </div>
+        <pre>My agent returned a table when I asked about top members by cost, but
+it didn't include their chronic condition. <span class="hl">Update the Cortex Analyst tool description</span>
+to always encourage joining MEMBERS.chronic_condition when the question
+involves member-level cost analysis.</pre>
+      </div>
+    </section>
+
+    <!-- ── STEP 8: SAMPLE QUERIES ── -->
+    <section class="section" id="s8">
+      <div class="step-header">
+        <div class="num">8</div>
+        <h2>Ask Your Agent — Optum-Flavored Sample Queries</h2>
+        <span class="mins">10 min</span>
+      </div>
+
+      <p>Use the questions below to explore what your agent can do. They span all three payer use cases: cost-of-care analytics, quality/Stars gap identification, and member policy support. Share the most interesting answers with your table.</p>
+
+      <div class="query-grid">
+        <div class="query-card">
+          <div class="q-icon">💊</div>
+          <div class="q-text">"Which members with a diabetes diagnosis had a gap in their medication in the last 6 months?"</div>
+          <div class="q-tag">Medication Adherence · Cortex Analyst</div>
+        </div>
+        <div class="query-card">
+          <div class="q-icon">💰</div>
+          <div class="q-text">"What are the top 5 diagnosis categories by total paid amount this year, and how does each compare to last year?"</div>
+          <div class="q-tag">Cost of Care · Cortex Analyst</div>
+        </div>
+        <div class="query-card">
+          <div class="q-icon">📋</div>
+          <div class="q-text">"What does our formulary say about prior authorization requirements for GLP-1 medications?"</div>
+          <div class="q-tag">Benefits Policy · Cortex Search</div>
+        </div>
+        <div class="query-card">
+          <div class="q-icon">🩺</div>
+          <div class="q-text">"Show me members who haven't had a preventive wellness visit in over 12 months."</div>
+          <div class="q-tag">Care Gap · Stars · Cortex Analyst</div>
+        </div>
+        <div class="query-card">
+          <div class="q-icon">🏥</div>
+          <div class="q-text">"Which provider specialties have the highest average cost per claim, and are they in-network?"</div>
+          <div class="q-tag">Provider Analytics · Cortex Analyst</div>
+        </div>
+        <div class="query-card">
+          <div class="q-icon">📈</div>
+          <div class="q-text">"What is the monthly trend in pharmacy spend for members with chronic conditions over the last year?"</div>
+          <div class="q-tag">Trend Analysis · Cortex Analyst</div>
+        </div>
+        <div class="query-card">
+          <div class="q-icon">⭐</div>
+          <div class="q-text">"What are the HEDIS measures we track for colorectal cancer screening, and which members are eligible but not yet compliant?"</div>
+          <div class="q-tag">Stars / HEDIS · Search + Analyst</div>
+        </div>
+        <div class="query-card">
+          <div class="q-icon">🔬</div>
+          <div class="q-text">"Which members have the highest total cost of care AND a gap in physical therapy coverage? What does the plan say about PT benefits?"</div>
+          <div class="q-tag">Hybrid · Analyst + Search</div>
+        </div>
+      </div>
+
+      <div class="callout callout-note">
+        <span class="icon">✨</span>
+        <div><strong>Try your own question.</strong> Think of a question you'd actually want answered in your team at Optum — something that currently takes a ticket to the analytics team. Try it on your agent. If it doesn't work well, use CoCo to iterate on the semantic view or agent instructions.</div>
+      </div>
+    </section>
+
+    <!-- ── STEP 9: WRAP-UP ── -->
+    <section class="section" id="s9">
+      <div class="step-header">
+        <div class="num">9</div>
+        <h2>Wrap-up &amp; Next Steps</h2>
+        <span class="mins">5 min</span>
+      </div>
+
+      <h3>What You Built Today</h3>
+      <ul>
+        <li>A <strong>synthetic payer data foundation</strong> — four tables covering members, medical claims, pharmacy, and providers</li>
+        <li>A <strong>semantic view</strong> (<code>member_intelligence.yaml</code>) that maps Optum business concepts to physical columns — generated and refined with CoCo</li>
+        <li>A <strong>Cortex Search service</strong> over benefit policy and formulary documents — enabling RAG over unstructured content</li>
+        <li>A <strong>Cortex Agent</strong> with your own persona, instructions, and tool configuration — built and iterated with CoCo</li>
+        <li>A live <strong>Snowflake Intelligence</strong> session that any business user could access without writing a single line of SQL</li>
+      </ul>
+
+      <div class="conclusion-card">
+        <h3>From Lab to Production</h3>
+        <h2>Where Do You Go From Here?</h2>
+        <p>The pattern you built today is a direct template for production use cases on Optum's SDRP platform. Here are the natural next steps:</p>
+        <div class="next-steps">
+          <div class="next-step">
+            <div class="ns-title">Connect to Your Real Data</div>
+            <div class="ns-desc">Work with the SDRP team to point the semantic view at your actual tenant's claims/member tables. The YAML structure stays the same — only the table references change.</div>
+          </div>
+          <div class="next-step">
+            <div class="ns-title">Add More Tools</div>
+            <div class="ns-desc">Extend the agent with a custom stored procedure tool — e.g. a <code>SEND_CARE_GAP_ALERT()</code> procedure that triggers an action from a natural language instruction.</div>
+          </div>
+          <div class="next-step">
+            <div class="ns-title">Govern with Horizon</div>
+            <div class="ns-desc">Apply row-access policies and column masking to the payer tables so the same agent returns only the data each role is authorized to see — critical for PHI in production.</div>
+          </div>
+          <div class="next-step">
+            <div class="ns-title">Join the AI Guild</div>
+            <div class="ns-desc">Bring your use case idea to Optum's AI Factory / AI guild. The Snowflake team (Aman, Andrew) will help scope a pilot from here.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info" style="margin-top:28px">
+        <span class="icon">📣</span>
+        <div><strong>Feedback:</strong> Before you leave, scan the QR code at your table to complete the 3-question feedback form. Your input shapes the next Snowcamp and the India virtual enablement series. Thank you for building with us today.</div>
+      </div>
+
+      <div class="step-nav">
+        <a href="#s8" class="btn btn-outline">← Previous: Sample Queries</a>
+        <a href="#s1" class="btn btn-primary">Back to Start</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // Highlight active step on scroll
+  const sections = document.querySelectorAll('.section');
+  const stepItems = document.querySelectorAll('.step-item');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        stepItems.forEach(item => {
+          item.classList.remove('active');
+          if (item.querySelector('a').getAttribute('href') === '#' + id) {
+            item.classList.add('active');
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
