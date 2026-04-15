@@ -138,7 +138,12 @@ FROM base;
 -- ICD-10 and service types are distributed to support realistic analytics queries
 CREATE OR REPLACE TABLE medical_claims AS
 WITH base AS (
-  SELECT SEQ4() AS n FROM TABLE(GENERATOR(ROWCOUNT => 80000))
+  SELECT
+    SEQ4()                              AS n,
+    ROUND(UNIFORM(80, 12000, RANDOM()), 2) AS billed_amt,
+    UNIFORM(40, 75, RANDOM())           AS allowed_pct,
+    UNIFORM(70, 95, RANDOM())           AS paid_pct
+  FROM TABLE(GENERATOR(ROWCOUNT => 80000))
 )
 SELECT
   'CLM' || LPAD(n+1, 7, '0') AS claim_id,
@@ -187,7 +192,7 @@ SELECT
     WHEN 35 THEN 'R51'     -- Headache
     WHEN 36 THEN 'I25.10'  -- Atherosclerotic heart disease (weight)
     WHEN 37 THEN 'Z87.891' -- Personal history of tobacco use
-    WHEN 38 THEN 'T2DM'    -- Placeholder: maps to E11 series
+    WHEN 38 THEN 'E11.9'   -- Type 2 Diabetes (repeated for weight)
     WHEN 39 THEN 'E11.9'   -- Diabetes
     WHEN 40 THEN 'I10'     -- Hypertension
     WHEN 41 THEN 'Z00.00'  -- Preventive (weight)
@@ -214,12 +219,12 @@ SELECT
     ELSE '77067'         -- Bilateral screening mammography
   END AS procedure_code,
   -- Billed > Allowed > Paid (realistic hierarchy)
-  ROUND(UNIFORM(80, 12000, RANDOM()), 2) AS billed_amt,
-  ROUND(billed_amt * UNIFORM(40, 75, RANDOM()) / 100, 2) AS allowed_amt,
+  billed_amt,
+  ROUND(billed_amt * allowed_pct / 100, 2) AS allowed_amt,
   -- Denied claims have paid_amt = 0
   CASE
     WHEN MOD(n, 100) < 10 THEN 0.00
-    ELSE ROUND(allowed_amt * UNIFORM(70, 95, RANDOM()) / 100, 2)
+    ELSE ROUND(billed_amt * allowed_pct / 100 * paid_pct / 100, 2)
   END AS paid_amt,
   CASE
     WHEN MOD(n, 100) < 10 THEN 'Denied'
