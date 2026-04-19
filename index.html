@@ -709,6 +709,47 @@
 <span class="keyword">UNION ALL SELECT</span> <span class="string">'PROVIDERS'</span>,      <span class="fn">COUNT</span>(*) <span class="keyword">FROM</span> providers;</pre>
       </div>
       <p>You should see non-zero row counts for all four tables before proceeding.</p>
+
+      <h3>Explore the Dataset</h3>
+      <p>Run these five queries to get familiar with the data and to seed query history — <strong>Semantic View Autopilot in Step 4 uses your account's query history to suggest better metrics and dimensions</strong>, so running these now improves the generated view.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">SQL — Exploratory Queries</span><span class="code-hint">Run as OPTUM_LAB_ROLE</span></div>
+        <pre><span class="keyword">USE ROLE</span> optum_lab_role; <span class="keyword">USE WAREHOUSE</span> optum_lab_wh;
+<span class="keyword">USE DATABASE</span> optum_lab_db; <span class="keyword">USE SCHEMA</span> payer;
+
+<span class="comment">-- 1. Member population by chronic condition</span>
+<span class="keyword">SELECT</span> chronic_condition, <span class="fn">COUNT</span>(*) <span class="keyword">AS</span> member_count
+<span class="keyword">FROM</span> members <span class="keyword">GROUP BY</span> 1 <span class="keyword">ORDER BY</span> 2 <span class="keyword">DESC</span>;
+
+<span class="comment">-- 2. Medical spend by service type</span>
+<span class="keyword">SELECT</span> service_type,
+       <span class="fn">COUNT</span>(*)                      <span class="keyword">AS</span> claims,
+       <span class="fn">ROUND</span>(<span class="fn">SUM</span>(paid_amt), 0)        <span class="keyword">AS</span> total_paid
+<span class="keyword">FROM</span> medical_claims <span class="keyword">GROUP BY</span> 1 <span class="keyword">ORDER BY</span> 3 <span class="keyword">DESC</span>;
+
+<span class="comment">-- 3. Top 10 drugs by total pharmacy spend</span>
+<span class="keyword">SELECT</span> drug_name, drug_class,
+       <span class="fn">COUNT</span>(*)                      <span class="keyword">AS</span> fills,
+       <span class="fn">ROUND</span>(<span class="fn">SUM</span>(paid_amt), 0)        <span class="keyword">AS</span> total_paid
+<span class="keyword">FROM</span> pharmacy_claims <span class="keyword">GROUP BY</span> 1, 2 <span class="keyword">ORDER BY</span> 4 <span class="keyword">DESC LIMIT</span> 10;
+
+<span class="comment">-- 4. Total medical cost of care by chronic condition (member + claims join)</span>
+<span class="keyword">SELECT</span> m.chronic_condition,
+       <span class="fn">COUNT</span>(<span class="keyword">DISTINCT</span> m.member_id)   <span class="keyword">AS</span> members,
+       <span class="fn">ROUND</span>(<span class="fn">SUM</span>(mc.paid_amt), 0)     <span class="keyword">AS</span> total_medical_paid
+<span class="keyword">FROM</span> members m
+<span class="keyword">JOIN</span> medical_claims mc <span class="keyword">ON</span> m.member_id = mc.member_id
+<span class="keyword">GROUP BY</span> 1 <span class="keyword">ORDER BY</span> 3 <span class="keyword">DESC</span>;
+
+<span class="comment">-- 5. Provider utilization and average paid by specialty</span>
+<span class="keyword">SELECT</span> p.specialty, p.network_status,
+       <span class="fn">COUNT</span>(*)                      <span class="keyword">AS</span> claims,
+       <span class="fn">ROUND</span>(<span class="fn">AVG</span>(mc.paid_amt), 2)     <span class="keyword">AS</span> avg_paid_per_claim
+<span class="keyword">FROM</span> medical_claims mc
+<span class="keyword">JOIN</span> providers p <span class="keyword">ON</span> mc.provider_id = p.provider_id
+<span class="keyword">GROUP BY</span> 1, 2 <span class="keyword">ORDER BY</span> 3 <span class="keyword">DESC LIMIT</span> 10;</pre>
+      </div>
+      <p>These queries touch all four tables and exercise key dimensions and measures — this is exactly the pattern Autopilot looks for when building the semantic view in Step 4.</p>
     </section>
 
     <!-- ── STEP 4: SEMANTIC VIEW via AUTOPILOT ── -->
@@ -724,7 +765,7 @@
 
       <div class="callout callout-info">
         <span class="icon">🤖</span>
-        <div><strong>What is Semantic View Autopilot?</strong> It is an AI assistant built into Snowsight's Analyst interface that reads your table schemas, column names, and data samples, then generates a semantic view YAML — including dimensions, measures, relationships, and verified sample queries — with zero manual YAML editing required. You review, refine, and save.</div>
+        <div><strong>What is Semantic View Autopilot?</strong> It is an AI assistant built into Snowsight's Analyst interface that reads your table schemas, column names, data samples, and recent query history, then generates a <strong>Semantic View</strong> — a native Snowflake object stored in your database schema, just like a regular view. It includes dimensions, measures, table relationships, and verified sample queries — with zero manual YAML editing required. You review, refine, and save it directly to <code>OPTUM_LAB_DB.PAYER</code>.</div>
       </div>
 
       <h3>Step 4a — Open Cortex Analyst</h3>
@@ -767,8 +808,8 @@
       <h3>Step 4d — Save and Test</h3>
       <ol>
         <li>Give the semantic view the name <code>member_intelligence</code>.</li>
-        <li>Select stage: <code>OPTUM_LAB_DB.PAYER → SEMANTIC_MODELS</code>.</li>
-        <li>Click <strong>Save</strong>.</li>
+        <li>Set the save location to schema <code>OPTUM_LAB_DB.PAYER</code> — Autopilot creates a native Snowflake view object here, not a file.</li>
+        <li>Click <strong>Save</strong>. The view is now a first-class object in your database: <code>OPTUM_LAB_DB.PAYER.MEMBER_INTELLIGENCE</code>.</li>
         <li>In the test panel on the right, try this question:<br>
           <em>"What are the top 5 chronic conditions by total paid amount?"</em><br>
           You should see a SQL query generated and a data table returned.</li>
@@ -776,7 +817,9 @@
 
       <div class="callout callout-note">
         <span class="icon">📋</span>
-        <div><strong>Fallback:</strong> If Autopilot is not yet available in your trial region, a pre-built <code>member_intelligence.yaml</code> is included in your lab bundle. Upload it via <strong>Create new → Upload your YAML file</strong>, selecting the same stage. Continue with Step 4d to test it.</div>
+        <div><strong>Fallback:</strong> If Autopilot is not yet available in your trial region, copy the pre-built YAML from the lab repo into your SEMANTIC_MODELS stage using this SQL, then upload it via <strong>Create new → Upload YAML</strong>:<br><br>
+        <code>COPY FILES INTO @optum_lab_db.payer.semantic_models FROM @snowcamp_lab_repo/branches/main/assets/semantic_models/ FILES = ('member_intelligence.yaml');</code><br><br>
+        Note: If using the YAML fallback, the agent tool in Step 6 must reference the stage file path instead of the semantic view object.</div>
       </div>
     </section>
 
@@ -912,7 +955,7 @@ Please generate:
         <li>Click <strong>Edit</strong> on the new agent and paste in the <strong>Orchestration Instructions</strong> generated (and customized) by CoCo.</li>
         <li>Add <strong>Example Questions</strong> from CoCo's output — these appear as quick-start prompts in Snowflake Intelligence.</li>
         <li>Under <strong>Tools → Cortex Analyst</strong>, click <strong>+ Add</strong>:<br>
-          Semantic model: <code>OPTUM_LAB_DB.PAYER.SEMANTIC_MODELS → member_intelligence.yaml</code><br>
+          Semantic view: <code>OPTUM_LAB_DB.PAYER.MEMBER_INTELLIGENCE</code><br>
           Name: <code>Member_And_Claims_Data</code> &nbsp;·&nbsp; Warehouse: <code>OPTUM_LAB_WH</code></li>
         <li>Under <strong>Tools → Cortex Search Services</strong>, click <strong>+ Add</strong>:<br>
           Search service: <code>OPTUM_LAB_DB.PAYER → BENEFIT_POLICY_SEARCH</code><br>
