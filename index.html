@@ -834,9 +834,20 @@
       <p>Your agent needs to answer questions that can't be answered from claims tables alone — questions like <em>"What is the prior authorization process for GLP-1 medications?"</em> or <em>"Does our plan cover physical therapy for non-surgical back pain?"</em>. These answers live in benefit policy documents.</p>
       <p>You will use <strong>Cortex Search</strong> to index three synthetic policy documents and make them retrievable by your agent.</p>
 
-      <h3>Step 5a — Verify Policy Documents Are Staged</h3>
-      <p>The setup script automatically copied the three policy documents from the lab GitHub repo into your <code>POLICY_DOCS</code> stage. Verify they are there before creating the search service:</p>
-      <p>In Snowsight, navigate to <strong>Data → Databases → OPTUM_LAB_DB → PAYER → Stages → POLICY_DOCS</strong> and confirm these three files are present:</p>
+      <h3>Step 5a — Stage Policy Documents</h3>
+      <p>The three policy documents live in the lab GitHub repo. Run the following SQL to copy them from the Git repository stage into your internal <code>POLICY_DOCS</code> stage. This is the same <code>snowcamp_lab_repo</code> stage you used during setup — it's available throughout the lab, not just for bootstrapping.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">SQL — Copy Policy Docs to Internal Stage</span><span class="code-hint">Run as OPTUM_LAB_ROLE</span></div>
+        <pre><span class="keyword">USE ROLE</span> optum_lab_role; <span class="keyword">USE DATABASE</span> optum_lab_db; <span class="keyword">USE SCHEMA</span> payer;
+
+<span class="keyword">COPY FILES INTO</span> @policy_docs
+  <span class="keyword">FROM</span> @snowcamp_lab_repo/branches/main/assets/documents/
+  FILES = (<span class="string">'formulary_guidelines.txt'</span>, <span class="string">'medical_benefits_summary.txt'</span>, <span class="string">'quality_stars_measures.txt'</span>);
+
+<span class="comment">-- Verify: should show 3 files</span>
+<span class="keyword">LIST</span> @policy_docs;</pre>
+      </div>
+      <p>The three documents covering:</p>
       <ul>
         <li><code>formulary_guidelines.txt</code> — drug formulary tiers, PA requirements, GLP-1 and specialty drug rules</li>
         <li><code>medical_benefits_summary.txt</code> — coverage rules for preventive care, specialist visits, mental health, PT</li>

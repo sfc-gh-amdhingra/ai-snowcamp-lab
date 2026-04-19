@@ -156,17 +156,11 @@ CREATE OR REPLACE STAGE optum_lab_db.payer.semantic_models
   ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE')
   DIRECTORY  = (ENABLE = TRUE);
 
+-- Attendees will copy policy documents into this stage manually in Step 5.
+-- This is an intentional learning step — do not pre-populate it here.
 CREATE OR REPLACE STAGE optum_lab_db.payer.policy_docs
   ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE')
   DIRECTORY  = (ENABLE = TRUE);
-
--- Copy policy documents from Git repo into the internal stage automatically.
--- Attendees do not need to upload files manually.
-USE ROLE ACCOUNTADMIN;
-COPY FILES INTO @optum_lab_db.payer.policy_docs
-  FROM @snowcamp_lab_repo/branches/main/assets/documents/
-  FILES = ('formulary_guidelines.txt', 'medical_benefits_summary.txt', 'quality_stars_measures.txt');
-USE ROLE optum_lab_role;
 
 -- ── 9. VERIFY ─────────────────────────────────────────────────────────────────
 USE ROLE ACCOUNTADMIN;
