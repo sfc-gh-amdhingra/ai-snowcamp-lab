@@ -817,7 +817,7 @@
 
       <div class="callout callout-note">
         <span class="icon">📋</span>
-        <div><strong>Fallback:</strong> If Autopilot is not yet available in your trial region, copy the pre-built YAML from the lab repo into your SEMANTIC_MODELS stage using this SQL, then upload it via <strong>Create new → Upload YAML</strong>:<br><br>
+        <div><strong>Fallback:</strong> If the Autopilot button is missing or the view generation fails, copy the pre-built YAML from the lab repo and upload it manually via <strong>Create new → Upload YAML</strong>. (Autopilot is available in Azure Central India — cross-region inference was enabled in Step 3a — so this should only be needed as a last resort.)<br><br>
         <code>COPY FILES INTO @optum_lab_db.payer.semantic_models FROM @snowcamp_lab_repo/branches/main/assets/semantic_models/ FILES = ('member_intelligence.yaml');</code><br><br>
         Note: If using the YAML fallback, the agent tool in Step 6 must reference the stage file path instead of the semantic view object.</div>
       </div>
