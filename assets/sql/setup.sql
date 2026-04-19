@@ -1,7 +1,8 @@
 -- ============================================================
 -- AI Snowcamp — Lab Setup Script
--- Run this entire script as ACCOUNTADMIN in a SQL Worksheet
--- Estimated runtime: under 2 minutes
+-- Executed automatically via EXECUTE IMMEDIATE FROM the
+-- bootstrap snippet in Step 3 of the lab guide.
+-- Do not run this script directly.
 --
 -- Objects created:
 --   Database:   OPTUM_LAB_DB
@@ -23,7 +24,15 @@ CREATE OR REPLACE SCHEMA   optum_lab_db.payer;
 USE DATABASE optum_lab_db;
 USE SCHEMA   payer;
 
--- ── 2. TABLES ─────────────────────────────────────────────────────────────────
+-- ── 2. WAREHOUSE (created early — needed for COPY INTO below) ─────────────────
+CREATE OR REPLACE WAREHOUSE optum_lab_wh
+  WITH WAREHOUSE_SIZE = 'MEDIUM'
+  AUTO_SUSPEND        = 120
+  AUTO_RESUME         = TRUE;
+
+USE WAREHOUSE optum_lab_wh;
+
+-- ── 3. TABLES ─────────────────────────────────────────────────────────────────
 CREATE OR REPLACE TABLE members (
   member_id         VARCHAR(20)   NOT NULL,  -- e.g. MBR000001
   name              VARCHAR(100),
@@ -75,18 +84,17 @@ CREATE OR REPLACE TABLE providers (
   avg_cost_per_visit NUMBER(10,2)
 );
 
--- ── 3. FILE FORMAT AND DATA LOAD FROM GIT REPO ───────────────────────────────
--- CSVs are loaded directly from the public GitHub repo (no credentials needed).
--- The Git repository object (snowcamp_lab_repo) was created by the bootstrap
--- snippet in Step 3 of the lab guide before this script was executed.
-
+-- ── 4. FILE FORMAT ────────────────────────────────────────────────────────────
 CREATE OR REPLACE FILE FORMAT payer_csv_format
   TYPE                         = 'CSV'
   SKIP_HEADER                  = 1
   FIELD_OPTIONALLY_ENCLOSED_BY = '"'
   NULL_IF                      = ('NULL', 'null', '');
 
--- ── 4. LOAD DATA FROM GIT REPO ────────────────────────────────────────────────
+-- ── 5. LOAD DATA FROM GIT REPO ────────────────────────────────────────────────
+-- CSVs are loaded directly from the public GitHub repo (no credentials needed).
+-- The Git repository object (snowcamp_lab_repo) was created by the bootstrap
+-- snippet in Step 3 of the lab guide before this script was executed.
 COPY INTO members
   FROM @snowcamp_lab_repo/branches/main/assets/data/members.csv
   FILE_FORMAT = payer_csv_format ON_ERROR = CONTINUE;
@@ -103,12 +111,8 @@ COPY INTO providers
   FROM @snowcamp_lab_repo/branches/main/assets/data/providers.csv
   FILE_FORMAT = payer_csv_format ON_ERROR = CONTINUE;
 
--- ── 5. ROLE, WAREHOUSE, AND GRANTS ────────────────────────────────────────────
-CREATE OR REPLACE ROLE      optum_lab_role;
-CREATE OR REPLACE WAREHOUSE optum_lab_wh
-  WITH WAREHOUSE_SIZE = 'MEDIUM'
-  AUTO_SUSPEND        = 120
-  AUTO_RESUME         = TRUE;
+-- ── 6. ROLE AND GRANTS ────────────────────────────────────────────────────────
+CREATE OR REPLACE ROLE optum_lab_role;
 
 SET current_user = (SELECT CURRENT_USER());
 GRANT ROLE optum_lab_role TO USER IDENTIFIER($current_user);
@@ -118,17 +122,18 @@ GRANT USAGE  ON SCHEMA    optum_lab_db.payer              TO ROLE optum_lab_role
 GRANT SELECT ON ALL TABLES IN SCHEMA optum_lab_db.payer   TO ROLE optum_lab_role;
 GRANT USAGE  ON WAREHOUSE optum_lab_wh                    TO ROLE optum_lab_role;
 
--- ── 6. SNOWFLAKE INTELLIGENCE SCHEMA ──────────────────────────────────────────
+-- ── 7. SNOWFLAKE INTELLIGENCE SCHEMA ──────────────────────────────────────────
 CREATE DATABASE IF NOT EXISTS snowflake_intelligence;
 CREATE SCHEMA  IF NOT EXISTS snowflake_intelligence.agents;
 
-GRANT USAGE ON DATABASE snowflake_intelligence            TO ROLE optum_lab_role;
-GRANT USAGE ON SCHEMA   snowflake_intelligence.agents     TO ROLE optum_lab_role;
+GRANT USAGE ON DATABASE snowflake_intelligence             TO ROLE optum_lab_role;
+GRANT USAGE ON SCHEMA   snowflake_intelligence.agents      TO ROLE optum_lab_role;
 GRANT CREATE AGENT ON SCHEMA snowflake_intelligence.agents TO ROLE optum_lab_role;
 
--- ── 7. INTERNAL STAGES FOR LAB ARTIFACTS ─────────────────────────────────────
+-- ── 8. INTERNAL STAGES FOR LAB ARTIFACTS ─────────────────────────────────────
 -- Switch to lab role to own these stages
 USE ROLE optum_lab_role;
+USE WAREHOUSE optum_lab_wh;
 
 CREATE OR REPLACE STAGE optum_lab_db.payer.semantic_models
   ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE')
@@ -138,7 +143,7 @@ CREATE OR REPLACE STAGE optum_lab_db.payer.policy_docs
   ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE')
   DIRECTORY  = (ENABLE = TRUE);
 
--- ── 8. VERIFY ─────────────────────────────────────────────────────────────────
+-- ── 9. VERIFY ─────────────────────────────────────────────────────────────────
 USE ROLE ACCOUNTADMIN;
 
 SELECT 'MEMBERS'         AS tbl, COUNT(*) AS rows FROM members

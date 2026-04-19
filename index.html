@@ -455,7 +455,7 @@
         <div class="card build">
           <h4>What You Will Build</h4>
           <ul>
-            <li>A synthetic payer database loaded from Azure Blob Storage (members, claims, pharmacy, providers)</li>
+            <li>A synthetic payer database loaded from the lab GitHub repository (members, claims, pharmacy, providers)</li>
             <li>A <code>member_intelligence</code> semantic view via Autopilot</li>
             <li>A Cortex Search service over benefit policy text</li>
             <li>A <strong>Member Intelligence Cortex Agent</strong> with your own persona and instructions</li>
@@ -615,84 +615,56 @@
       <div class="callout callout-info">
         <span class="icon">🗂️</span>
         <div>
-          <strong>About the dataset:</strong> The lab uses a <strong>purpose-built synthetic payer dataset</strong> modelled on a commercial health plan population (similar to a UnitedHealthcare fully-insured plan) — ~127,000 rows across four tables. It is hosted on <strong>Azure Blob Storage</strong> in the Snowflake SE Azure sandbox, loaded directly into your trial account via <code>COPY INTO</code>. <strong>No real member, patient, or PHI data is used at any point.</strong>
+          <strong>About the dataset:</strong> The lab uses a <strong>purpose-built synthetic payer dataset</strong> modelled on a commercial health plan population (similar to a UnitedHealthcare fully-insured plan) — ~127,000 rows across four tables. It is hosted in the <strong>public lab GitHub repository</strong> and loaded directly into your trial account via Snowflake's Git integration and <code>COPY INTO</code>. <strong>No real member, patient, or PHI data is used at any point.</strong>
           <br><br>
           The data is designed to produce realistic answers to payer analytics questions — cost variation by condition, pharmacy adherence gaps, care quality opportunities — so your agent responses feel genuine, not toy-like.
         </div>
       </div>
 
-      <h3>Step 3b — Run the Lab Setup Script</h3>
+      <h3>Step 3b — Connect the Lab Repo and Run Setup</h3>
 
-      <p>Open <code>setup.sql</code> from the lab bundle in a <strong>new SQL Worksheet</strong>. Make sure your role is <code>ACCOUNTADMIN</code>. Run the entire script — it completes in under 2 minutes.</p>
+      <p>Open a <strong>new SQL Worksheet</strong> in Snowsight. Make sure your role is <code>ACCOUNTADMIN</code>. Copy and run the bootstrap snippet below — it takes under 2 minutes and handles everything automatically.</p>
 
-      <p>The script does everything in one pass:</p>
+      <p>What this does in one pass:</p>
       <ol>
-        <li>Creates <code>OPTUM_LAB_DB</code> database and <code>PAYER</code> schema</li>
-        <li>Creates the four payer tables (MEMBERS, MEDICAL_CLAIMS, PHARMACY_CLAIMS, PROVIDERS)</li>
-        <li>Creates an external stage pointing to Azure Blob Storage with a time-limited SAS token</li>
-        <li>Runs <code>COPY INTO</code> to load all four tables from Azure</li>
-        <li>Creates <code>OPTUM_LAB_ROLE</code>, grants it to your user, and provisions the lab warehouse</li>
-        <li>Creates internal stages for lab artifacts (semantic model YAML, policy documents)</li>
+        <li>Creates a <strong>Git Repository</strong> object connected to the public lab GitHub repo (no credentials required — it's a public repo)</li>
+        <li>Fetches the repo contents into Snowflake</li>
+        <li>Executes <code>setup.sql</code> directly from the repo, which creates all tables, loads the data, and configures your lab environment</li>
       </ol>
 
       <div class="code-block">
-        <div class="code-header"><span class="code-lang">SQL — setup.sql (structure)</span><span class="code-hint">Full script provided in lab bundle · Run as ACCOUNTADMIN</span></div>
+        <div class="code-header"><span class="code-lang">SQL — Bootstrap Snippet</span><span class="code-hint">Copy and run as ACCOUNTADMIN · ~2 minutes</span></div>
         <pre><span class="keyword">USE ROLE</span> accountadmin;
 
-<span class="comment">-- Database and schema</span>
-<span class="keyword">CREATE OR REPLACE DATABASE</span> optum_lab_db;
-<span class="keyword">CREATE OR REPLACE SCHEMA</span>   optum_lab_db.payer;
-<span class="keyword">USE DATABASE</span> optum_lab_db; <span class="keyword">USE SCHEMA</span> payer;
+<span class="comment">-- Connect to the public lab GitHub repo (no credentials needed)</span>
+<span class="keyword">CREATE OR REPLACE API INTEGRATION</span> snowcamp_lab_git
+  API_PROVIDER = git_https_api
+  API_ALLOWED_PREFIXES = (<span class="string">'https://github.com/sfc-gh-amdhingra/'</span>)
+  ENABLED = <span class="keyword">TRUE</span>;
 
-<span class="comment">-- Tables (members, medical_claims, pharmacy_claims, providers)</span>
-<span class="keyword">CREATE OR REPLACE TABLE</span> members          ( member_id <span class="keyword">VARCHAR</span>, name <span class="keyword">VARCHAR</span>, ... );
-<span class="keyword">CREATE OR REPLACE TABLE</span> medical_claims   ( claim_id  <span class="keyword">VARCHAR</span>, member_id <span class="keyword">VARCHAR</span>, ... );
-<span class="keyword">CREATE OR REPLACE TABLE</span> pharmacy_claims  ( rx_id     <span class="keyword">VARCHAR</span>, member_id <span class="keyword">VARCHAR</span>, ... );
-<span class="keyword">CREATE OR REPLACE TABLE</span> providers        ( provider_id <span class="keyword">VARCHAR</span>, name <span class="keyword">VARCHAR</span>, ... );
+<span class="keyword">CREATE OR REPLACE GIT REPOSITORY</span> snowcamp_lab_repo
+  API_INTEGRATION = snowcamp_lab_git
+  ORIGIN = <span class="string">'https://github.com/sfc-gh-amdhingra/ai-snowcamp-lab.git'</span>;
 
-<span class="comment">-- External stage: Azure Blob Storage (Snowflake SE Azure sandbox)
--- SAS token is time-limited; included in the distributed setup.sql</span>
-<span class="keyword">CREATE OR REPLACE STAGE</span> optum_lab_source
-  <span class="keyword">URL</span> = <span class="string">'azure://sfselabs.blob.core.windows.net/optum-snowcamp/data/'</span>
-  <span class="keyword">CREDENTIALS</span> = (AZURE_SAS_TOKEN = <span class="string">'&lt;included in distributed script&gt;'</span>)
-  <span class="keyword">FILE_FORMAT</span> = (TYPE = <span class="string">'CSV'</span> SKIP_HEADER = 1
-                 FIELD_OPTIONALLY_ENCLOSED_BY = <span class="string">'"'</span> NULL_IF = (<span class="string">'NULL'</span>,<span class="string">''</span>));
+<span class="keyword">ALTER GIT REPOSITORY</span> snowcamp_lab_repo <span class="keyword">FETCH</span>;
 
-<span class="comment">-- Load data from Azure</span>
-<span class="keyword">COPY INTO</span> members         <span class="keyword">FROM</span> @optum_lab_source/members.csv         ON_ERROR = CONTINUE;
-<span class="keyword">COPY INTO</span> medical_claims  <span class="keyword">FROM</span> @optum_lab_source/medical_claims.csv  ON_ERROR = CONTINUE;
-<span class="keyword">COPY INTO</span> pharmacy_claims <span class="keyword">FROM</span> @optum_lab_source/pharmacy_claims.csv ON_ERROR = CONTINUE;
-<span class="keyword">COPY INTO</span> providers       <span class="keyword">FROM</span> @optum_lab_source/providers.csv       ON_ERROR = CONTINUE;
-
-<span class="comment">-- Role, warehouse, and grants</span>
-<span class="keyword">CREATE OR REPLACE ROLE</span>      optum_lab_role;
-<span class="keyword">CREATE OR REPLACE WAREHOUSE</span> optum_lab_wh <span class="keyword">WITH</span> warehouse_size = <span class="string">'MEDIUM'</span>;
-<span class="keyword">SET</span> current_user = (<span class="keyword">SELECT</span> <span class="fn">CURRENT_USER</span>());
-<span class="keyword">GRANT ROLE</span> optum_lab_role <span class="keyword">TO USER</span> <span class="fn">IDENTIFIER</span>($current_user);
-<span class="keyword">GRANT USAGE ON DATABASE</span>  optum_lab_db <span class="keyword">TO ROLE</span> optum_lab_role;
-<span class="keyword">GRANT USAGE ON SCHEMA</span>    optum_lab_db.payer <span class="keyword">TO ROLE</span> optum_lab_role;
-<span class="keyword">GRANT SELECT ON ALL TABLES IN SCHEMA</span> optum_lab_db.payer <span class="keyword">TO ROLE</span> optum_lab_role;
-<span class="keyword">GRANT USAGE ON WAREHOUSE</span> optum_lab_wh <span class="keyword">TO ROLE</span> optum_lab_role;
-
-<span class="comment">-- Snowflake Intelligence schema + agent creation privilege</span>
-<span class="keyword">CREATE DATABASE IF NOT EXISTS</span> snowflake_intelligence;
-<span class="keyword">CREATE SCHEMA  IF NOT EXISTS</span> snowflake_intelligence.agents;
-<span class="keyword">GRANT CREATE AGENT ON SCHEMA</span> snowflake_intelligence.agents <span class="keyword">TO ROLE</span> optum_lab_role;
-
-<span class="comment">-- Internal stages for lab artifacts (used in Steps 4 and 5)</span>
-<span class="keyword">USE ROLE</span> optum_lab_role;
-<span class="keyword">CREATE OR REPLACE STAGE</span> optum_lab_db.payer.semantic_models
-  <span class="keyword">ENCRYPTION</span> = (TYPE = <span class="string">'SNOWFLAKE_SSE'</span>) <span class="keyword">DIRECTORY</span> = (ENABLE = <span class="keyword">true</span>);
-<span class="keyword">CREATE OR REPLACE STAGE</span> optum_lab_db.payer.policy_docs
-  <span class="keyword">ENCRYPTION</span> = (TYPE = <span class="string">'SNOWFLAKE_SSE'</span>) <span class="keyword">DIRECTORY</span> = (ENABLE = <span class="keyword">true</span>);
-
-<span class="keyword">SELECT</span> <span class="string">'Setup complete. Switch your role to OPTUM_LAB_ROLE.'</span> <span class="keyword">AS</span> status;</pre>
+<span class="comment">-- Run the full setup script from the repo</span>
+<span class="keyword">EXECUTE IMMEDIATE FROM</span> @snowcamp_lab_repo/branches/main/assets/sql/setup.sql;</pre>
       </div>
+
+      <p>The <code>setup.sql</code> script (run automatically above) creates:</p>
+      <ul>
+        <li><code>OPTUM_LAB_DB</code> database and <code>PAYER</code> schema</li>
+        <li>Four payer tables: MEMBERS, MEDICAL_CLAIMS, PHARMACY_CLAIMS, PROVIDERS</li>
+        <li><code>OPTUM_LAB_WH</code> warehouse (MEDIUM), <code>OPTUM_LAB_ROLE</code>, and all required grants</li>
+        <li>Loads ~127,000 rows from CSVs in the Git repo via <code>COPY INTO</code></li>
+        <li>Internal stages for lab artifacts (semantic model, policy docs)</li>
+      </ul>
 
       <div class="callout callout-tip">
         <span class="icon">💡</span>
         <div>
-          After the script completes, switch your active role in Snowsight to <strong>OPTUM_LAB_ROLE</strong> — you will use this role for all remaining steps (Steps 4–9). The Azure external stage is only needed during setup; once the data is loaded it is no longer required.
+          After the script completes, the final query shows row counts for all four tables. Switch your active role in Snowsight to <strong>OPTUM_LAB_ROLE</strong> — you will use this role for all remaining steps (Steps 4–9).
         </div>
       </div>
 
