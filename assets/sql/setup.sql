@@ -75,10 +75,10 @@ CREATE OR REPLACE TABLE providers (
   avg_cost_per_visit NUMBER(10,2)
 );
 
--- ── 3. AZURE EXTERNAL STAGE ───────────────────────────────────────────────────
--- Data is hosted on Azure Blob Storage (SE Azure sandbox).
--- The SAS token below is read-only and time-limited.
--- Do not share this file outside of the lab session.
+-- ── 3. FILE FORMAT AND DATA LOAD FROM GIT REPO ───────────────────────────────
+-- CSVs are loaded directly from the public GitHub repo (no credentials needed).
+-- The Git repository object (snowcamp_lab_repo) was created by the bootstrap
+-- snippet in Step 3 of the lab guide before this script was executed.
 
 CREATE OR REPLACE FILE FORMAT payer_csv_format
   TYPE                         = 'CSV'
@@ -86,16 +86,22 @@ CREATE OR REPLACE FILE FORMAT payer_csv_format
   FIELD_OPTIONALLY_ENCLOSED_BY = '"'
   NULL_IF                      = ('NULL', 'null', '');
 
-CREATE OR REPLACE STAGE optum_lab_source
-  URL         = 'azure://sfselabs.blob.core.windows.net/ai-snowcamp/data/'
-  CREDENTIALS = (AZURE_SAS_TOKEN = '<REPLACE_WITH_SAS_TOKEN>')
-  FILE_FORMAT = payer_csv_format;
+-- ── 4. LOAD DATA FROM GIT REPO ────────────────────────────────────────────────
+COPY INTO members
+  FROM @snowcamp_lab_repo/branches/main/assets/data/members.csv
+  FILE_FORMAT = payer_csv_format ON_ERROR = CONTINUE;
 
--- ── 4. LOAD DATA FROM AZURE ───────────────────────────────────────────────────
-COPY INTO members         FROM @optum_lab_source/members.csv         ON_ERROR = CONTINUE;
-COPY INTO medical_claims  FROM @optum_lab_source/medical_claims.csv  ON_ERROR = CONTINUE;
-COPY INTO pharmacy_claims FROM @optum_lab_source/pharmacy_claims.csv ON_ERROR = CONTINUE;
-COPY INTO providers       FROM @optum_lab_source/providers.csv       ON_ERROR = CONTINUE;
+COPY INTO medical_claims
+  FROM @snowcamp_lab_repo/branches/main/assets/data/medical_claims.csv
+  FILE_FORMAT = payer_csv_format ON_ERROR = CONTINUE;
+
+COPY INTO pharmacy_claims
+  FROM @snowcamp_lab_repo/branches/main/assets/data/pharmacy_claims.csv
+  FILE_FORMAT = payer_csv_format ON_ERROR = CONTINUE;
+
+COPY INTO providers
+  FROM @snowcamp_lab_repo/branches/main/assets/data/providers.csv
+  FILE_FORMAT = payer_csv_format ON_ERROR = CONTINUE;
 
 -- ── 5. ROLE, WAREHOUSE, AND GRANTS ────────────────────────────────────────────
 CREATE OR REPLACE ROLE      optum_lab_role;
