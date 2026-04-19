@@ -541,9 +541,7 @@
         <li>A <strong>Snowflake Trial Account</strong> — sign up at <a href="https://signup.snowflake.com" target="_blank">signup.snowflake.com</a> (free, no credit card required)</li>
         <li>When signing up, select <strong>Microsoft Azure</strong> as the cloud provider and <strong>Central India (Pune)</strong> as the region — this keeps the lab geographically close and on the same cloud as Optum's production environment</li>
         <li>A modern web browser (Chrome or Edge recommended)</li>
-        <li>The <strong>lab asset bundle</strong> — a ZIP file provided by your facilitator containing:<br>
-          <code>setup.sql</code> &nbsp;·&nbsp; <code>member_intelligence.yaml</code> &nbsp;·&nbsp; <code>benefit_policies/</code> (3 text files)
-        </li>
+        <li>The <strong>lab guide</strong> — open <a href="https://sfc-gh-amdhingra.github.io/ai-snowcamp-lab/" target="_blank">sfc-gh-amdhingra.github.io/ai-snowcamp-lab/</a> in your browser. All SQL, instructions, and assets are served from the public GitHub repository — no ZIP file to download.</li>
       </ul>
 
       <div class="callout callout-info">
@@ -635,6 +633,11 @@
       <div class="code-block">
         <div class="code-header"><span class="code-lang">SQL — Bootstrap Snippet</span><span class="code-hint">Copy and run as ACCOUNTADMIN · ~2 minutes</span></div>
         <pre><span class="keyword">USE ROLE</span> accountadmin;
+
+<span class="comment">-- Create the database and schema first so the Git repository has a home.</span>
+<span class="keyword">CREATE DATABASE IF NOT EXISTS</span> optum_lab_db;
+<span class="keyword">CREATE SCHEMA  IF NOT EXISTS</span>  optum_lab_db.payer;
+<span class="keyword">USE DATABASE</span> optum_lab_db; <span class="keyword">USE SCHEMA</span> payer;
 
 <span class="comment">-- Connect to the public lab GitHub repo (no credentials needed)</span>
 <span class="keyword">CREATE OR REPLACE API INTEGRATION</span> snowcamp_lab_git
@@ -788,8 +791,9 @@
       <p>Your agent needs to answer questions that can't be answered from claims tables alone — questions like <em>"What is the prior authorization process for GLP-1 medications?"</em> or <em>"Does our plan cover physical therapy for non-surgical back pain?"</em>. These answers live in benefit policy documents.</p>
       <p>You will use <strong>Cortex Search</strong> to index three synthetic policy documents and make them retrievable by your agent.</p>
 
-      <h3>Step 5a — Upload Policy Documents to Stage</h3>
-      <p>In Snowsight, navigate to <strong>Data → Databases → OPTUM_LAB_DB → PAYER → Stages → POLICY_DOCS</strong>. Click <strong>+ Files</strong> and upload the three files from the <code>benefit_policies/</code> folder in your lab bundle:</p>
+      <h3>Step 5a — Verify Policy Documents Are Staged</h3>
+      <p>The setup script automatically copied the three policy documents from the lab GitHub repo into your <code>POLICY_DOCS</code> stage. Verify they are there before creating the search service:</p>
+      <p>In Snowsight, navigate to <strong>Data → Databases → OPTUM_LAB_DB → PAYER → Stages → POLICY_DOCS</strong> and confirm these three files are present:</p>
       <ul>
         <li><code>formulary_guidelines.txt</code> — drug formulary tiers, PA requirements, GLP-1 and specialty drug rules</li>
         <li><code>medical_benefits_summary.txt</code> — coverage rules for preventive care, specialist visits, mental health, PT</li>
@@ -801,15 +805,18 @@
 
       <div class="code-block">
         <div class="code-header"><span class="code-lang">SQL — Cortex Search Setup</span><span class="code-hint">Run in SQL Worksheet</span></div>
-        <pre><span class="keyword">USE DATABASE</span> optum_lab_db;
+        <pre><span class="keyword">USE ROLE</span> optum_lab_role;
+<span class="keyword">USE DATABASE</span> optum_lab_db;
 <span class="keyword">USE SCHEMA</span> payer;
+<span class="keyword">USE WAREHOUSE</span> optum_lab_wh;
 
-<span class="comment">-- Parse staged policy docs into a searchable table</span>
+<span class="comment">-- Parse staged policy docs into a searchable table (one row per line)</span>
 <span class="keyword">CREATE OR REPLACE TABLE</span> policy_documents <span class="keyword">AS</span>
 <span class="keyword">SELECT</span>
-  <span class="fn">REPLACE</span>(RELATIVE_PATH, <span class="string">'.txt'</span>, <span class="string">''</span>) <span class="keyword">AS</span> doc_name,
-  <span class="fn">$1</span>::<span class="keyword">VARCHAR</span>                        <span class="keyword">AS</span> content
-<span class="keyword">FROM</span> @policy_docs (file_format => <span class="string">'text_format'</span>);
+  <span class="fn">REPLACE</span>(METADATA$FILENAME, <span class="string">'.txt'</span>, <span class="string">''</span>) <span class="keyword">AS</span> doc_name,
+  <span class="fn">$1</span>::<span class="keyword">VARCHAR</span>                              <span class="keyword">AS</span> content
+<span class="keyword">FROM</span> @policy_docs (file_format => text_format)
+<span class="keyword">WHERE</span> <span class="fn">$1</span> <span class="keyword">IS NOT NULL</span>;
 
 <span class="comment">-- Create Cortex Search service over policy content</span>
 <span class="keyword">CREATE OR REPLACE CORTEX SEARCH SERVICE</span> benefit_policy_search

@@ -19,8 +19,10 @@
 USE ROLE ACCOUNTADMIN;
 
 -- ── 1. DATABASE AND SCHEMA ────────────────────────────────────────────────────
-CREATE OR REPLACE DATABASE optum_lab_db;
-CREATE OR REPLACE SCHEMA   optum_lab_db.payer;
+-- IF NOT EXISTS preserves the snowcamp_lab_repo Git repository object that the
+-- bootstrap snippet created in OPTUM_LAB_DB.PAYER before invoking this script.
+CREATE DATABASE IF NOT EXISTS optum_lab_db;
+CREATE SCHEMA  IF NOT EXISTS optum_lab_db.payer;
 USE DATABASE optum_lab_db;
 USE SCHEMA   payer;
 
@@ -91,6 +93,13 @@ CREATE OR REPLACE FILE FORMAT payer_csv_format
   FIELD_OPTIONALLY_ENCLOSED_BY = '"'
   NULL_IF                      = ('NULL', 'null', '');
 
+-- Text format for reading .txt policy documents from stage (Step 5)
+CREATE OR REPLACE FILE FORMAT text_format
+  TYPE             = 'CSV'
+  FIELD_DELIMITER  = NONE
+  RECORD_DELIMITER = '\n'
+  SKIP_BLANK_LINES = TRUE;
+
 -- ── 5. LOAD DATA FROM GIT REPO ────────────────────────────────────────────────
 -- CSVs are loaded directly from the public GitHub repo (no credentials needed).
 -- The Git repository object (snowcamp_lab_repo) was created by the bootstrap
@@ -117,10 +126,18 @@ CREATE OR REPLACE ROLE optum_lab_role;
 SET current_user = (SELECT CURRENT_USER());
 GRANT ROLE optum_lab_role TO USER IDENTIFIER($current_user);
 
-GRANT USAGE  ON DATABASE  optum_lab_db                   TO ROLE optum_lab_role;
-GRANT USAGE  ON SCHEMA    optum_lab_db.payer              TO ROLE optum_lab_role;
-GRANT SELECT ON ALL TABLES IN SCHEMA optum_lab_db.payer   TO ROLE optum_lab_role;
-GRANT USAGE  ON WAREHOUSE optum_lab_wh                    TO ROLE optum_lab_role;
+GRANT USAGE  ON DATABASE  optum_lab_db                          TO ROLE optum_lab_role;
+GRANT USAGE  ON SCHEMA    optum_lab_db.payer                    TO ROLE optum_lab_role;
+GRANT SELECT ON ALL TABLES IN SCHEMA optum_lab_db.payer         TO ROLE optum_lab_role;
+GRANT USAGE  ON WAREHOUSE optum_lab_wh                          TO ROLE optum_lab_role;
+
+-- Grants needed for Steps 5 and beyond
+GRANT CREATE TABLE             ON SCHEMA optum_lab_db.payer TO ROLE optum_lab_role;
+GRANT CREATE FILE FORMAT       ON SCHEMA optum_lab_db.payer TO ROLE optum_lab_role;
+GRANT CREATE CORTEX SEARCH SERVICE ON SCHEMA optum_lab_db.payer TO ROLE optum_lab_role;
+
+-- Cortex AI functions (Analyst, Search, Intelligence)
+GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER TO ROLE optum_lab_role;
 
 -- ── 7. SNOWFLAKE INTELLIGENCE SCHEMA ──────────────────────────────────────────
 CREATE DATABASE IF NOT EXISTS snowflake_intelligence;
@@ -142,6 +159,14 @@ CREATE OR REPLACE STAGE optum_lab_db.payer.semantic_models
 CREATE OR REPLACE STAGE optum_lab_db.payer.policy_docs
   ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE')
   DIRECTORY  = (ENABLE = TRUE);
+
+-- Copy policy documents from Git repo into the internal stage automatically.
+-- Attendees do not need to upload files manually.
+USE ROLE ACCOUNTADMIN;
+COPY FILES INTO @optum_lab_db.payer.policy_docs
+  FROM @snowcamp_lab_repo/branches/main/assets/documents/
+  FILES = ('formulary_guidelines.txt', 'medical_benefits_summary.txt', 'quality_stars_measures.txt');
+USE ROLE optum_lab_role;
 
 -- ── 9. VERIFY ─────────────────────────────────────────────────────────────────
 USE ROLE ACCOUNTADMIN;
