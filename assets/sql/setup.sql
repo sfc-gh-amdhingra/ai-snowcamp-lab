@@ -19,23 +19,23 @@
 USE ROLE ACCOUNTADMIN;
 
 -- ── 1. DATABASE AND SCHEMA ────────────────────────────────────────────────────
--- IF NOT EXISTS preserves the snowcamp_lab_repo Git repository object that the
+-- IF NOT EXISTS preserves the SNOWCAMP_LAB_REPO Git repository object that the
 -- bootstrap snippet created in OPTUM_LAB_DB.PAYER before invoking this script.
-CREATE DATABASE IF NOT EXISTS optum_lab_db;
-CREATE SCHEMA  IF NOT EXISTS optum_lab_db.payer;
-USE DATABASE optum_lab_db;
-USE SCHEMA   payer;
+CREATE DATABASE IF NOT EXISTS OPTUM_LAB_DB;
+CREATE SCHEMA  IF NOT EXISTS OPTUM_LAB_DB.PAYER;
+USE DATABASE OPTUM_LAB_DB;
+USE SCHEMA   PAYER;
 
 -- ── 2. WAREHOUSE (created early — needed for COPY INTO below) ─────────────────
-CREATE OR REPLACE WAREHOUSE optum_lab_wh
+CREATE OR REPLACE WAREHOUSE OPTUM_LAB_WH
   WITH WAREHOUSE_SIZE = 'MEDIUM'
   AUTO_SUSPEND        = 120
   AUTO_RESUME         = TRUE;
 
-USE WAREHOUSE optum_lab_wh;
+USE WAREHOUSE OPTUM_LAB_WH;
 
 -- ── 3. TABLES ─────────────────────────────────────────────────────────────────
-CREATE OR REPLACE TABLE members (
+CREATE OR REPLACE TABLE MEMBERS (
   member_id         VARCHAR(20)   NOT NULL,  -- e.g. MBR000001
   name              VARCHAR(100),
   dob               DATE,
@@ -50,7 +50,7 @@ CREATE OR REPLACE TABLE members (
   enrollment_end    DATE                     -- NULL = active member
 );
 
-CREATE OR REPLACE TABLE medical_claims (
+CREATE OR REPLACE TABLE MEDICAL_CLAIMS (
   claim_id       VARCHAR(20)   NOT NULL,     -- e.g. CLM000001
   member_id      VARCHAR(20),
   service_date   DATE,
@@ -64,7 +64,7 @@ CREATE OR REPLACE TABLE medical_claims (
   service_type   VARCHAR(30)                -- Inpatient, Outpatient, ER, Office Visit, Preventive
 );
 
-CREATE OR REPLACE TABLE pharmacy_claims (
+CREATE OR REPLACE TABLE PHARMACY_CLAIMS (
   rx_id         VARCHAR(20)   NOT NULL,     -- e.g. RX000001
   member_id     VARCHAR(20),
   drug_name     VARCHAR(100),
@@ -76,7 +76,7 @@ CREATE OR REPLACE TABLE pharmacy_claims (
   prescriber_id VARCHAR(20)
 );
 
-CREATE OR REPLACE TABLE providers (
+CREATE OR REPLACE TABLE PROVIDERS (
   provider_id        VARCHAR(20)   NOT NULL, -- e.g. PRV000001
   name               VARCHAR(100),
   specialty          VARCHAR(50),
@@ -87,14 +87,14 @@ CREATE OR REPLACE TABLE providers (
 );
 
 -- ── 4. FILE FORMAT ────────────────────────────────────────────────────────────
-CREATE OR REPLACE FILE FORMAT payer_csv_format
+CREATE OR REPLACE FILE FORMAT PAYER_CSV_FORMAT
   TYPE                         = 'CSV'
   SKIP_HEADER                  = 1
   FIELD_OPTIONALLY_ENCLOSED_BY = '"'
   NULL_IF                      = ('NULL', 'null', '');
 
 -- Text format for reading .txt policy documents from stage (Step 5)
-CREATE OR REPLACE FILE FORMAT text_format
+CREATE OR REPLACE FILE FORMAT TEXT_FORMAT
   TYPE             = 'CSV'
   FIELD_DELIMITER  = NONE
   RECORD_DELIMITER = '\n'
@@ -102,72 +102,72 @@ CREATE OR REPLACE FILE FORMAT text_format
 
 -- ── 5. LOAD DATA FROM GIT REPO ────────────────────────────────────────────────
 -- CSVs are loaded directly from the public GitHub repo (no credentials needed).
--- The Git repository object (snowcamp_lab_repo) was created by the bootstrap
+-- The Git repository object (SNOWCAMP_LAB_REPO) was created by the bootstrap
 -- snippet in Step 3 of the lab guide before this script was executed.
-COPY INTO members
-  FROM @snowcamp_lab_repo/branches/main/assets/data/members.csv
-  FILE_FORMAT = payer_csv_format ON_ERROR = CONTINUE;
+COPY INTO MEMBERS
+  FROM @SNOWCAMP_LAB_REPO/branches/main/assets/data/members.csv
+  FILE_FORMAT = PAYER_CSV_FORMAT ON_ERROR = CONTINUE;
 
-COPY INTO medical_claims
-  FROM @snowcamp_lab_repo/branches/main/assets/data/medical_claims.csv
-  FILE_FORMAT = payer_csv_format ON_ERROR = CONTINUE;
+COPY INTO MEDICAL_CLAIMS
+  FROM @SNOWCAMP_LAB_REPO/branches/main/assets/data/medical_claims.csv
+  FILE_FORMAT = PAYER_CSV_FORMAT ON_ERROR = CONTINUE;
 
-COPY INTO pharmacy_claims
-  FROM @snowcamp_lab_repo/branches/main/assets/data/pharmacy_claims.csv
-  FILE_FORMAT = payer_csv_format ON_ERROR = CONTINUE;
+COPY INTO PHARMACY_CLAIMS
+  FROM @SNOWCAMP_LAB_REPO/branches/main/assets/data/pharmacy_claims.csv
+  FILE_FORMAT = PAYER_CSV_FORMAT ON_ERROR = CONTINUE;
 
-COPY INTO providers
-  FROM @snowcamp_lab_repo/branches/main/assets/data/providers.csv
-  FILE_FORMAT = payer_csv_format ON_ERROR = CONTINUE;
+COPY INTO PROVIDERS
+  FROM @SNOWCAMP_LAB_REPO/branches/main/assets/data/providers.csv
+  FILE_FORMAT = PAYER_CSV_FORMAT ON_ERROR = CONTINUE;
 
 -- ── 6. ROLE AND GRANTS ────────────────────────────────────────────────────────
-CREATE OR REPLACE ROLE optum_lab_role;
+CREATE OR REPLACE ROLE OPTUM_LAB_ROLE;
 
 SET current_user = (SELECT CURRENT_USER());
-GRANT ROLE optum_lab_role TO USER IDENTIFIER($current_user);
+GRANT ROLE OPTUM_LAB_ROLE TO USER IDENTIFIER($current_user);
 
-GRANT USAGE  ON DATABASE  optum_lab_db                          TO ROLE optum_lab_role;
-GRANT USAGE  ON SCHEMA    optum_lab_db.payer                    TO ROLE optum_lab_role;
-GRANT SELECT ON ALL TABLES IN SCHEMA optum_lab_db.payer         TO ROLE optum_lab_role;
-GRANT USAGE  ON WAREHOUSE optum_lab_wh                          TO ROLE optum_lab_role;
+GRANT USAGE  ON DATABASE  OPTUM_LAB_DB                          TO ROLE OPTUM_LAB_ROLE;
+GRANT USAGE  ON SCHEMA    OPTUM_LAB_DB.PAYER                    TO ROLE OPTUM_LAB_ROLE;
+GRANT SELECT ON ALL TABLES IN SCHEMA OPTUM_LAB_DB.PAYER         TO ROLE OPTUM_LAB_ROLE;
+GRANT USAGE  ON WAREHOUSE OPTUM_LAB_WH                          TO ROLE OPTUM_LAB_ROLE;
 
 -- Grants needed for Steps 5 and beyond
-GRANT CREATE TABLE             ON SCHEMA optum_lab_db.payer TO ROLE optum_lab_role;
-GRANT CREATE FILE FORMAT       ON SCHEMA optum_lab_db.payer TO ROLE optum_lab_role;
-GRANT CREATE CORTEX SEARCH SERVICE ON SCHEMA optum_lab_db.payer TO ROLE optum_lab_role;
+GRANT CREATE TABLE             ON SCHEMA OPTUM_LAB_DB.PAYER TO ROLE OPTUM_LAB_ROLE;
+GRANT CREATE FILE FORMAT       ON SCHEMA OPTUM_LAB_DB.PAYER TO ROLE OPTUM_LAB_ROLE;
+GRANT CREATE CORTEX SEARCH SERVICE ON SCHEMA OPTUM_LAB_DB.PAYER TO ROLE OPTUM_LAB_ROLE;
 
 -- Cortex AI functions (Analyst, Search, Intelligence)
-GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER TO ROLE optum_lab_role;
+GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER TO ROLE OPTUM_LAB_ROLE;
 
 -- ── 7. SNOWFLAKE INTELLIGENCE SCHEMA ──────────────────────────────────────────
-CREATE DATABASE IF NOT EXISTS snowflake_intelligence;
-CREATE SCHEMA  IF NOT EXISTS snowflake_intelligence.agents;
+CREATE DATABASE IF NOT EXISTS SNOWFLAKE_INTELLIGENCE;
+CREATE SCHEMA  IF NOT EXISTS SNOWFLAKE_INTELLIGENCE.AGENTS;
 
-GRANT USAGE ON DATABASE snowflake_intelligence             TO ROLE optum_lab_role;
-GRANT USAGE ON SCHEMA   snowflake_intelligence.agents      TO ROLE optum_lab_role;
-GRANT CREATE AGENT ON SCHEMA snowflake_intelligence.agents TO ROLE optum_lab_role;
+GRANT USAGE ON DATABASE SNOWFLAKE_INTELLIGENCE             TO ROLE OPTUM_LAB_ROLE;
+GRANT USAGE ON SCHEMA   SNOWFLAKE_INTELLIGENCE.AGENTS      TO ROLE OPTUM_LAB_ROLE;
+GRANT CREATE AGENT ON SCHEMA SNOWFLAKE_INTELLIGENCE.AGENTS TO ROLE OPTUM_LAB_ROLE;
 
 -- ── 8. INTERNAL STAGES FOR LAB ARTIFACTS ─────────────────────────────────────
 -- Switch to lab role to own these stages
-USE ROLE optum_lab_role;
-USE WAREHOUSE optum_lab_wh;
+USE ROLE OPTUM_LAB_ROLE;
+USE WAREHOUSE OPTUM_LAB_WH;
 
-CREATE OR REPLACE STAGE optum_lab_db.payer.semantic_models
+CREATE OR REPLACE STAGE OPTUM_LAB_DB.PAYER.SEMANTIC_MODELS
   ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE')
   DIRECTORY  = (ENABLE = TRUE);
 
 -- Attendees will copy policy documents into this stage manually in Step 5.
 -- This is an intentional learning step — do not pre-populate it here.
-CREATE OR REPLACE STAGE optum_lab_db.payer.policy_docs
+CREATE OR REPLACE STAGE OPTUM_LAB_DB.PAYER.POLICY_DOCS
   ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE')
   DIRECTORY  = (ENABLE = TRUE);
 
 -- ── 9. VERIFY ─────────────────────────────────────────────────────────────────
 USE ROLE ACCOUNTADMIN;
 
-SELECT 'MEMBERS'         AS tbl, COUNT(*) AS rows FROM members
-UNION ALL SELECT 'MEDICAL_CLAIMS',  COUNT(*) FROM medical_claims
-UNION ALL SELECT 'PHARMACY_CLAIMS', COUNT(*) FROM pharmacy_claims
-UNION ALL SELECT 'PROVIDERS',       COUNT(*) FROM providers;
+SELECT 'MEMBERS'         AS tbl, COUNT(*) AS rows FROM MEMBERS
+UNION ALL SELECT 'MEDICAL_CLAIMS',  COUNT(*) FROM MEDICAL_CLAIMS
+UNION ALL SELECT 'PHARMACY_CLAIMS', COUNT(*) FROM PHARMACY_CLAIMS
+UNION ALL SELECT 'PROVIDERS',       COUNT(*) FROM PROVIDERS;
 
 SELECT 'Setup complete. Switch your role to OPTUM_LAB_ROLE.' AS status;
