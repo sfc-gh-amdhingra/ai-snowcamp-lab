@@ -596,7 +596,9 @@
       <h3>Step 3a — Enable Cross-Region Inference <span style="font-size:12px;font-weight:400;color:var(--sf-red);margin-left:8px">Required</span></h3>
       <p>Azure Central India has native support for Snowflake Cortex embedding models, but the full LLM suite needed for Cortex Analyst, Cortex Agents, and Snowflake Intelligence requires cross-region inference to route requests to Azure US data centers. Traffic stays entirely within the <strong>Azure global network</strong> — it does not traverse the public internet.</p>
 
-      <p>In Snowsight, open a new <strong>SQL Worksheet</strong>, switch your role to <code>ACCOUNTADMIN</code>, and run:</p>
+      <p>In Snowsight, click the <strong>+</strong> button in the top-left toolbar and select <strong>SQL File</strong> to open a new SQL worksheet.</p>
+      <img src="assets/img/home_create_sql.png" alt="Snowsight + menu with SQL File highlighted" style="display:block; margin: 12px 0 20px; max-width:480px; border-radius:8px; border:1px solid var(--sf-border);">
+      <p>Paste and run the following — the first line switches your role automatically:</p>
 
       <div class="code-block">
         <div class="code-header"><span class="code-lang">SQL — Enable Cross-Region Inference</span><span class="code-hint">Run as ACCOUNTADMIN · Required for Azure Central India</span></div>
