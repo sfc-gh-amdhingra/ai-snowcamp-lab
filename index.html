@@ -948,16 +948,16 @@
 
       <p>Now you wire it all together. A <strong>Cortex Agent</strong> is an AI entity that orchestrates tools — Cortex Analyst for structured queries, Cortex Search for document retrieval — and responds to questions using both. This is where your personal creativity comes in: <strong>you define how the agent thinks, what it knows, and what kind of assistant it becomes.</strong></p>
 
-      <h3>Step 6a — Use CoCo to Scaffold the Agent</h3>
-      <p>Open CoCo in Snowsight and use the prompt below to generate the CREATE AGENT SQL and the agent's instructions. <strong>Then make it your own</strong> — see the creativity prompt below.</p>
+      <h3>Step 6a — Use CoCo to Create the Agent</h3>
+      <p>Open CoCo in Snowsight and use the prompt below. CoCo will generate the <code>CREATE AGENT</code> DDL, show it to you, and ask for a <strong>yes/no approval before executing</strong> — you stay in control. <strong>Then make it your own</strong> — see the creativity prompt below.</p>
 
       <div class="coco-block">
         <div class="coco-header">
           <div class="coco-icon">C</div>
-          <span class="coco-header-text">Cortex Code Prompt — Agent Scaffold</span>
+          <span class="coco-header-text">Cortex Code Prompt — Create Agent</span>
           <span class="coco-header-sub">Paste into CoCo in Snowsight</span>
         </div>
-        <pre>I want to create a Snowflake <span class="hl">Cortex Agent</span> for a healthcare payer (Optum/UHG).
+        <pre>Create a Snowflake <span class="hl">Cortex Agent</span> for a healthcare payer (Optum/UHG) in schema <span class="hl2">SNOWFLAKE_INTELLIGENCE.AGENTS</span>.
 
 The agent has access to two tools:
   1. <span class="hl">Cortex Analyst</span> tool using semantic view at:
@@ -970,14 +970,20 @@ The agent has access to two tools:
      Description: Benefit policy and formulary documents.
      Use for questions about coverage rules, PA requirements, HEDIS/Stars criteria.
 
-Please generate:
-  a) The SQL to <span class="hl">CREATE the Cortex Agent</span> in schema SNOWFLAKE_INTELLIGENCE.AGENTS
-  b) A set of <span class="hl2">orchestration instructions</span> that tell the agent:
+Also generate:
+  a) A set of <span class="hl2">orchestration instructions</span> that tell the agent:
      - When to use Analyst vs Search vs both
      - How to format responses (use tables for structured data, prose for policy questions)
      - How to cite sources (mention the document name for policy answers)
-     - 5 starter example questions to show users what the agent can do
-  c) Suggest a <span class="hl">display name and persona</span> for this agent appropriate for a payer organization.</pre>
+  b) 5 starter <span class="hl">example questions</span> to show users what the agent can do
+  c) A <span class="hl">display name and persona</span> appropriate for a payer organization
+
+Use warehouse <span class="hl2">OPTUM_LAB_WH</span> for the Analyst tool.</pre>
+      </div>
+
+      <div class="callout callout-info">
+        <span class="icon">ℹ️</span>
+        <div>CoCo will generate the <code>CREATE AGENT</code> SQL and display it for review. When you approve, it executes the DDL on your behalf — no need to open Snowsight Agents manually.</div>
       </div>
 
       <!-- CREATIVE BOX -->
@@ -996,20 +1002,8 @@ Please generate:
         <p style="margin-top:10px;font-size:13px;color:var(--sf-muted)">Ask CoCo: <em>"Update the agent instructions to reflect [your persona idea]. Keep the tool routing logic but change the tone and add this guardrail: [your rule]."</em></p>
       </div>
 
-      <h3>Step 6b — Create the Agent in Snowsight</h3>
-      <ol>
-        <li>In Snowsight, navigate to <strong>AI &amp; ML → Agents</strong> and click <strong>+ Create agent</strong>.</li>
-        <li>Set Schema: <code>SNOWFLAKE_INTELLIGENCE.AGENTS</code> &nbsp;·&nbsp; Agent name: <em>your choice</em> &nbsp;·&nbsp; Display name: <em>your choice</em></li>
-        <li>Click <strong>Edit</strong> on the new agent and paste in the <strong>Orchestration Instructions</strong> generated (and customized) by CoCo.</li>
-        <li>Add <strong>Example Questions</strong> from CoCo's output — these appear as quick-start prompts in Snowflake Intelligence.</li>
-        <li>Under <strong>Tools → Cortex Analyst</strong>, click <strong>+ Add</strong>:<br>
-          Semantic view: <code>OPTUM_LAB_DB.PAYER.MEMBER_INTELLIGENCE</code><br>
-          Name: <code>Member_And_Claims_Data</code> &nbsp;·&nbsp; Warehouse: <code>OPTUM_LAB_WH</code></li>
-        <li>Under <strong>Tools → Cortex Search Services</strong>, click <strong>+ Add</strong>:<br>
-          Search service: <code>OPTUM_LAB_DB.PAYER → BENEFIT_POLICY_SEARCH</code><br>
-          Title column: <code>DOC_NAME</code> &nbsp;·&nbsp; Name: <code>Benefit_Policies</code></li>
-        <li>Click <strong>Save</strong>.</li>
-      </ol>
+      <h3>Step 6b — Iterate and Personalise</h3>
+      <p>Once CoCo has created the agent, customise it further. Ask CoCo to update the instructions to reflect your own persona and guardrails — it will generate updated DDL and ask for approval again before applying changes.</p>
 
       <div class="callout callout-tip">
         <span class="icon">💡</span>
