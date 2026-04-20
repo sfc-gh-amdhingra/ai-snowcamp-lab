@@ -822,7 +822,14 @@
       <div class="data-schema">
         <table>
           <tr><th>Section</th><th>What to Check</th></tr>
-          <tr><td>Relationships</td><td>Confirm <code>MEMBERS.member_id → MEDICAL_CLAIMS.member_id</code> and <code>MEMBERS.member_id → PHARMACY_CLAIMS.member_id</code> join keys are correct</td></tr>
+          <tr><td>Relationships</td><td>Autopilot should detect these automatically — confirm all three are present:
+            <ul style="margin:6px 0 0 16px">
+              <li><code>MEDICAL_CLAIMS.member_id → MEMBERS.member_id</code> (many-to-one)</li>
+              <li><code>PHARMACY_CLAIMS.member_id → MEMBERS.member_id</code> (many-to-one)</li>
+              <li><code>MEDICAL_CLAIMS.provider_id → PROVIDERS.provider_id</code> (many-to-one)</li>
+            </ul>
+            If any are missing, add them manually using the <strong>+ Add relationship</strong> button in the Relationships section.
+          </td></tr>
           <tr><td>Measures</td><td>Confirm cost metrics use <code>SUM(paid_amt)</code> from the correct table (medical vs pharmacy). Check that <code>days_supply</code> is recognized as an adherence metric.</td></tr>
           <tr><td>Dimensions</td><td>Confirm <code>chronic_condition</code>, <code>plan_type</code>, <code>specialty</code>, and <code>icd10_code</code> are listed as filterable dimensions</td></tr>
           <tr><td>Verified queries</td><td>Review any sample questions Autopilot generated. Try one in the test panel to confirm it returns correct SQL.</td></tr>
