@@ -101,28 +101,40 @@ CREATE OR REPLACE FILE FORMAT TEXT_FORMAT
   SKIP_BLANK_LINES = TRUE;
 
 -- ── 5. LOAD DATA FROM GIT REPO ────────────────────────────────────────────────
--- CSVs are loaded directly from the public GitHub repo (no credentials needed).
--- The Git repository object (SNOWCAMP_LAB_REPO) was created by the bootstrap
--- snippet in Step 3 of the lab guide before this script was executed.
+-- COPY INTO does not support Git Repository stages as a source directly.
+-- Step 1: copy CSV files from the Git stage into a temporary internal stage.
+-- Step 2: load each table from the internal stage with COPY INTO.
+
+CREATE OR REPLACE STAGE OPTUM_LAB_DB.PAYER.lab_data
+  ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE');
+
+COPY FILES INTO @OPTUM_LAB_DB.PAYER.lab_data
+  FROM @SNOWCAMP_LAB_REPO/branches/main/assets/data/
+  FILES = ('members.csv', 'medical_claims.csv', 'pharmacy_claims.csv', 'providers.csv');
+
 COPY INTO MEMBERS
-  FROM @SNOWCAMP_LAB_REPO/branches/main/assets/data/members.csv
-  FILE_FORMAT = (FORMAT_NAME = PAYER_CSV_FORMAT)
-  ON_ERROR    = CONTINUE;
+  FROM @OPTUM_LAB_DB.PAYER.lab_data
+  FILES        = ('members.csv')
+  FILE_FORMAT  = (FORMAT_NAME = PAYER_CSV_FORMAT)
+  ON_ERROR     = CONTINUE;
 
 COPY INTO MEDICAL_CLAIMS
-  FROM @SNOWCAMP_LAB_REPO/branches/main/assets/data/medical_claims.csv
-  FILE_FORMAT = (FORMAT_NAME = PAYER_CSV_FORMAT)
-  ON_ERROR    = CONTINUE;
+  FROM @OPTUM_LAB_DB.PAYER.lab_data
+  FILES        = ('medical_claims.csv')
+  FILE_FORMAT  = (FORMAT_NAME = PAYER_CSV_FORMAT)
+  ON_ERROR     = CONTINUE;
 
 COPY INTO PHARMACY_CLAIMS
-  FROM @SNOWCAMP_LAB_REPO/branches/main/assets/data/pharmacy_claims.csv
-  FILE_FORMAT = (FORMAT_NAME = PAYER_CSV_FORMAT)
-  ON_ERROR    = CONTINUE;
+  FROM @OPTUM_LAB_DB.PAYER.lab_data
+  FILES        = ('pharmacy_claims.csv')
+  FILE_FORMAT  = (FORMAT_NAME = PAYER_CSV_FORMAT)
+  ON_ERROR     = CONTINUE;
 
 COPY INTO PROVIDERS
-  FROM @SNOWCAMP_LAB_REPO/branches/main/assets/data/providers.csv
-  FILE_FORMAT = (FORMAT_NAME = PAYER_CSV_FORMAT)
-  ON_ERROR    = CONTINUE;
+  FROM @OPTUM_LAB_DB.PAYER.lab_data
+  FILES        = ('providers.csv')
+  FILE_FORMAT  = (FORMAT_NAME = PAYER_CSV_FORMAT)
+  ON_ERROR     = CONTINUE;
 
 -- ── 6. ROLE AND GRANTS ────────────────────────────────────────────────────────
 CREATE OR REPLACE ROLE OPTUM_LAB_ROLE;
