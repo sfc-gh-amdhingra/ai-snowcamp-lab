@@ -715,7 +715,7 @@
       <h3>Verify the Load</h3>
       <div class="code-block">
         <div class="code-header"><span class="code-lang">SQL — Verification Query</span><span class="code-hint">Run in SQL Worksheet</span></div>
-        <pre><span class="keyword">SELECT</span> <span class="string">'MEMBERS'</span>         <span class="keyword">AS</span> tbl, <span class="fn">COUNT</span>(*) <span class="keyword">AS</span> rows <span class="keyword">FROM</span> MEMBERS
+        <pre><span class="keyword">SELECT</span> <span class="string">'MEMBERS'</span>         <span class="keyword">AS</span> tbl, <span class="fn">COUNT</span>(*) <span class="keyword">AS</span> row_count <span class="keyword">FROM</span> MEMBERS
 <span class="keyword">UNION ALL SELECT</span> <span class="string">'MEDICAL_CLAIMS'</span>, <span class="fn">COUNT</span>(*) <span class="keyword">FROM</span> MEDICAL_CLAIMS
 <span class="keyword">UNION ALL SELECT</span> <span class="string">'PHARMACY_CLAIMS'</span>,<span class="fn">COUNT</span>(*) <span class="keyword">FROM</span> PHARMACY_CLAIMS
 <span class="keyword">UNION ALL SELECT</span> <span class="string">'PROVIDERS'</span>,      <span class="fn">COUNT</span>(*) <span class="keyword">FROM</span> PROVIDERS;</pre>
