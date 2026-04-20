@@ -781,7 +781,13 @@
       </div>
 
       <h3>Step 4a — Open Cortex Analyst</h3>
-      <p>In Snowsight, navigate to <strong>AI &amp; ML → Analyst</strong> in the left navigation. Make sure your role is set to <code>OPTUM_LAB_ROLE</code>.</p>
+      <p>In Snowsight, navigate to <strong>AI &amp; ML → Analyst</strong> in the left navigation.</p>
+      <div class="callout callout-warn">
+        <span class="icon">⚠️</span>
+        <div><strong>Check your active role before proceeding.</strong> The role selector is in the top-left corner of Snowsight (next to the Snowflake logo). It must be set to <code>OPTUM_LAB_ROLE</code> — not <code>ACCOUNTADMIN</code> or <code>PUBLIC</code>. Autopilot will only see the tables and stages granted to the active role.
+          <img src="assets/img/step4a-role.png" alt="Role selector showing OPTUM_LAB_ROLE selected in Snowsight" style="display:block; margin-top:12px; max-width:100%; border-radius:6px; border:1px solid var(--sf-border);">
+        </div>
+      </div>
 
       <h3>Step 4b — Run Autopilot on Your Payer Tables</h3>
       <ol>
