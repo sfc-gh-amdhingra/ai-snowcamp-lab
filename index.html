@@ -796,8 +796,13 @@
 
       <h3>Step 4b — Run Autopilot on Your Payer Tables</h3>
       <ol>
-        <li>Click <strong>Create new</strong> (top right) and select <strong>Autopilot</strong>.</li>
-        <li>In the table selector, add all four lab tables:<br>
+        <li>Click <strong>Create with Autopilot</strong> in the top-right corner of the Analyst page.</li>
+        <li>The first screen asks if you want to provide context (SQL queries or a Tableau file). Skip this for now — click <strong>Next</strong>.</li>
+        <li>On the <strong>Name your semantic view</strong> screen, enter exactly:
+          <br><code>MEMBER_INTELLIGENCE</code>
+          <br><small style="color:var(--sf-muted)">This name is referenced throughout the rest of the lab. Do not change it.</small>
+        </li>
+        <li>On the <strong>Select tables</strong> screen, add all four lab tables:<br>
           <code>OPTUM_LAB_DB.PAYER.MEMBERS</code><br>
           <code>OPTUM_LAB_DB.PAYER.MEDICAL_CLAIMS</code><br>
           <code>OPTUM_LAB_DB.PAYER.PHARMACY_CLAIMS</code><br>
