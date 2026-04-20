@@ -591,7 +591,7 @@
 
       <div class="code-block">
         <div class="code-header"><span class="code-lang">SQL — Enable Cross-Region Inference</span><span class="code-hint">Run as ACCOUNTADMIN · Required for Azure Central India</span></div>
-        <pre><span class="keyword">USE ROLE</span> accountadmin;
+        <pre><span class="keyword">USE ROLE</span> ACCOUNTADMIN;
 
 <span class="comment">-- Enable cross-region LLM inference for Azure US and AWS US regions.
 -- This is required for Cortex Analyst, Cortex Agents, and Snowflake Intelligence
@@ -635,12 +635,12 @@
 
       <div class="code-block">
         <div class="code-header"><span class="code-lang">SQL — Bootstrap Snippet</span><span class="code-hint">Copy and run as ACCOUNTADMIN · ~2 minutes</span></div>
-        <pre><span class="keyword">USE ROLE</span> accountadmin;
+        <pre><span class="keyword">USE ROLE</span> ACCOUNTADMIN;
 
 <span class="comment">-- Create the database and schema first so the Git repository has a home.</span>
 <span class="keyword">CREATE DATABASE IF NOT EXISTS</span> OPTUM_LAB_DB;
 <span class="keyword">CREATE SCHEMA  IF NOT EXISTS</span>  OPTUM_LAB_DB.PAYER;
-<span class="keyword">USE DATABASE</span> OPTUM_LAB_DB; <span class="keyword">USE SCHEMA</span> payer;
+<span class="keyword">USE DATABASE</span> OPTUM_LAB_DB; <span class="keyword">USE SCHEMA</span> PAYER;
 
 <span class="comment">-- Connect to the public lab GitHub repo (no credentials needed)</span>
 <span class="keyword">CREATE OR REPLACE API INTEGRATION</span> SNOWCAMP_LAB_GIT
@@ -706,10 +706,10 @@
       <h3>Verify the Load</h3>
       <div class="code-block">
         <div class="code-header"><span class="code-lang">SQL — Verification Query</span><span class="code-hint">Run in SQL Worksheet</span></div>
-        <pre><span class="keyword">SELECT</span> <span class="string">'MEMBERS'</span>         <span class="keyword">AS</span> tbl, <span class="fn">COUNT</span>(*) <span class="keyword">AS</span> rows <span class="keyword">FROM</span> members
+        <pre><span class="keyword">SELECT</span> <span class="string">'MEMBERS'</span>         <span class="keyword">AS</span> tbl, <span class="fn">COUNT</span>(*) <span class="keyword">AS</span> rows <span class="keyword">FROM</span> MEMBERS
 <span class="keyword">UNION ALL SELECT</span> <span class="string">'MEDICAL_CLAIMS'</span>, <span class="fn">COUNT</span>(*) <span class="keyword">FROM</span> MEDICAL_CLAIMS
 <span class="keyword">UNION ALL SELECT</span> <span class="string">'PHARMACY_CLAIMS'</span>,<span class="fn">COUNT</span>(*) <span class="keyword">FROM</span> PHARMACY_CLAIMS
-<span class="keyword">UNION ALL SELECT</span> <span class="string">'PROVIDERS'</span>,      <span class="fn">COUNT</span>(*) <span class="keyword">FROM</span> providers;</pre>
+<span class="keyword">UNION ALL SELECT</span> <span class="string">'PROVIDERS'</span>,      <span class="fn">COUNT</span>(*) <span class="keyword">FROM</span> PROVIDERS;</pre>
       </div>
       <p>You should see non-zero row counts for all four tables before proceeding.</p>
 
@@ -718,11 +718,11 @@
       <div class="code-block">
         <div class="code-header"><span class="code-lang">SQL — Exploratory Queries</span><span class="code-hint">Run as OPTUM_LAB_ROLE</span></div>
         <pre><span class="keyword">USE ROLE</span> OPTUM_LAB_ROLE; <span class="keyword">USE WAREHOUSE</span> OPTUM_LAB_WH;
-<span class="keyword">USE DATABASE</span> OPTUM_LAB_DB; <span class="keyword">USE SCHEMA</span> payer;
+<span class="keyword">USE DATABASE</span> OPTUM_LAB_DB; <span class="keyword">USE SCHEMA</span> PAYER;
 
 <span class="comment">-- 1. Member population by chronic condition</span>
 <span class="keyword">SELECT</span> chronic_condition, <span class="fn">COUNT</span>(*) <span class="keyword">AS</span> member_count
-<span class="keyword">FROM</span> members <span class="keyword">GROUP BY</span> 1 <span class="keyword">ORDER BY</span> 2 <span class="keyword">DESC</span>;
+<span class="keyword">FROM</span> MEMBERS <span class="keyword">GROUP BY</span> 1 <span class="keyword">ORDER BY</span> 2 <span class="keyword">DESC</span>;
 
 <span class="comment">-- 2. Medical spend by service type</span>
 <span class="keyword">SELECT</span> service_type,
@@ -740,7 +740,7 @@
 <span class="keyword">SELECT</span> m.chronic_condition,
        <span class="fn">COUNT</span>(<span class="keyword">DISTINCT</span> m.member_id)   <span class="keyword">AS</span> members,
        <span class="fn">ROUND</span>(<span class="fn">SUM</span>(mc.paid_amt), 0)     <span class="keyword">AS</span> total_medical_paid
-<span class="keyword">FROM</span> members m
+<span class="keyword">FROM</span> MEMBERS m
 <span class="keyword">JOIN</span> MEDICAL_CLAIMS mc <span class="keyword">ON</span> m.member_id = mc.member_id
 <span class="keyword">GROUP BY</span> 1 <span class="keyword">ORDER BY</span> 3 <span class="keyword">DESC</span>;
 
@@ -749,7 +749,7 @@
        <span class="fn">COUNT</span>(*)                      <span class="keyword">AS</span> claims,
        <span class="fn">ROUND</span>(<span class="fn">AVG</span>(mc.paid_amt), 2)     <span class="keyword">AS</span> avg_paid_per_claim
 <span class="keyword">FROM</span> MEDICAL_CLAIMS mc
-<span class="keyword">JOIN</span> providers p <span class="keyword">ON</span> mc.provider_id = p.provider_id
+<span class="keyword">JOIN</span> PROVIDERS p <span class="keyword">ON</span> mc.provider_id = p.provider_id
 <span class="keyword">GROUP BY</span> 1, 2 <span class="keyword">ORDER BY</span> 3 <span class="keyword">DESC LIMIT</span> 10;</pre>
       </div>
       <p>These queries touch all four tables and exercise key dimensions and measures — this is exactly the pattern Autopilot looks for when building the semantic view in Step 4.</p>
@@ -841,7 +841,7 @@
       <p>The three policy documents live in the lab GitHub repo. Run the following SQL to copy them from the Git repository stage into your internal <code>POLICY_DOCS</code> stage. This is the same <code>SNOWCAMP_LAB_REPO</code> stage you used during setup — it's available throughout the lab, not just for bootstrapping.</p>
       <div class="code-block">
         <div class="code-header"><span class="code-lang">SQL — Copy Policy Docs to Internal Stage</span><span class="code-hint">Run as OPTUM_LAB_ROLE</span></div>
-        <pre><span class="keyword">USE ROLE</span> OPTUM_LAB_ROLE; <span class="keyword">USE DATABASE</span> OPTUM_LAB_DB; <span class="keyword">USE SCHEMA</span> payer;
+        <pre><span class="keyword">USE ROLE</span> OPTUM_LAB_ROLE; <span class="keyword">USE DATABASE</span> OPTUM_LAB_DB; <span class="keyword">USE SCHEMA</span> PAYER;
 
 <span class="keyword">COPY FILES INTO</span> @POLICY_DOCS
   <span class="keyword">FROM</span> @SNOWCAMP_LAB_REPO/branches/main/assets/documents/
@@ -864,7 +864,7 @@
         <div class="code-header"><span class="code-lang">SQL — Cortex Search Setup</span><span class="code-hint">Run in SQL Worksheet</span></div>
         <pre><span class="keyword">USE ROLE</span> OPTUM_LAB_ROLE;
 <span class="keyword">USE DATABASE</span> OPTUM_LAB_DB;
-<span class="keyword">USE SCHEMA</span> payer;
+<span class="keyword">USE SCHEMA</span> PAYER;
 <span class="keyword">USE WAREHOUSE</span> OPTUM_LAB_WH;
 
 <span class="comment">-- Parse staged policy docs into a searchable table (one row per line)</span>
@@ -927,7 +927,7 @@
 
 The agent has access to two tools:
   1. <span class="hl">Cortex Analyst</span> tool using semantic view at:
-     <span class="hl2">OPTUM_LAB_DB.PAYER.SEMANTIC_MODELS >> MEMBER_INTELLIGENCE.yaml</span>
+     <span class="hl2">OPTUM_LAB_DB.PAYER.MEMBER_INTELLIGENCE</span>
      Description: Member 360 data — medical claims, pharmacy claims, members, providers.
      Use for structured questions about cost, utilization, care gaps, and adherence.
 
@@ -1103,7 +1103,7 @@ involves member-level cost analysis.</pre>
       <h3>What You Built Today</h3>
       <ul>
         <li>A <strong>synthetic payer data foundation</strong> — four tables covering members, medical claims, pharmacy, and providers</li>
-        <li>A <strong>semantic view</strong> (<code>MEMBER_INTELLIGENCE.yaml</code>) that maps Optum business concepts to physical columns — generated and refined with CoCo</li>
+        <li>A <strong>semantic view</strong> (<code>OPTUM_LAB_DB.PAYER.MEMBER_INTELLIGENCE</code>) that maps Optum business concepts to physical columns — generated and refined with Autopilot</li>
         <li>A <strong>Cortex Search service</strong> over benefit policy and formulary documents — enabling RAG over unstructured content</li>
         <li>A <strong>Cortex Agent</strong> with your own persona, instructions, and tool configuration — built and iterated with CoCo</li>
         <li>A live <strong>Snowflake Intelligence</strong> session that any business user could access without writing a single line of SQL</li>
