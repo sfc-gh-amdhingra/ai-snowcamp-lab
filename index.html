@@ -782,6 +782,9 @@
 
       <h3>Step 4a — Open Cortex Analyst</h3>
       <p>In Snowsight, navigate to <strong>AI &amp; ML → Analyst</strong> in the left navigation.</p>
+      <p>The page will load showing a <strong>"No Database selected"</strong> dropdown in the centre. Click it and select <code>OPTUM_LAB_DB</code>, then select the <code>PAYER</code> schema. This is required before Autopilot can discover your tables.</p>
+      <img src="assets/img/analyst_landing_page.png" alt="Cortex Analyst landing page showing No Database selected dropdown" style="display:block; margin: 12px 0 20px; max-width:100%; border-radius:8px; border:1px solid var(--sf-border);">
+
       <div class="callout callout-warn">
         <span class="icon">⚠️</span>
         <div><strong>Check your active role before proceeding.</strong> The role selector is in the top-left corner of Snowsight (next to the Snowflake logo). It must be set to <code>OPTUM_LAB_ROLE</code> — not <code>ACCOUNTADMIN</code> or <code>PUBLIC</code>. Autopilot will only see the tables and stages granted to the active role.
