@@ -932,8 +932,7 @@
         <div class="code-header"><span class="code-lang">SQL — Test Search</span><span class="code-hint">Optional validation</span></div>
         <pre><span class="keyword">SELECT</span> <span class="fn">SNOWFLAKE.CORTEX.SEARCH_PREVIEW</span>(
   <span class="string">'OPTUM_LAB_DB.PAYER.BENEFIT_POLICY_SEARCH'</span>,
-  <span class="string">'prior authorization for GLP-1 medications'</span>,
-  3
+  <span class="string">'{"query": "prior authorization for GLP-1 medications", "columns": ["chunk"], "limit": 3}'</span>
 );</pre>
       </div>
       <p>You should see relevant chunks from <code>formulary_guidelines.txt</code> in the results.</p>
