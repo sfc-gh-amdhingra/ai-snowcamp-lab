@@ -26,8 +26,9 @@ CREATE SCHEMA  IF NOT EXISTS OPTUM_LAB_DB.PAYER;
 USE DATABASE OPTUM_LAB_DB;
 USE SCHEMA   PAYER;
 
--- ── 2. WAREHOUSE (created early — needed for COPY INTO below) ─────────────────
-CREATE OR REPLACE WAREHOUSE OPTUM_LAB_WH
+-- ── 2. WAREHOUSE (created early — needed for COPY FILES / COPY INTO below) ────
+-- IF NOT EXISTS avoids dropping an active warehouse on re-runs.
+CREATE WAREHOUSE IF NOT EXISTS OPTUM_LAB_WH
   WITH WAREHOUSE_SIZE = 'MEDIUM'
   AUTO_SUSPEND        = 120
   AUTO_RESUME         = TRUE;
