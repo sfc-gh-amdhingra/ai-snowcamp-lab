@@ -822,13 +822,13 @@
       <div class="data-schema">
         <table>
           <tr><th>Section</th><th>What to Check</th></tr>
-          <tr><td>Relationships</td><td>Autopilot should detect these automatically — confirm all three are present:
-            <ul style="margin:6px 0 0 16px">
-              <li><code>MEDICAL_CLAIMS.member_id → MEMBERS.member_id</code> (many-to-one)</li>
-              <li><code>PHARMACY_CLAIMS.member_id → MEMBERS.member_id</code> (many-to-one)</li>
-              <li><code>MEDICAL_CLAIMS.provider_id → PROVIDERS.provider_id</code> (many-to-one)</li>
+          <tr><td>Relationships</td><td>Autopilot may not detect relationships automatically — check the Relationships section shows all three. If it shows <strong>0</strong>, add them manually using the <strong>+</strong> button:
+            <ul style="margin:6px 0 4px 16px">
+              <li><code>MEDICAL_CLAIMS.MEMBER_ID → MEMBERS.MEMBER_ID</code> (Many to One)</li>
+              <li><code>PHARMACY_CLAIMS.MEMBER_ID → MEMBERS.MEMBER_ID</code> (Many to One)</li>
+              <li><code>MEDICAL_CLAIMS.PROVIDER_ID → PROVIDERS.PROVIDER_ID</code> (Many to One)</li>
             </ul>
-            If any are missing, add them manually using the <strong>+ Add relationship</strong> button in the Relationships section.
+            <img src="assets/img/sv_relationship_member.png" alt="Add relationship dialog showing MEDICAL_CLAIMS to MEMBERS on MEMBER_ID" style="display:block; margin-top:10px; max-width:100%; border-radius:6px; border:1px solid var(--sf-border);">
           </td></tr>
           <tr><td>Measures</td><td>Confirm cost metrics use <code>SUM(paid_amt)</code> from the correct table (medical vs pharmacy). Check that <code>days_supply</code> is recognized as an adherence metric.</td></tr>
           <tr><td>Dimensions</td><td>Confirm <code>chronic_condition</code>, <code>plan_type</code>, <code>specialty</code>, and <code>icd10_code</code> are listed as filterable dimensions</td></tr>
