@@ -551,7 +551,9 @@
       <h3>What You Need</h3>
       <ul>
         <li>A <strong>Snowflake Trial Account</strong> — use the <strong>event link provided by your instructor</strong> to sign up (free, no credit card required). Do not use the generic signup.snowflake.com link — the event link ensures your account is provisioned correctly for this lab.</li>
-        <li>When signing up via the event link, select <strong>Microsoft Azure</strong> as the cloud provider and <strong>Central India (Pune)</strong> as the region — this keeps the lab geographically close and on the same cloud as Optum's production environment</li>
+        <li>When signing up via the event link, select <strong>Microsoft Azure</strong> as the cloud provider and <strong>Central India (Pune)</strong> as the region — this ensures low latency and keeps your data within India
+          <br><img src="assets/img/signup_csp_region.png" alt="CSP and region selection during trial signup" style="max-width:560px;border-radius:8px;margin-top:10px;display:block;">
+        </li>
         <li>A modern web browser (Chrome or Edge recommended)</li>
         <li>The <strong>lab guide</strong> — open <a href="https://sfc-gh-amdhingra.github.io/ai-snowcamp-lab/" target="_blank">sfc-gh-amdhingra.github.io/ai-snowcamp-lab/</a> in your browser. All SQL, instructions, and assets are served from the public GitHub repository — no ZIP file to download.</li>
       </ul>
@@ -559,7 +561,7 @@
       <div class="callout callout-info">
         <span class="icon">🌐</span>
         <div>
-          <strong>Why Azure Central India?</strong> Optum's production workloads run on Microsoft Azure. Using the same cloud for this lab means the architecture you build today translates directly to your real environment — same cloud, same governance model, same data residency story.<br><br>
+          <strong>Why Azure Central India?</strong> Selecting Azure Central India (Pune) keeps your trial account and data within India, minimising latency for the lab exercises.<br><br>
           Azure Central India has native support for Snowflake Cortex embedding models and several AI functions. For the full LLM model suite required by Cortex Analyst, Cortex Agents, and Snowflake Intelligence, we enable <strong>cross-region inference</strong> to route requests to Azure US — staying entirely within the Azure global network (no public internet traversal).
         </div>
       </div>
@@ -717,7 +719,10 @@
       <h3>Verify the Load</h3>
       <div class="code-block">
         <div class="code-header"><span class="code-lang">SQL — Verification Query</span><span class="code-hint">Run in SQL Worksheet</span></div>
-        <pre><span class="keyword">SELECT</span> <span class="string">'MEMBERS'</span>         <span class="keyword">AS</span> tbl, <span class="fn">COUNT</span>(*) <span class="keyword">AS</span> row_count <span class="keyword">FROM</span> MEMBERS
+        <pre><span class="keyword">USE ROLE</span> OPTUM_LAB_ROLE; <span class="keyword">USE WAREHOUSE</span> OPTUM_LAB_WH;
+<span class="keyword">USE DATABASE</span> OPTUM_LAB_DB; <span class="keyword">USE SCHEMA</span> PAYER;
+
+<span class="keyword">SELECT</span> <span class="string">'MEMBERS'</span>         <span class="keyword">AS</span> tbl, <span class="fn">COUNT</span>(*) <span class="keyword">AS</span> row_count <span class="keyword">FROM</span> MEMBERS
 <span class="keyword">UNION ALL SELECT</span> <span class="string">'MEDICAL_CLAIMS'</span>, <span class="fn">COUNT</span>(*) <span class="keyword">FROM</span> MEDICAL_CLAIMS
 <span class="keyword">UNION ALL SELECT</span> <span class="string">'PHARMACY_CLAIMS'</span>,<span class="fn">COUNT</span>(*) <span class="keyword">FROM</span> PHARMACY_CLAIMS
 <span class="keyword">UNION ALL SELECT</span> <span class="string">'PROVIDERS'</span>,      <span class="fn">COUNT</span>(*) <span class="keyword">FROM</span> PROVIDERS;</pre>
@@ -876,7 +881,8 @@
       <p>The three policy documents live in the lab GitHub repo. Run the following SQL to copy them from the Git repository stage into your internal <code>POLICY_DOCS</code> stage. This is the same <code>SNOWCAMP_LAB_REPO</code> stage you used during setup — it's available throughout the lab, not just for bootstrapping.</p>
       <div class="code-block">
         <div class="code-header"><span class="code-lang">SQL — Copy Policy Docs to Internal Stage</span><span class="code-hint">Run as OPTUM_LAB_ROLE</span></div>
-        <pre><span class="keyword">USE ROLE</span> OPTUM_LAB_ROLE; <span class="keyword">USE DATABASE</span> OPTUM_LAB_DB; <span class="keyword">USE SCHEMA</span> PAYER;
+        <pre><span class="keyword">USE ROLE</span> OPTUM_LAB_ROLE; <span class="keyword">USE WAREHOUSE</span> OPTUM_LAB_WH;
+<span class="keyword">USE DATABASE</span> OPTUM_LAB_DB; <span class="keyword">USE SCHEMA</span> PAYER;
 
 <span class="keyword">COPY FILES INTO</span> @POLICY_DOCS
   <span class="keyword">FROM</span> @SNOWCAMP_LAB_REPO/branches/main/assets/documents/
@@ -930,7 +936,10 @@
       <h3>Step 5c — Test the Search Service (Optional)</h3>
       <div class="code-block">
         <div class="code-header"><span class="code-lang">SQL — Test Search</span><span class="code-hint">Optional validation</span></div>
-        <pre><span class="keyword">SELECT</span> <span class="fn">SNOWFLAKE.CORTEX.SEARCH_PREVIEW</span>(
+        <pre><span class="keyword">USE ROLE</span> OPTUM_LAB_ROLE; <span class="keyword">USE WAREHOUSE</span> OPTUM_LAB_WH;
+<span class="keyword">USE DATABASE</span> OPTUM_LAB_DB; <span class="keyword">USE SCHEMA</span> PAYER;
+
+<span class="keyword">SELECT</span> <span class="fn">SNOWFLAKE.CORTEX.SEARCH_PREVIEW</span>(
   <span class="string">'OPTUM_LAB_DB.PAYER.BENEFIT_POLICY_SEARCH'</span>,
   <span class="string">'{"query": "prior authorization for GLP-1 medications", "columns": ["content"], "limit": 3}'</span>
 );</pre>
