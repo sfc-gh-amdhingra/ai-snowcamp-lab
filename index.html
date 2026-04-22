@@ -678,7 +678,7 @@
       <p>The <code>setup.sql</code> script (run automatically above) creates:</p>
       <ul>
         <li><code>OPTUM_LAB_DB</code> database and <code>PAYER</code> schema</li>
-        <li>Four payer tables: MEMBERS, MEDICAL_CLAIMS, PHARMACY_CLAIMS, PROVIDERS</li>
+        <li>Four payer tables: <code>MEMBERS</code>, <code>MEDICAL_CLAIMS</code>, <code>PHARMACY_CLAIMS</code>, <code>PROVIDERS</code></li>
         <li><code>OPTUM_LAB_WH</code> warehouse (MEDIUM), <code>OPTUM_LAB_ROLE</code>, and all required grants</li>
         <li>Loads ~127,000 rows from CSVs in the Git repo via <code>COPY INTO</code></li>
         <li>Internal stages for lab artifacts (semantic model, policy docs)</li>
@@ -687,7 +687,7 @@
       <div class="callout callout-tip">
         <span class="icon">💡</span>
         <div>
-          After the script completes, the final query shows row counts for all four tables. Switch your active role in Snowsight to <strong>OPTUM_LAB_ROLE</strong> — you will use this role for all remaining steps (Steps 4–9).
+          After the script completes, the final query shows row counts for all four tables. Switch your active role in Snowsight to <code>OPTUM_LAB_ROLE</code> — you will use this role for all remaining steps (Steps 4–9).
         </div>
       </div>
 
