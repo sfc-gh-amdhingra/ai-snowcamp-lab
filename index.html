@@ -830,6 +830,9 @@
           <tr><td colspan="2" style="background:var(--sf-bg);font-size:13px;color:var(--sf-text)">
             <strong>First:</strong> look for a <strong>Suggestions</strong> tab in the Autopilot panel. It will surface AI-generated recommendations for measures, dimensions, relationships, and verified queries — click <strong>Review</strong> on each category and <strong>Accept</strong> the ones that look correct before making manual edits.
           </td></tr>
+          <tr><td colspan="2" style="background:#fff8ed;font-size:13px;color:var(--sf-text);border-left:3px solid var(--sf-yellow)">
+            <strong>Note:</strong> this semantic view is AI-generated and may vary slightly between accounts. If you don't see an exact metric or dimension name mentioned in these instructions, that's expected — keep going in the lab. The agent will still work correctly as long as the core measures (cost, utilization) and dimensions (condition, plan type) are present.
+          </td></tr>
           <tr><td>Relationships</td><td>Check whether the Suggestions tab already included the relationships below and you accepted them. If not — or if the Relationships section still shows <strong>0</strong> — add them manually using the <strong>+</strong> button:
             <ul style="margin:6px 0 4px 16px">
               <li><code>MEDICAL_CLAIMS.MEMBER_ID → MEMBERS.MEMBER_ID</code> (Many to One)</li>
@@ -838,8 +841,8 @@
             </ul>
             <img src="assets/img/sv_relationship_member.png" alt="Add relationship dialog showing MEDICAL_CLAIMS to MEMBERS on MEMBER_ID" style="display:block; margin-top:10px; max-width:100%; border-radius:6px; border:1px solid var(--sf-border);">
           </td></tr>
-          <tr><td>Measures</td><td>Confirm cost metrics use <code>SUM(paid_amt)</code> from the correct table (medical vs pharmacy). Check that <code>days_supply</code> is recognized as an adherence metric.</td></tr>
-          <tr><td>Dimensions</td><td>Confirm <code>chronic_condition</code>, <code>plan_type</code>, <code>specialty</code>, and <code>icd10_code</code> are listed as filterable dimensions</td></tr>
+          <tr><td>Measures</td><td>The Suggestions tab may have already added cost metrics for you — review and accept them. Then confirm that measures for paid amount exist for both medical and pharmacy claims, and that <code>days_supply</code> or a similar adherence metric is present. Exact names may differ.</td></tr>
+          <tr><td>Dimensions</td><td>The Suggestions tab may have already added dimensions — review and accept them. Then confirm that condition, plan type, provider specialty, and diagnosis code are present as filterable dimensions in some form. Exact names may differ.</td></tr>
           <tr><td>Verified queries</td><td>Review any sample questions Autopilot generated. Try one in the test panel to confirm it returns correct SQL.</td></tr>
         </table>
       </div>
