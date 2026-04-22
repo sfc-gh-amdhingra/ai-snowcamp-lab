@@ -958,7 +958,24 @@
       <p>Now you wire it all together. A <strong>Cortex Agent</strong> is an AI entity that orchestrates tools — Cortex Analyst for structured queries, Cortex Search for document retrieval — and responds to questions using both. This is where your personal creativity comes in: <strong>you define how the agent thinks, what it knows, and what kind of assistant it becomes.</strong></p>
 
       <h3>Step 6a — Use CoCo to Create the Agent</h3>
-      <p>Open CoCo in Snowsight and use the prompt below. CoCo will generate the <code>CREATE AGENT</code> DDL, show it to you, and ask for a <strong>yes/no approval before executing</strong> — you stay in control. <strong>Then make it your own</strong> — see the creativity prompt below.</p>
+
+      <!-- CREATIVE BOX -->
+      <div class="creative-box">
+        <div class="creative-label">
+          <span>✦</span> Your Turn — Make This Agent Yours
+        </div>
+        <p>Before you run the prompt, decide what kind of agent you want to build. CoCo will give you a solid starting point — but <strong>customize the persona, instructions, and tone</strong> to reflect how you'd actually want a Member Intelligence Agent to behave at Optum. Some ideas to spark your thinking:</p>
+        <ul>
+          <li><strong>Give it a name and voice</strong> — e.g. "OptumInsight Assistant", "Care Analytics AI", or something your team would actually use</li>
+          <li><strong>Scope its expertise</strong> — should it focus on cost analytics only? Quality/Stars? Pharmacy? Or be the generalist member 360 agent?</li>
+          <li><strong>Define its tone</strong> — clinical and precise? Accessible for non-technical managers? Proactive in surfacing trends?</li>
+          <li><strong>Add a guardrail</strong> — e.g. "Never speculate on individual member diagnoses. Always recommend consulting a clinician for clinical decisions."</li>
+          <li><strong>Add a signature behavior</strong> — e.g. "When showing cost data, always compare to the plan average as context."</li>
+        </ul>
+        <p style="margin-top:10px;font-size:13px;color:var(--sf-muted)">You can bake these ideas directly into the CoCo prompt below, or ask CoCo to refine the agent after it is created.</p>
+      </div>
+
+      <p>Open CoCo in Snowsight and use the prompt below. CoCo will generate the <code>CREATE AGENT</code> DDL, show it to you, and ask for a <strong>yes/no approval before executing</strong> — you stay in control.</p>
 
       <div class="coco-block">
         <div class="coco-header">
@@ -993,22 +1010,6 @@ Use warehouse <span class="hl2">OPTUM_LAB_WH</span> for the Analyst tool.</pre>
       <div class="callout callout-info">
         <span class="icon">ℹ️</span>
         <div>CoCo will generate the <code>CREATE AGENT</code> SQL and display it for review. When you approve, it executes the DDL on your behalf — no need to open Snowsight Agents manually.</div>
-      </div>
-
-      <!-- CREATIVE BOX -->
-      <div class="creative-box">
-        <div class="creative-label">
-          <span>✦</span> Your Turn — Make This Agent Yours
-        </div>
-        <p>CoCo will give you a solid starting point. Now <strong>customize the agent's persona, instructions, and tone</strong> to reflect how you'd actually want a Member Intelligence Agent to behave at Optum. Some ideas to spark your thinking:</p>
-        <ul>
-          <li><strong>Give it a name and voice</strong> — e.g. "OptumInsight Assistant", "Care Analytics AI", or something your team would actually use</li>
-          <li><strong>Scope its expertise</strong> — should it focus on cost analytics only? Quality/Stars? Pharmacy? Or be the generalist member 360 agent?</li>
-          <li><strong>Define its tone</strong> — clinical and precise? Accessible for non-technical managers? Proactive in surfacing trends?</li>
-          <li><strong>Add a guardrail</strong> — e.g. "Never speculate on individual member diagnoses. Always recommend consulting a clinician for clinical decisions."</li>
-          <li><strong>Add a signature behavior</strong> — e.g. "When showing cost data, always compare to the plan average as context."</li>
-        </ul>
-        <p style="margin-top:10px;font-size:13px;color:var(--sf-muted)">Ask CoCo: <em>"Update the agent instructions to reflect [your persona idea]. Keep the tool routing logic but change the tone and add this guardrail: [your rule]."</em></p>
       </div>
 
       <h3>Step 6b — Iterate and Personalise</h3>
