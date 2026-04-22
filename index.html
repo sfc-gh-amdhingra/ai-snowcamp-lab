@@ -827,7 +827,10 @@
       <div class="data-schema">
         <table>
           <tr><th>Section</th><th>What to Check</th></tr>
-          <tr><td>Relationships</td><td>Autopilot may not detect relationships automatically — check the Relationships section shows all three. If it shows <strong>0</strong>, add them manually using the <strong>+</strong> button:
+          <tr><td colspan="2" style="background:var(--sf-bg);font-size:13px;color:var(--sf-text)">
+            <strong>First:</strong> look for a <strong>Suggestions</strong> tab in the Autopilot panel. It will surface AI-generated recommendations for measures, dimensions, relationships, and verified queries — click <strong>Review</strong> on each category and <strong>Accept</strong> the ones that look correct before making manual edits.
+          </td></tr>
+          <tr><td>Relationships</td><td>Check whether the Suggestions tab already included the relationships below and you accepted them. If not — or if the Relationships section still shows <strong>0</strong> — add them manually using the <strong>+</strong> button:
             <ul style="margin:6px 0 4px 16px">
               <li><code>MEDICAL_CLAIMS.MEMBER_ID → MEMBERS.MEMBER_ID</code> (Many to One)</li>
               <li><code>PHARMACY_CLAIMS.MEMBER_ID → MEMBERS.MEMBER_ID</code> (Many to One)</li>
