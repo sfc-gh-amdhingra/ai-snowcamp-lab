@@ -447,8 +447,8 @@
       <li class="step-item active"><a href="#s1"><span class="step-num">1</span>Overview<span class="step-time">5 min</span></a></li>
       <li class="step-item"><a href="#s2"><span class="step-num">2</span>Prerequisites<span class="step-time">5 min</span></a></li>
       <li class="step-item"><a href="#s3"><span class="step-num">3</span>Setup &amp; Data Load<span class="step-time">10 min</span></a></li>
-      <li class="step-item"><a href="#s4"><span class="step-num">4</span>Semantic View Autopilot<span class="step-time">15 min</span></a></li>
-      <li class="step-item"><a href="#s5"><span class="step-num">5</span>Cortex Search<span class="step-time">10 min</span></a></li>
+      <li class="step-item"><a href="#s4"><span class="step-num">4</span>Build Your Semantic Layer<span class="step-time">15 min</span></a></li>
+      <li class="step-item"><a href="#s5"><span class="step-num">5</span>Cortex Search &amp; AI Functions<span class="step-time">15 min</span></a></li>
       <li class="step-item"><a href="#s6"><span class="step-num">6</span>Build Your Agent via CoCo<span class="step-time">15 min</span></a></li>
       <li class="step-item"><a href="#s7"><span class="step-num">7</span>Snowflake CoWork<span class="step-time">15 min</span></a></li>
       <li class="step-item"><a href="#s8"><span class="step-num">8</span>Ask Your Agent<span class="step-time">10 min</span></a></li>
@@ -848,7 +848,7 @@
     <section class="section" id="s4">
       <div class="step-header">
         <div class="num">4</div>
-        <h2>Cortex Analyst — Semantic View Autopilot</h2>
+        <h2>Build Your Semantic Layer — Autopilot &amp; Ontology</h2>
         <span class="mins">15 min</span>
       </div>
 
@@ -957,12 +957,12 @@
     <section class="section" id="s5">
       <div class="step-header">
         <div class="num">5</div>
-        <h2>Cortex Search — Index Benefit Policy Documents</h2>
-        <span class="mins">10 min</span>
+        <h2>Cortex Search &amp; AI Functions</h2>
+        <span class="mins">15 min</span>
       </div>
 
       <p>Your agent needs to answer questions that can't be answered from claims tables alone — questions like <em>"What is the prior authorization process for GLP-1 medications?"</em> or <em>"Does our plan cover physical therapy for non-surgical back pain?"</em>. These answers live in benefit policy documents.</p>
-      <p>You will use <strong>Cortex Search</strong> to index three synthetic policy documents and make them retrievable by your agent.</p>
+      <p>You will use <strong>Cortex Search</strong> to index three synthetic policy documents and make them retrievable by your agent. Then you will use two <strong>Cortex AI functions</strong> — <code>AI_EXTRACT</code> and <code>AI_CLASSIFY</code> — to work with a document and with claims data directly in SQL.</p>
 
       <h3>Step 5a — Stage Policy Documents</h3>
       <p>The policy documents live in the lab GitHub repo. Run the following SQL to copy them from the Git repository stage into your internal <code>POLICY_DOCS</code> stage. This is the same <code>SNOWCAMP_LAB_REPO</code> stage you used during setup — it's available throughout the lab, not just for bootstrapping.</p>
