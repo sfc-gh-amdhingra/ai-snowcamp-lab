@@ -59,6 +59,43 @@
     font-size: 11px; font-weight: 700; padding: 3px 10px;
     border-radius: 12px; letter-spacing: .4px;
   }
+  .topbar-cobrand {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .topbar-cobrand .partner {
+    font-size: 12px; font-weight: 600; color: rgba(255,255,255,.75);
+    padding-right: 12px; border-right: 1px solid rgba(255,255,255,.2);
+  }
+  .topbar-cobrand .duration-pill {
+    background: transparent; color: rgba(255,255,255,.65);
+    border: 1px solid rgba(255,255,255,.25);
+    font-size: 11px; font-weight: 600; padding: 3px 10px;
+    border-radius: 12px; letter-spacing: .4px;
+  }
+
+  /* ── SIDEBAR CORTEX BADGE ── */
+  .sidebar-cortex-badge {
+    margin-top: 14px; padding: 10px 12px;
+    background: linear-gradient(135deg, var(--sf-navy) 0%, #1B3A6B 100%);
+    border-radius: 8px; display: flex; align-items: center; gap: 8px;
+  }
+  .sidebar-cortex-badge svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .sidebar-cortex-badge span {
+    font-size: 11px; font-weight: 700; color: #fff;
+    letter-spacing: .3px; line-height: 1.3;
+  }
+
+  /* ── FOOTER ── */
+  .sf-footer {
+    margin-top: 48px; padding: 22px 0 32px;
+    border-top: 1px solid var(--sf-border);
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .sf-footer svg { width: 22px; height: 22px; opacity: .8; }
+  .sf-footer span {
+    font-size: 12px; color: var(--sf-muted); font-weight: 500;
+  }
 
   /* ── LAYOUT ── */
   .layout { display: flex; min-height: calc(100vh - 56px); }
@@ -135,10 +172,12 @@
   }
   .step-header .num {
     width: 38px; height: 38px; border-radius: 50%;
-    background: var(--sf-blue); color: #fff;
+    background: linear-gradient(135deg, var(--sf-blue) 0%, #1B8FC7 100%);
+    color: #fff;
     font-size: 16px; font-weight: 800;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(41,181,232,.35);
   }
   .step-header h2 { font-size: 22px; font-weight: 700; color: var(--sf-navy); }
   .step-header .mins {
@@ -166,6 +205,15 @@
     background: var(--code-bg); border: 1px solid var(--sf-border);
     border-radius: 8px; overflow: hidden; margin: 16px 0;
     font-family: var(--sf-mono);
+    position: relative;
+  }
+  .code-block::after {
+    content: '';
+    position: absolute; right: 10px; bottom: 6px;
+    width: 38px; height: 38px;
+    opacity: .10; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2311224D' d='M7.602 12.4c.038-.151.076-.304.076-.456 0-.114-.038-.228-.038-.342-.114-.343-.304-.647-.646-.838l-4.87-2.777c-.685-.38-1.56-.152-1.94.533-.381.685-.153 1.56.532 1.94l2.701 1.56-2.701 1.56c-.685.38-.913 1.256-.533 1.94.38.685 1.256.914 1.94.533l4.832-2.777c.343-.267.571-.533.647-.876zm1.332 2.626c-.266-.038-.57.038-.837.19l-4.832 2.777c-.685.38-.913 1.256-.532 1.94.38.686 1.255.914 1.94.533l2.701-1.56v3.12c0 .8.647 1.408 1.446 1.408.799 0 1.407-.647 1.407-1.408v-5.592c0-.761-.57-1.37-1.293-1.408zm4.946-6.088c.266.038.57-.038.837-.19l4.832-2.777c.685-.38.913-1.256.532-1.94-.38-.686-1.255-.914-1.94-.533l-2.701 1.56V1.975c0-.799-.647-1.408-1.446-1.408-.799 0-1.446.609-1.446 1.408V7.53c0 .76.609 1.37 1.332 1.407zM3.265 5.97l4.832 2.777c.266.152.533.19.837.19.723-.038 1.331-.684 1.331-1.407V1.975c0-.799-.646-1.408-1.407-1.408-.799 0-1.446.647-1.446 1.408v3.12l-2.701-1.56c-.685-.38-1.56-.152-1.94.533-.419.646-.19 1.521.494 1.902zm9.093 6.011a.412.412 0 00-.114-.266l-.57-.571a.346.346 0 00-.267-.114.412.412 0 00-.266.114l-.571.57a.411.411 0 00-.114.267c0 .076.038.19.114.267l.57.57a.345.345 0 00.267.114c.076 0 .19-.038.266-.114l.571-.57a.412.412 0 00.114-.267zm1.598.533L11.94 14.53c-.039.038-.153.114-.229.114h-.608a.411.411 0 01-.267-.114L8.82 12.514a.408.408 0 01-.076-.229v-.608c0-.076.038-.19.114-.267l2.016-2.016a.41.41 0 01.267-.114h.608a.41.41 0 01.267.114l2.016 2.016a.347.347 0 01.114.267v.608c-.076.077-.114.19-.19.229zm5.593 5.44l-4.832-2.777c-.266-.152-.57-.19-.837-.152-.723.038-1.332.684-1.332 1.408v5.554c0 .8.647 1.408 1.408 1.408.799 0 1.446-.647 1.446-1.408v-3.12l2.7 1.56c.686.38 1.561.152 1.941-.533.419-.646.19-1.521-.494-1.94zm2.549-7.533l-2.701 1.56 2.7 1.56c.686.38.914 1.256.533 1.94-.38.685-1.255.913-1.94.533l-4.832-2.778a1.644 1.644 0 01-.647-.798c-.037-.153-.076-.305-.076-.457 0-.114.039-.228.039-.342.114-.343.342-.647.646-.837l4.832-2.778c.685-.38 1.56-.152 1.94.533.457.609.19 1.484-.494 1.864'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-size: contain;
   }
   .code-block .code-header {
     background: #E8EFF6; padding: 7px 14px;
@@ -187,7 +235,7 @@
   .copy-btn:hover { background: var(--sf-blue); color: #fff; border-color: var(--sf-blue); }
   .copy-btn.copied { background: var(--sf-green); color: #fff; border-color: var(--sf-green); }
   .code-block pre {
-    padding: 16px 18px; font-size: 13px; line-height: 1.6;
+    padding: 16px 18px 42px; font-size: 13px; line-height: 1.6;
     overflow-x: auto; color: var(--sf-text);
     white-space: pre;
   }
@@ -358,17 +406,18 @@
 <div class="topbar">
   <div class="topbar-logo">
     <!-- Official Snowflake corporate mark -->
-    <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="20" cy="20" r="20" fill="#29B5E8"/>
-      <g transform="translate(8,8) scale(1)">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="12" fill="#29B5E8"/>
+      <g transform="translate(5.06,4.8) scale(0.6)">
         <path fill="white" d="M7.602 12.4c.038-.151.076-.304.076-.456 0-.114-.038-.228-.038-.342-.114-.343-.304-.647-.646-.838l-4.87-2.777c-.685-.38-1.56-.152-1.94.533-.381.685-.153 1.56.532 1.94l2.701 1.56-2.701 1.56c-.685.38-.913 1.256-.533 1.94.38.685 1.256.914 1.94.533l4.832-2.777c.343-.267.571-.533.647-.876zm1.332 2.626c-.266-.038-.57.038-.837.19l-4.832 2.777c-.685.38-.913 1.256-.532 1.94.38.686 1.255.914 1.94.533l2.701-1.56v3.12c0 .8.647 1.408 1.446 1.408.799 0 1.407-.647 1.407-1.408v-5.592c0-.761-.57-1.37-1.293-1.408zm4.946-6.088c.266.038.57-.038.837-.19l4.832-2.777c.685-.38.913-1.256.532-1.94-.38-.686-1.255-.914-1.94-.533l-2.701 1.56V1.975c0-.799-.647-1.408-1.446-1.408-.799 0-1.446.609-1.446 1.408V7.53c0 .76.609 1.37 1.332 1.407zM3.265 5.97l4.832 2.777c.266.152.533.19.837.19.723-.038 1.331-.684 1.331-1.407V1.975c0-.799-.646-1.408-1.407-1.408-.799 0-1.446.647-1.446 1.408v3.12l-2.701-1.56c-.685-.38-1.56-.152-1.94.533-.419.646-.19 1.521.494 1.902zm9.093 6.011a.412.412 0 00-.114-.266l-.57-.571a.346.346 0 00-.267-.114.412.412 0 00-.266.114l-.571.57a.411.411 0 00-.114.267c0 .076.038.19.114.267l.57.57a.345.345 0 00.267.114c.076 0 .19-.038.266-.114l.571-.57a.412.412 0 00.114-.267zm1.598.533L11.94 14.53c-.039.038-.153.114-.229.114h-.608a.411.411 0 01-.267-.114L8.82 12.514a.408.408 0 01-.076-.229v-.608c0-.076.038-.19.114-.267l2.016-2.016a.41.41 0 01.267-.114h.608a.41.41 0 01.267.114l2.016 2.016a.347.347 0 01.114.267v.608c-.076.077-.114.19-.19.229zm5.593 5.44l-4.832-2.777c-.266-.152-.57-.19-.837-.152-.723.038-1.332.684-1.332 1.408v5.554c0 .8.647 1.408 1.408 1.408.799 0 1.446-.647 1.446-1.408v-3.12l2.7 1.56c.686.38 1.561.152 1.941-.533.419-.646.19-1.521-.494-1.94zm2.549-7.533l-2.701 1.56 2.7 1.56c.686.38.914 1.256.533 1.94-.38.685-1.255.913-1.94.533l-4.832-2.778a1.644 1.644 0 01-.647-.798c-.037-.153-.076-.305-.076-.457 0-.114.039-.228.039-.342.114-.343.342-.647.646-.837l4.832-2.778c.685-.38 1.56-.152 1.94.533.457.609.19 1.484-.494 1.864"/>
       </g>
     </svg>
     <span class="topbar-title">Snowflake AI Snowcamp</span>
   </div>
-  <span class="topbar-sep">|</span>
-  <span class="topbar-sub">Optum / UHG India — Hands-On Lab</span>
-  <span class="topbar-badge">90–95 min</span>
+  <div class="topbar-cobrand">
+    <span class="partner">Optum / UHG — Hands-On Lab</span>
+    <span class="duration-pill">90–95 min</span>
+  </div>
 </div>
 
 <!-- LAYOUT -->
@@ -387,6 +436,12 @@
         <div class="label">Requires</div>
         <div class="value">Snowflake Trial Account</div>
       </div>
+      <div class="sidebar-cortex-badge">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#29B5E8" d="M7.602 12.4c.038-.151.076-.304.076-.456 0-.114-.038-.228-.038-.342-.114-.343-.304-.647-.646-.838l-4.87-2.777c-.685-.38-1.56-.152-1.94.533-.381.685-.153 1.56.532 1.94l2.701 1.56-2.701 1.56c-.685.38-.913 1.256-.533 1.94.38.685 1.256.914 1.94.533l4.832-2.777c.343-.267.571-.533.647-.876zm1.332 2.626c-.266-.038-.57.038-.837.19l-4.832 2.777c-.685.38-.913 1.256-.532 1.94.38.686 1.255.914 1.94.533l2.701-1.56v3.12c0 .8.647 1.408 1.446 1.408.799 0 1.407-.647 1.407-1.408v-5.592c0-.761-.57-1.37-1.293-1.408zm4.946-6.088c.266.038.57-.038.837-.19l4.832-2.777c.685-.38.913-1.256.532-1.94-.38-.686-1.255-.914-1.94-.533l-2.701 1.56V1.975c0-.799-.647-1.408-1.446-1.408-.799 0-1.446.609-1.446 1.408V7.53c0 .76.609 1.37 1.332 1.407zM3.265 5.97l4.832 2.777c.266.152.533.19.837.19.723-.038 1.331-.684 1.331-1.407V1.975c0-.799-.646-1.408-1.407-1.408-.799 0-1.446.647-1.446 1.408v3.12l-2.701-1.56c-.685-.38-1.56-.152-1.94.533-.419.646-.19 1.521.494 1.902zm9.093 6.011a.412.412 0 00-.114-.266l-.57-.571a.346.346 0 00-.267-.114.412.412 0 00-.266.114l-.571.57a.411.411 0 00-.114.267c0 .076.038.19.114.267l.57.57a.345.345 0 00.267.114c.076 0 .19-.038.266-.114l.571-.57a.412.412 0 00.114-.267zm1.598.533L11.94 14.53c-.039.038-.153.114-.229.114h-.608a.411.411 0 01-.267-.114L8.82 12.514a.408.408 0 01-.076-.229v-.608c0-.076.038-.19.114-.267l2.016-2.016a.41.41 0 01.267-.114h.608a.41.41 0 01.267.114l2.016 2.016a.347.347 0 01.114.267v.608c-.076.077-.114.19-.19.229zm5.593 5.44l-4.832-2.777c-.266-.152-.57-.19-.837-.152-.723.038-1.332.684-1.332 1.408v5.554c0 .8.647 1.408 1.408 1.408.799 0 1.446-.647 1.446-1.408v-3.12l2.7 1.56c.686.38 1.561.152 1.941-.533.419-.646.19-1.521-.494-1.94zm2.549-7.533l-2.701 1.56 2.7 1.56c.686.38.914 1.256.533 1.94-.38.685-1.255.913-1.94.533l-4.832-2.778a1.644 1.644 0 01-.647-.798c-.037-.153-.076-.305-.076-.457 0-.114.039-.228.039-.342.114-.343.342-.647.646-.837l4.832-2.778c.685-.38 1.56-.152 1.94.533.457.609.19 1.484-.494 1.864"/>
+        </svg>
+        <span>Powered by<br>Snowflake Cortex AI</span>
+      </div>
     </div>
     <ul class="step-list">
       <li class="step-item active"><a href="#s1"><span class="step-num">1</span>Overview<span class="step-time">5 min</span></a></li>
@@ -395,7 +450,7 @@
       <li class="step-item"><a href="#s4"><span class="step-num">4</span>Semantic View Autopilot<span class="step-time">15 min</span></a></li>
       <li class="step-item"><a href="#s5"><span class="step-num">5</span>Cortex Search<span class="step-time">10 min</span></a></li>
       <li class="step-item"><a href="#s6"><span class="step-num">6</span>Build Your Agent via CoCo<span class="step-time">15 min</span></a></li>
-      <li class="step-item"><a href="#s7"><span class="step-num">7</span>Snowflake Intelligence<span class="step-time">15 min</span></a></li>
+      <li class="step-item"><a href="#s7"><span class="step-num">7</span>Snowflake CoWork<span class="step-time">15 min</span></a></li>
       <li class="step-item"><a href="#s8"><span class="step-num">8</span>Ask Your Agent<span class="step-time">10 min</span></a></li>
       <li class="step-item"><a href="#s9"><span class="step-num">9</span>Wrap-up &amp; Next Steps<span class="step-time">5 min</span></a></li>
     </ul>
@@ -412,10 +467,11 @@
       <div class="hero-chips">
         <span class="chip">Cortex Analyst</span>
         <span class="chip">Semantic Views</span>
+        <span class="chip">Ontology</span>
         <span class="chip">Cortex Search</span>
         <span class="chip">Cortex Agents</span>
-        <span class="chip">Snowflake Intelligence</span>
-        <span class="chip">Cortex Code (CoCo)</span>
+        <span class="chip">Snowflake CoWork</span>
+        <span class="chip">CoCo</span>
       </div>
     </div>
 
@@ -431,18 +487,20 @@
 
       <p>In this lab, you will build a <strong>Member Intelligence Agent</strong>: an agentic AI experience that lets any team member ask natural language questions and get answers that draw on <em>both</em> structured claims data and unstructured policy documents — all governed, all within Snowflake.</p>
 
+      <p>The foundation for this is a <strong>semantic view</strong> — which is really a <strong>base ontology</strong> for your payer domain. It defines the entities that exist (members, claims, providers), how they relate to one another, and the vocabulary your business actually uses to describe them. Without this layer, an agent is guessing at what your column names mean. With it, the agent reasons over business concepts rather than raw schema.</p>
+
       <!-- Architecture diagram -->
       <div class="arch">
         <div class="arch-flow">
           <div class="arch-node">Synthetic<br>Payer Data</div>
           <span class="arch-arrow">→</span>
-          <div class="arch-node highlight">Semantic<br>View</div>
+          <div class="arch-node highlight">Semantic View<br>(Ontology)</div>
           <span class="arch-arrow">→</span>
           <div class="arch-node highlight">Cortex<br>Analyst</div>
           <span class="arch-arrow">→</span>
           <div class="arch-node">Cortex<br>Agent</div>
           <span class="arch-arrow">→</span>
-          <div class="arch-node final">Snowflake<br>Intelligence</div>
+          <div class="arch-node final">Snowflake<br>CoWork</div>
         </div>
         <div style="display:flex;align-items:center;justify-content:center;gap:20px;margin-top:16px">
           <div class="arch-node" style="min-width:70px;font-size:11px">Benefit<br>Policy Docs</div>
@@ -453,29 +511,31 @@
           <span class="arch-arrow" style="color:transparent">→</span>
           <div class="arch-node" style="min-width:70px;border:none;background:transparent"></div>
         </div>
-        <div class="arch-label">Structured queries (Cortex Analyst) + document retrieval (Cortex Search) orchestrated by a single Cortex Agent, surfaced via Snowflake Intelligence</div>
+        <div class="arch-label">Structured queries (Cortex Analyst) + document retrieval (Cortex Search) + AI functions (AI_EXTRACT, AI_CLASSIFY) orchestrated by a Cortex Agent, surfaced via Snowflake CoWork</div>
       </div>
 
       <div class="cards">
         <div class="card learn">
           <h4>What You Will Learn</h4>
           <ul>
-            <li>How to create a <strong>semantic view</strong> that maps business language to physical tables</li>
+            <li>How to create a <strong>semantic view</strong> — a <strong>base ontology</strong> that maps business language, entities, and relationships to physical tables</li>
             <li>How <strong>Cortex Analyst</strong> translates natural language to SQL</li>
             <li>How <strong>Cortex Search</strong> enables RAG over policy documents</li>
-            <li>How to build and configure a <strong>Cortex Agent</strong> with multiple tools</li>
-            <li>How to use <strong>Cortex Code (CoCo)</strong> to scaffold and iterate AI artifacts</li>
-            <li>How to surface everything through <strong>Snowflake Intelligence</strong></li>
+            <li>How <strong>AI_EXTRACT</strong> pulls structured data from PDFs and <strong>AI_CLASSIFY</strong> categorizes claims in SQL</li>
+            <li>How to build and configure a <strong>Cortex Agent</strong> with multiple tools — including a custom AI function</li>
+            <li>How to use <strong>CoCo</strong> to scaffold and iterate AI artifacts
+            <li>How to surface everything through <strong>Snowflake CoWork</strong></li>
           </ul>
         </div>
         <div class="card build">
           <h4>What You Will Build</h4>
           <ul>
             <li>A synthetic payer database loaded from the lab GitHub repository (members, claims, pharmacy, providers)</li>
-            <li>A <code>MEMBER_INTELLIGENCE</code> semantic view via Autopilot</li>
+            <li>A <code>MEMBER_INTELLIGENCE</code> semantic view via Autopilot — your payer <strong>base ontology</strong></li>
             <li>A Cortex Search service over benefit policy text</li>
-            <li>A <strong>Member Intelligence Cortex Agent</strong> with your own persona and instructions</li>
-            <li>A live Snowflake Intelligence session answering real Optum-style questions</li>
+            <li>Structured extraction from a PA denial letter PDF using <code>AI_EXTRACT</code></li>
+            <li>A <strong>Member Intelligence Cortex Agent</strong> with Analyst, Search, and a custom <code>AI_CLASSIFY</code> tool</li>
+            <li>A live Snowflake CoWork session answering real Optum-style questions</li>
           </ul>
         </div>
       </div>
@@ -536,6 +596,16 @@
           <div style="font-size:13px;font-weight:700;color:var(--sf-navy);margin-bottom:4px">Surface trends &amp; explain the "why"</div>
           <div style="font-size:13px;color:var(--sf-muted)">"Why did pharmacy costs increase in Q3?" — the agent reasons across multiple data sources to give a synthesized, contextual answer, not just a number.</div>
         </div>
+        <div style="background:#fff;border:1px solid var(--sf-border);border-radius:8px;padding:14px 16px">
+          <div style="font-size:18px;margin-bottom:6px">🏷️</div>
+          <div style="font-size:13px;font-weight:700;color:var(--sf-navy);margin-bottom:4px">Classify claims on demand</div>
+          <div style="font-size:13px;color:var(--sf-muted)">"Classify an ER visit with diagnosis I21.0" — the agent calls a custom <code>AI_CLASSIFY</code> tool you build to assign clinical risk categories, no rules engine required.</div>
+        </div>
+        <div style="background:#fff;border:1px solid var(--sf-border);border-radius:8px;padding:14px 16px">
+          <div style="font-size:18px;margin-bottom:6px">📄</div>
+          <div style="font-size:13px;font-weight:700;color:var(--sf-navy);margin-bottom:4px">Read documents you hand it</div>
+          <div style="font-size:13px;color:var(--sf-muted)">You will use <code>AI_EXTRACT</code> to pull member ID, drug, denial reason, and appeal deadline out of a PA denial letter PDF — turning an unstructured document into a queryable row.</div>
+        </div>
       </div>
 
       <div class="callout callout-info" style="margin-top:6px">
@@ -555,8 +625,8 @@
       <h3>What You Need</h3>
       <ul>
         <li>A <strong>Snowflake Trial Account</strong> — use the <strong>event link provided by your instructor</strong> to sign up (free, no credit card required). Do not use the generic signup.snowflake.com link — the event link ensures your account is provisioned correctly for this lab.</li>
-        <li>When signing up via the event link, select <strong>Microsoft Azure</strong> as the cloud provider and <strong>Central India (Pune)</strong> as the region — this ensures low latency and keeps your data within India
-          <br><img src="assets/img/signup_csp_region.png" alt="CSP and region selection during trial signup" style="max-width:560px;border-radius:8px;margin-top:10px;display:block;">
+        <li>When signing up via the event link, select <strong>Amazon Web Services (AWS)</strong> as the cloud provider and <strong>EU (Frankfurt)</strong> as the region
+          <br><img src="assets/img/signup_csp_dub.png" alt="CSP and region selection during trial signup" style="max-width:560px;border-radius:8px;margin-top:10px;display:block;">
         </li>
         <li>A modern web browser (Chrome or Edge recommended)</li>
         <li>The <strong>lab guide</strong> — open <a href="https://sfc-gh-amdhingra.github.io/ai-snowcamp-lab/" target="_blank">sfc-gh-amdhingra.github.io/ai-snowcamp-lab/</a> in your browser. All SQL, instructions, and assets are served from the public GitHub repository — no ZIP file to download.</li>
@@ -565,26 +635,27 @@
       <div class="callout callout-info">
         <span class="icon">🌐</span>
         <div>
-          <strong>Why Azure Central India?</strong> Selecting Azure Central India (Pune) keeps your trial account and data within India, minimising latency for the lab exercises.<br><br>
-          Azure Central India has native support for Snowflake Cortex embedding models and several AI functions. For the full LLM model suite required by Cortex Analyst, Cortex Agents, and Snowflake Intelligence, we enable <strong>cross-region inference</strong> to route requests to Azure US — staying entirely within the Azure global network (no public internet traversal).
+          <strong>Why this region?</strong> Your trial account is provisioned on AWS in the region closest to this event. Cortex embedding models are available natively in all AWS regions. For the full LLM model suite required by Cortex Analyst, Cortex Agents, and Snowflake CoWork, we enable <strong>cross-region inference</strong> to route requests to AWS US — staying within the AWS global network.
         </div>
       </div>
 
       <div class="callout callout-info">
         <span class="icon">ℹ️</span>
-        <div>All Snowflake features used in this lab — Cortex Analyst, Cortex Search, Cortex Agents, Snowflake Intelligence, and Cortex Code — are available on free trial accounts. No additional entitlements are required. Cross-region inference does not incur data egress charges.</div>
+        <div>All Snowflake features used in this lab — Cortex Analyst, Cortex Search, Cortex Agents, Snowflake CoWork, and CoCo — are available on free trial accounts. No additional entitlements are required. Cross-region inference does not incur data egress charges.</div>
       </div>
 
       <h3>Snowflake Features Used</h3>
       <div class="data-schema">
         <table>
           <tr><th>Feature</th><th>Purpose in This Lab</th><th>Where in Snowsight</th></tr>
-          <tr><td>Semantic View Autopilot</td><td>Auto-generate a semantic view from your payer tables using AI — no YAML hand-coding required</td><td>AI &amp; ML → Analyst → Create new → Autopilot</td></tr>
+          <tr><td>Semantic View Autopilot</td><td>Auto-generate a base ontology (entities, relationships, vocabulary) from your payer tables using AI — no YAML hand-coding required</td><td>AI &amp; ML → Analyst → Create new → Autopilot</td></tr>
           <tr><td>Cortex Analyst</td><td>Text-to-SQL over structured payer data via the generated semantic view</td><td>AI &amp; ML → Analyst</td></tr>
           <tr><td>Cortex Search</td><td>Vector search and RAG over benefit policy documents</td><td>AI &amp; ML → Search</td></tr>
-          <tr><td>Cortex Agents</td><td>Orchestrate Analyst + Search into a single AI agent</td><td>AI &amp; ML → Agents</td></tr>
-          <tr><td>Cortex Code (CoCo)</td><td>Generate agent instructions, persona, and tool descriptions; iterate mid-lab</td><td>Bottom-right chat icon in Snowsight, or CLI</td></tr>
-          <tr><td>Snowflake Intelligence</td><td>Enterprise chat UI — surface your agent to any business user</td><td>AI &amp; ML → Snowflake Intelligence (or ai.snowflake.com)</td></tr>
+          <tr><td>Cortex Agents</td><td>Orchestrate Analyst + Search + custom tools into a single AI agent</td><td>AI &amp; ML → Agents</td></tr>
+          <tr><td>AI_EXTRACT</td><td>Extract structured fields from PDFs and documents using AI</td><td>SQL function</td></tr>
+          <tr><td>AI_CLASSIFY</td><td>Categorize claims into clinical risk categories — exposed as a custom agent tool</td><td>SQL function / Agent tool</td></tr>
+          <tr><td>CoCo</td><td>Generate agent instructions, persona, and tool descriptions; iterate mid-lab</td><td>Bottom-right chat icon in Snowsight, or CLI</td></tr>
+          <tr><td>Snowflake CoWork</td><td>Enterprise chat UI — surface your agent to any business user</td><td>AI &amp; ML → Agents (or ai.snowflake.com)</td></tr>
         </table>
       </div>
     </section>
@@ -597,25 +668,23 @@
         <span class="mins">10 min</span>
       </div>
 
-      <p>This step has two parts: first enable cross-region LLM inference (required for Azure Central India), then run <code>setup.sql</code> to create your tables, load the lab data, and configure your lab environment. Both are done from a SQL Worksheet and take about 3–4 minutes total.</p>
+      <p>This step has two parts: first enable cross-region LLM inference (required for non-US AWS regions), then run <code>setup.sql</code> to create your tables, load the lab data, and configure your lab environment. Both are done from a SQL Worksheet and take about 3–4 minutes total.</p>
 
       <h3>Step 3a — Enable Cross-Region Inference <span style="font-size:12px;font-weight:400;color:var(--sf-red);margin-left:8px">Required</span></h3>
-      <p>Azure Central India has native support for Snowflake Cortex embedding models, but the full LLM suite needed for Cortex Analyst, Cortex Agents, and Snowflake Intelligence requires cross-region inference to route requests to Azure US data centers. Traffic stays entirely within the <strong>Azure global network</strong> — it does not traverse the public internet.</p>
+      <p>Your trial account is on AWS in a non-US region. The full LLM suite needed for Cortex Analyst, Cortex Agents, and Snowflake CoWork requires cross-region inference to route requests to AWS US data centers. Traffic stays within the <strong>AWS global network</strong>.</p>
 
       <p>In Snowsight, click the <strong>+</strong> button in the top-left toolbar and select <strong>SQL File</strong> to open a new SQL worksheet.</p>
       <img src="assets/img/home_create_sql.png" alt="Snowsight + menu with SQL File highlighted" style="display:block; margin: 12px 0 20px; max-width:480px; border-radius:8px; border:1px solid var(--sf-border);">
       <p>Paste and run the following — the first line switches your role automatically:</p>
 
       <div class="code-block">
-        <div class="code-header"><span class="code-lang">SQL — Enable Cross-Region Inference</span><span class="code-hint">Run as ACCOUNTADMIN · Required for Azure Central India</span></div>
+        <div class="code-header"><span class="code-lang">SQL — Enable Cross-Region Inference</span><span class="code-hint">Run as ACCOUNTADMIN · Required for non-US AWS regions</span></div>
         <pre><span class="keyword">USE ROLE</span> ACCOUNTADMIN;
 
-<span class="comment">-- Enable cross-region LLM inference for Azure US and AWS US regions.
--- This is required for Cortex Analyst, Cortex Agents, and Snowflake Intelligence
--- from Azure Central India. Traffic stays within the Azure global network
--- when routing to Azure US (East US 2), and uses mTLS over the internet
--- only if falling back to AWS US (rare).</span>
-<span class="keyword">ALTER ACCOUNT SET</span> cortex_enabled_cross_region = <span class="string">'AZURE_US,AWS_US'</span>;
+<span class="comment">-- Enable cross-region LLM inference for AWS US regions.
+-- This is required for Cortex Analyst, Cortex Agents, and Snowflake CoWork
+-- from non-US AWS regions. Traffic stays within the AWS global network.</span>
+<span class="keyword">ALTER ACCOUNT SET</span> cortex_enabled_cross_region = <span class="string">'ANY_REGION'</span>;
 
 <span class="comment">-- Verify the setting was applied</span>
 <span class="keyword">SHOW PARAMETERS LIKE</span> <span class="string">'CORTEX_ENABLED_CROSS_REGION'</span> <span class="keyword">IN ACCOUNT</span>;</pre>
@@ -624,9 +693,9 @@
       <div class="callout callout-tip">
         <span class="icon">💡</span>
         <div>
-          <strong>Already set?</strong> If your trial account was created after March 9, 2026, Snowflake defaults new accounts to <code>ANY_REGION</code> — cross-region inference is already on. The <code>SHOW PARAMETERS</code> command will confirm this. You can still run the <code>ALTER ACCOUNT</code> above to pin it explicitly to <code>AZURE_US,AWS_US</code>, which is good practice for a payer context (limits inference to US regions only).
+          <strong>Already set?</strong> If your trial account was created after March 9, 2026, Snowflake defaults new accounts to <code>ANY_REGION</code> — cross-region inference is already on. The <code>SHOW PARAMETERS</code> command will confirm this. Running the <code>ALTER ACCOUNT</code> above is safe either way.
           <br><br>
-          <strong>Why AZURE_US first, AWS_US second?</strong> Listing <code>AZURE_US</code> first tells Snowflake to prefer Azure US (East US 2, West US 2) for inference — keeping data within Azure's network. <code>AWS_US</code> is the fallback for any models not yet available on Azure.
+          <strong>Why ANY_REGION?</strong> Setting cross-region inference to <code>ANY_REGION</code> allows Snowflake to route LLM requests to whichever region has the best availability. For a lab setting this is the simplest and most reliable option.
         </div>
       </div>
 
@@ -783,7 +852,7 @@
         <span class="mins">15 min</span>
       </div>
 
-      <p>Cortex Analyst translates natural language questions into SQL — but it needs a <strong>semantic view</strong> to understand your data. A semantic view maps business concepts like <em>"total cost of care"</em>, <em>"care gap"</em>, and <em>"medication adherence"</em> to the physical tables and columns in your database.</p>
+      <p>Cortex Analyst translates natural language questions into SQL — but it needs a <strong>semantic view</strong> to understand your data. A semantic view is your domain's <strong>base ontology</strong>: it declares which entities exist, how they relate to each other, and what vocabulary describes them — mapping business concepts like <em>"total cost of care"</em>, <em>"care gap"</em>, and <em>"medication adherence"</em> onto the physical tables and columns in your database.</p>
       <p>Rather than hand-authoring a YAML file, you will use <strong>Semantic View Autopilot</strong> — Snowflake's AI-powered feature that inspects your tables and generates a complete, business-ready semantic view automatically.</p>
 
       <div class="callout callout-info">
@@ -858,6 +927,14 @@
         <div><strong>Autopilot may suggest enabling a Cortex Search service</strong> — for example, an "Enable smart filter" suggestion to resolve abbreviations like <em>NYC → New York City</em>. <strong>Skip any Cortex Search suggestions for now</strong> — you will create your own Cortex Search service in Step 5 for the policy documents. Accept and validate the other suggestions (measures, dimensions, relationships, verified queries).</div>
       </div>
 
+      <div class="callout callout-note">
+        <span class="icon">🧩</span>
+        <div>
+          <strong>What you just built is a base ontology.</strong> A semantic view is not only a BI convenience layer — it encodes the structural pieces of a domain ontology: <strong>entity classes</strong> (members, claims, providers), <strong>typed relationships</strong> between them with explicit cardinality, a <strong>controlled vocabulary</strong> via synonyms so <em>enrollee</em>, <em>patient</em>, and <em>member</em> resolve to the same concept, and <strong>enumerated taxonomies</strong> for fields like chronic condition and service type. It also references external industry ontologies — ICD-10, CPT, NDC, and NPI are all formal classification systems in their own right. This is why your agent can answer questions phrased in language that appears nowhere in your column names.<br><br>
+          <strong>Where a fuller ontology would go next:</strong> the current model has no <em>cross-entity concept unification</em>. <code>MEMBERS.CHRONIC_CONDITION = 'Diabetes'</code> and <code>MEDICAL_CLAIMS.ICD10_CODE = 'E11.9'</code> both mean diabetes, but nothing in the model connects them — so the agent must be told they are the same concept. Adding a condition-to-code crosswalk, a drug class hierarchy (GLP-1 → antidiabetic → endocrine), and inference rules would turn this base ontology into a reasoning layer.
+        </div>
+      </div>
+
       <h3>Step 4d — Save and Test</h3>
       <ol>
         <li>Give the semantic view the name <code>MEMBER_INTELLIGENCE</code>.</li>
@@ -870,7 +947,7 @@
 
       <div class="callout callout-note">
         <span class="icon">📋</span>
-        <div><strong>Fallback:</strong> If the Autopilot button is missing or the view generation fails, copy the pre-built YAML from the lab repo and upload it manually via <strong>Create new → Upload YAML</strong>. (Autopilot is available in Azure Central India — cross-region inference was enabled in Step 3a — so this should only be needed as a last resort.)<br><br>
+        <div><strong>Fallback:</strong> If the Autopilot button is missing or the view generation fails, copy the pre-built YAML from the lab repo and upload it manually via <strong>Create new → Upload YAML</strong>. (Autopilot is available in all AWS regions — cross-region inference was enabled in Step 3a — so this should only be needed as a last resort.)<br><br>
         <code>COPY FILES INTO @OPTUM_LAB_DB.PAYER.SEMANTIC_MODELS FROM @SNOWCAMP_LAB_REPO/branches/main/assets/semantic_models/ FILES = ('member_intelligence.yaml');</code><br><br>
         Note: If using the YAML fallback, the agent tool in Step 6 must reference the stage file path instead of the semantic view object.</div>
       </div>
@@ -888,7 +965,7 @@
       <p>You will use <strong>Cortex Search</strong> to index three synthetic policy documents and make them retrievable by your agent.</p>
 
       <h3>Step 5a — Stage Policy Documents</h3>
-      <p>The three policy documents live in the lab GitHub repo. Run the following SQL to copy them from the Git repository stage into your internal <code>POLICY_DOCS</code> stage. This is the same <code>SNOWCAMP_LAB_REPO</code> stage you used during setup — it's available throughout the lab, not just for bootstrapping.</p>
+      <p>The policy documents live in the lab GitHub repo. Run the following SQL to copy them from the Git repository stage into your internal <code>POLICY_DOCS</code> stage. This is the same <code>SNOWCAMP_LAB_REPO</code> stage you used during setup — it's available throughout the lab, not just for bootstrapping.</p>
       <div class="code-block">
         <div class="code-header"><span class="code-lang">SQL — Copy Policy Docs to Internal Stage</span><span class="code-hint">Run as OPTUM_LAB_ROLE</span></div>
         <pre><span class="keyword">USE ROLE</span> OPTUM_LAB_ROLE; <span class="keyword">USE WAREHOUSE</span> OPTUM_LAB_WH;
@@ -896,16 +973,17 @@
 
 <span class="keyword">COPY FILES INTO</span> @POLICY_DOCS
   <span class="keyword">FROM</span> @SNOWCAMP_LAB_REPO/branches/main/assets/documents/
-  FILES = (<span class="string">'formulary_guidelines.txt'</span>, <span class="string">'medical_benefits_summary.txt'</span>, <span class="string">'quality_stars_measures.txt'</span>);
+  FILES = (<span class="string">'formulary_guidelines.txt'</span>, <span class="string">'medical_benefits_summary.txt'</span>, <span class="string">'quality_stars_measures.txt'</span>, <span class="string">'pa_denial_letter.pdf'</span>);
 
-<span class="comment">-- Verify: should show 3 files</span>
+<span class="comment">-- Verify: should show 4 files</span>
 <span class="keyword">LIST</span> @POLICY_DOCS;</pre>
       </div>
-      <p>The three documents covering:</p>
+      <p>The four documents covering:</p>
       <ul>
         <li><code>formulary_guidelines.txt</code> — drug formulary tiers, PA requirements, GLP-1 and specialty drug rules</li>
         <li><code>medical_benefits_summary.txt</code> — coverage rules for preventive care, specialist visits, mental health, PT</li>
         <li><code>quality_stars_measures.txt</code> — HEDIS/Stars measure definitions, thresholds, member eligibility criteria</li>
+        <li><code>pa_denial_letter.pdf</code> — a synthetic prior authorization denial letter (<a href="https://github.com/sfc-gh-amdhingra/ai-snowcamp-lab/raw/main/assets/documents/pa_denial_letter.pdf" target="_blank">view PDF</a>) — used in Step 5d</li>
       </ul>
 
       <h3>Step 5b — Create the Cortex Search Service</h3>
@@ -955,6 +1033,34 @@
 );</pre>
       </div>
       <p>You should see relevant chunks from <code>formulary_guidelines.txt</code> in the results.</p>
+
+      <h3>Step 5d — Cortex AI Functions: Extract and Classify</h3>
+      <p>Snowflake's Cortex AI functions let you run intelligence directly inside SQL — no ML pipeline, no external API, no data movement. Two functions are especially relevant for payer workflows:</p>
+      <ul>
+        <li><strong><code>AI_EXTRACT</code></strong> reads a document (PDF, image, or text) and pulls out structured fields you specify — member IDs, diagnosis codes, denial reasons, dollar amounts — returning them as JSON. Think of it as turning any unstructured document into a queryable row.</li>
+        <li><strong><code>AI_CLASSIFY</code></strong> takes a text input and assigns it to one of a set of categories you define. For claims data, this means auto-categorizing service types, flagging high-risk encounters, or triaging appeals — without writing rules or training a model.</li>
+      </ul>
+
+      <p>You staged a synthetic <strong>PA denial letter</strong> in Step 5a alongside the policy documents. Open it to see what you're extracting from: <a href="https://github.com/sfc-gh-amdhingra/ai-snowcamp-lab/raw/main/assets/documents/pa_denial_letter.pdf" target="_blank">view the PDF</a>. It contains tables, clinical values, step therapy status, and a denial reason — the kind of document a utilization management team processes hundreds of times a day.</p>
+
+      <p>Run the following query. It will take 1–3 minutes as Snowflake parses the PDF and extracts the fields. <strong>Start it running, then continue to Step 6</strong> — by the time you finish creating your agent, the results will be waiting in your query tab.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">SQL — AI_EXTRACT from PA Denial Letter</span><span class="code-hint">Run as OPTUM_LAB_ROLE — continue to Step 6 while it runs</span></div>
+        <pre><span class="keyword">USE ROLE</span> OPTUM_LAB_ROLE; <span class="keyword">USE WAREHOUSE</span> OPTUM_LAB_WH;
+<span class="keyword">USE DATABASE</span> OPTUM_LAB_DB; <span class="keyword">USE SCHEMA</span> PAYER;
+
+<span class="keyword">SELECT</span> <span class="fn">AI_EXTRACT</span>(
+  <span class="fn">TO_FILE</span>(<span class="string">'@POLICY_DOCS'</span>, <span class="string">'pa_denial_letter.pdf'</span>),
+  [<span class="string">'member_id'</span>, <span class="string">'member_name'</span>, <span class="string">'decision'</span>, <span class="string">'drug_name'</span>,
+   <span class="string">'icd10_code'</span>, <span class="string">'hba1c'</span>, <span class="string">'denial_reason'</span>,
+   <span class="string">'appeal_deadline'</span>, <span class="string">'prescriber_name'</span>, <span class="string">'prescriber_npi'</span>]
+)::<span class="keyword">VARCHAR</span> <span class="keyword">AS</span> extracted;</pre>
+      </div>
+
+      <p>When the query completes, you will see a JSON object with every field extracted — member ID, drug, diagnosis code, HbA1c, the full denial reason, and the appeal deadline — all from a 2-page PDF with tables. One SQL function, zero parsing code.</p>
+
+      <p>In Step 6, you will also add <code>AI_CLASSIFY</code> as a tool your agent can use to automatically categorize medical claims into clinical risk categories — giving it the ability to reason beyond just the raw data.</p>
     </section>
 
     <!-- ── STEP 6: BUILD THE AGENT via CoCo ── -->
@@ -990,7 +1096,7 @@
       <div class="coco-block">
         <div class="coco-header">
           <div class="coco-icon">C</div>
-          <span class="coco-header-text">Cortex Code Prompt — Create Agent</span>
+          <span class="coco-header-text">CoCo Prompt — Create Agent</span>
           <span class="coco-header-sub">Paste into CoCo in Snowsight</span>
         </div>
         <pre>Create a Snowflake <span class="hl">Cortex Agent</span> for a healthcare payer (Optum/UHG) in schema <span class="hl2">SNOWFLAKE_INTELLIGENCE.AGENTS</span>.
@@ -1006,6 +1112,17 @@ The agent has access to two tools:
      Description: Benefit policy and formulary documents.
      Use for questions about coverage rules, PA requirements, HEDIS/Stars criteria.
 
+In addition, create a custom tool for the agent:
+  3. Create a <span class="hl">SQL UDF</span> named <span class="hl2">OPTUM_LAB_DB.PAYER.CLASSIFY_CLAIM</span> that takes
+     two VARCHAR inputs (service_type, icd10_code) and uses <span class="hl">AI_CLASSIFY</span>
+     to categorize the claim into one of these clinical categories:
+     ['Preventive Care', 'Chronic Disease Management', 'Acute/Emergency',
+      'Surgical', 'Mental Health', 'Routine Follow-up']
+     The UDF should build a description string from the inputs and pass it
+     to AI_CLASSIFY with those categories.
+     Then add this UDF as a <span class="hl">generic tool</span> on the agent so it can classify
+     claims on demand during a conversation.
+
 Also generate:
   a) A set of <span class="hl2">orchestration instructions</span> that tell the agent:
      - When to use Analyst vs Search vs both
@@ -1014,7 +1131,12 @@ Also generate:
   b) 5 starter <span class="hl">example questions</span> to show users what the agent can do
   c) A <span class="hl">display name and persona</span> appropriate for a payer organization
 
-Use warehouse <span class="hl2">OPTUM_LAB_WH</span> for the Analyst tool.</pre>
+Use warehouse <span class="hl2">OPTUM_LAB_WH</span> for the Analyst tool.
+
+Finally, after the CREATE AGENT statement, also generate the statement that
+registers the agent on the Snowflake CoWork object so it appears in CoWork:
+  <span class="hl2">ALTER SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT
+    ADD AGENT SNOWFLAKE_INTELLIGENCE.AGENTS.&lt;agent_name&gt;;</span></pre>
       </div>
 
       <div class="callout callout-info">
@@ -1022,7 +1144,32 @@ Use warehouse <span class="hl2">OPTUM_LAB_WH</span> for the Analyst tool.</pre>
         <div>CoCo will generate the <code>CREATE AGENT</code> SQL and display it for review. When you approve, it executes the DDL on your behalf — no need to open Snowsight Agents manually.</div>
       </div>
 
-      <h3>Step 6b — Iterate and Personalise</h3>
+      <h3>Step 6b — Register and Verify Your Agent</h3>
+      <p>Creating an agent and making it <em>visible</em> in Snowflake CoWork are two separate things. Snowflake CoWork uses an account-level object to decide which agents to show, and an agent only appears once it has been added to that object. Your setup script created the object, and the prompt above asks CoCo to register your agent on it.</p>
+
+      <p>Confirm registration worked before moving on — this takes seconds and saves a confusing dead end in Step 7:</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">SQL — Verify Agent Registration</span><span class="code-hint">Run as OPTUM_LAB_ROLE</span></div>
+        <pre>USE ROLE OPTUM_LAB_ROLE;
+
+SHOW AGENTS IN SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT;</pre>
+      </div>
+
+      <p>Your agent should be listed. If it is not, register it explicitly — substitute your own agent name:</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">SQL — Register Agent Manually</span><span class="code-hint">Only if the check above did not list your agent</span></div>
+        <pre>ALTER SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT
+  ADD AGENT SNOWFLAKE_INTELLIGENCE.AGENTS.&lt;your_agent_name&gt;;</pre>
+      </div>
+
+      <div class="callout callout-tip">
+        <span class="icon">💡</span>
+        <div><strong>Why this matters:</strong> if you open <strong>Settings</strong> in Snowflake CoWork and your agent later disappears from the list, this is why — visiting Settings can create the CoWork object, after which only registered agents are shown. Re-run the <code>ADD AGENT</code> statement above and it will come back. Your agent is never lost, only unlisted.</div>
+      </div>
+
+      <h3>Step 6c — Iterate and Personalise</h3>
       <p>Once CoCo has created the agent, customise it further. Ask CoCo to update the instructions to reflect your own persona and guardrails — it will generate updated DDL and ask for approval again before applying changes.</p>
 
       <div class="callout callout-tip">
@@ -1035,22 +1182,32 @@ Use warehouse <span class="hl2">OPTUM_LAB_WH</span> for the Analyst tool.</pre>
     <section class="section" id="s7">
       <div class="step-header">
         <div class="num">7</div>
-        <h2>Snowflake Intelligence — Open Your Agent</h2>
+        <h2>Snowflake CoWork — Open Your Agent</h2>
         <span class="mins">15 min</span>
       </div>
 
-      <p>Snowflake Intelligence is the enterprise chat interface built on top of Cortex Agents. It's the "AI front door" your agent will be accessed through — no code, no SQL, just a conversation.</p>
+      <p>Snowflake CoWork is the enterprise chat interface built on top of Cortex Agents. It's the "AI front door" your agent will be accessed through — no code, no SQL, just a conversation. (If you used this platform earlier in the year, you may know it as Snowflake Intelligence — same product, new name.)</p>
 
-      <h3>Step 7a — Access Snowflake Intelligence</h3>
+      <h3>Step 7a — Access Snowflake CoWork</h3>
+      <p>There are two routes in. Both work; the second does not depend on agent registration, so use it if the first does not show your agent.</p>
+
+      <p><strong>Route 1 — Snowflake CoWork directly</strong></p>
       <ol>
-        <li>In Snowsight, navigate to <strong>AI &amp; ML → Snowflake Intelligence</strong> in the left navigation (also accessible at <a href="https://ai.snowflake.com" target="_blank">ai.snowflake.com</a>).</li>
+        <li>Go to <a href="https://ai.snowflake.com" target="_blank">ai.snowflake.com</a>, or in Snowsight navigate to <strong>AI &amp; ML → Agents</strong> and open the <strong>Snowflake CoWork</strong> tab.</li>
         <li>Make sure you are signed in with the correct role (<code>ACCOUNTADMIN</code> or <code>OPTUM_LAB_ROLE</code>).</li>
         <li>In the left panel, you should see the agent you just created. Click on it to open a new conversation.</li>
       </ol>
 
+      <p><strong>Route 2 — via Snowsight (always works)</strong></p>
+      <ol>
+        <li>In Snowsight, navigate to <strong>AI &amp; ML → Agents</strong>.</li>
+        <li>Select your agent from the list.</li>
+        <li>Click <strong>Preview in Snowflake CoWork</strong>.</li>
+      </ol>
+
       <div class="callout callout-warn">
         <span class="icon">⚠️</span>
-        <div>If your agent does not appear, confirm that it was created in the <code>SNOWFLAKE_INTELLIGENCE.AGENTS</code> schema and that your current role has access to that schema. Run <code>GRANT USAGE ON SCHEMA SNOWFLAKE_INTELLIGENCE.AGENTS TO ROLE OPTUM_LAB_ROLE;</code> if needed.</div>
+        <div><strong>Agent not listed in Route 1?</strong> This is almost always agent <em>visibility</em>, not a broken agent — Snowflake CoWork only lists agents registered on the account's CoWork object. Go back to <strong>Step 6b</strong> and re-run the <code>ADD AGENT</code> statement, then reload. Route 2 above works regardless of registration, so if you are short on time, use it and move on — you will not miss any of the lab.</div>
       </div>
 
       <h3>Step 7b — Ask Your First Question</h3>
@@ -1067,11 +1224,11 @@ Use warehouse <span class="hl2">OPTUM_LAB_WH</span> for the Analyst tool.</pre>
       </div>
 
       <h3>Step 7c — Iterate with CoCo (If Time Allows)</h3>
-      <p>If the agent's responses aren't quite right, open CoCo alongside Snowflake Intelligence and ask it to refine the instructions:</p>
+      <p>If the agent's responses aren't quite right, open CoCo alongside Snowflake CoWork and ask it to refine the instructions:</p>
       <div class="coco-block">
         <div class="coco-header">
           <div class="coco-icon">C</div>
-          <span class="coco-header-text">Cortex Code Prompt — Iteration</span>
+          <span class="coco-header-text">CoCo Prompt — Iteration</span>
           <span class="coco-header-sub">Mid-lab tuning</span>
         </div>
         <pre>My agent returned a table when I asked about top members by cost, but
@@ -1118,9 +1275,9 @@ involves member-level cost analysis.</pre>
           <div class="q-tag">Provider Analytics · Cortex Analyst</div>
         </div>
         <div class="query-card">
-          <div class="q-icon">📈</div>
-          <div class="q-text">"What is the monthly trend in pharmacy spend for members with chronic conditions over the last year?"</div>
-          <div class="q-tag">Trend Analysis · Cortex Analyst</div>
+          <div class="q-icon">🏷️</div>
+          <div class="q-text">"Classify these claims: 1) ER visit with diagnosis I21.0, 2) Office Visit with E11.9, 3) Preventive visit with Z00.00"</div>
+          <div class="q-tag">Claim Triage · AI_CLASSIFY tool</div>
         </div>
         <div class="query-card">
           <div class="q-icon">⭐</div>
@@ -1129,8 +1286,8 @@ involves member-level cost analysis.</pre>
         </div>
         <div class="query-card">
           <div class="q-icon">🔬</div>
-          <div class="q-text">"Which members have the highest total cost of care AND a gap in physical therapy coverage? What does the plan say about PT benefits?"</div>
-          <div class="q-tag">Hybrid · Analyst + Search</div>
+          <div class="q-text">"Pull the top 5 members by total cost of care, classify their highest-cost claim, and tell me what the plan says about coverage for that service type."</div>
+          <div class="q-tag">Hybrid · Analyst + AI_CLASSIFY + Search</div>
         </div>
       </div>
 
@@ -1151,10 +1308,12 @@ involves member-level cost analysis.</pre>
       <h3>What You Built Today</h3>
       <ul>
         <li>A <strong>synthetic payer data foundation</strong> — four tables covering members, medical claims, pharmacy, and providers</li>
-        <li>A <strong>semantic view</strong> (<code>OPTUM_LAB_DB.PAYER.MEMBER_INTELLIGENCE</code>) that maps Optum business concepts to physical columns — generated and refined with Autopilot</li>
+        <li>A <strong>base ontology</strong> for the payer domain, expressed as a semantic view (<code>OPTUM_LAB_DB.PAYER.MEMBER_INTELLIGENCE</code>) — entity classes, typed relationships, business vocabulary, and enumerated taxonomies, generated and refined with Autopilot</li>
         <li>A <strong>Cortex Search service</strong> over benefit policy and formulary documents — enabling RAG over unstructured content</li>
-        <li>A <strong>Cortex Agent</strong> with your own persona, instructions, and tool configuration — built and iterated with CoCo</li>
-        <li>A live <strong>Snowflake Intelligence</strong> session that any business user could access without writing a single line of SQL</li>
+        <li><strong>Structured extraction from a PDF</strong> — <code>AI_EXTRACT</code> pulled member ID, drug, diagnosis code, denial reason, and appeal deadline out of a prior authorization denial letter in a single SQL call</li>
+        <li>A <strong>custom <code>AI_CLASSIFY</code> tool</strong> (<code>CLASSIFY_CLAIM</code>) that categorizes claims into clinical risk categories — and is wired into the agent, so it can classify on demand mid-conversation</li>
+        <li>A <strong>Cortex Agent</strong> with your own persona, instructions, and three tools — Analyst, Search, and your custom classifier — built and iterated with CoCo</li>
+        <li>A live <strong>Snowflake CoWork</strong> session that any business user could access without writing a single line of SQL</li>
       </ul>
 
       <div class="conclusion-card">
@@ -1163,8 +1322,12 @@ involves member-level cost analysis.</pre>
         <p>The pattern you built today is a direct template for production use cases on Optum's SDRP platform. Here are the natural next steps:</p>
         <div class="next-steps">
           <div class="next-step">
-            <div class="ns-title">Connect to Your Real Data</div>
-            <div class="ns-desc">Work with the SDRP team to identify your actual tenant's claims and member tables. Then use <strong style="color:#fff">Semantic View Autopilot</strong> to generate a semantic view directly from those schemas — or use <strong style="color:#fff">CoCo</strong> to create a semantic view from an existing semantic view YAML you may already have in your BI tool, so you can share the same business definitions across tools.</div>
+            <div class="ns-title">Reuse the Semantics You Already Have</div>
+            <div class="ns-desc">Don't rebuild your ontology from scratch. Your business definitions already exist — in Power BI reports, Tableau workbooks, dbt models, and the data dictionaries your team keeps in Excel and Confluence. <strong style="color:#fff">Semantic View Autopilot ingests Power BI files directly</strong> (<code>.pbit</code> or <code>.pbix</code>): DAX measures become metrics, relationships and calculated columns carry over. For the messier sources — spreadsheets, docs, legacy SQL — use <strong style="color:#fff">CoCo</strong> to extract the measures, filters, and business logic. The definitions your business already reconciles against become the ones your agent uses, so agent answers match the reports leadership already reads.</div>
+          </div>
+          <div class="next-step">
+            <div class="ns-title">Deepen the Ontology</div>
+            <div class="ns-desc">Your base ontology has no <strong style="color:#fff">cross-entity concept unification</strong> yet — <code>CHRONIC_CONDITION = 'Diabetes'</code> and <code>ICD10_CODE = 'E11.9'</code> mean the same thing but nothing links them. Add a condition-to-code crosswalk, a drug class hierarchy (GLP-1 → antidiabetic → endocrine), and clinical grouper logic so the agent can reason across entities instead of being told they match.</div>
           </div>
           <div class="next-step">
             <div class="ns-title">Add More Tools</div>
@@ -1175,15 +1338,15 @@ involves member-level cost analysis.</pre>
             <div class="ns-desc">Apply row-access policies and column masking to the payer tables so the same agent returns only the data each role is authorized to see — critical for PHI in production.</div>
           </div>
           <div class="next-step">
-            <div class="ns-title">Join the AI Guild</div>
-            <div class="ns-desc">Bring your use case idea to Optum's AI Factory / AI guild. The Snowflake team (Aman, Andrew) will help scope a pilot from here.</div>
+            <div class="ns-title">Bring a Use Case to the Optum AI Factory</div>
+            <div class="ns-desc">If you leave with an idea worth pursuing, talk to the Snowflake team — Andrew and Aman. They can help you scope it into a pilot, work through the business case, and pull in whichever teams you need to make it land.</div>
           </div>
         </div>
       </div>
 
       <div class="callout callout-info" style="margin-top:28px">
         <span class="icon">📣</span>
-        <div><strong>Feedback:</strong> Before you leave, scan the QR code at your table to complete the 3-question feedback form. Your input shapes the next Snowcamp and the India virtual enablement series. Thank you for building with us today.</div>
+        <div><strong>Feedback:</strong> Before you leave, scan the QR code on your nearest screen to complete a 2-minute feedback form. Your input shapes the upcoming enablement sessions, both in-person and virtual ones. Thank you for building with us today.</div>
       </div>
 
       <div class="step-nav">
@@ -1191,6 +1354,13 @@ involves member-level cost analysis.</pre>
         <a href="#s1" class="btn btn-primary">Back to Start</a>
       </div>
     </section>
+
+    <footer class="sf-footer">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#29B5E8" d="M7.602 12.4c.038-.151.076-.304.076-.456 0-.114-.038-.228-.038-.342-.114-.343-.304-.647-.646-.838l-4.87-2.777c-.685-.38-1.56-.152-1.94.533-.381.685-.153 1.56.532 1.94l2.701 1.56-2.701 1.56c-.685.38-.913 1.256-.533 1.94.38.685 1.256.914 1.94.533l4.832-2.777c.343-.267.571-.533.647-.876zm1.332 2.626c-.266-.038-.57.038-.837.19l-4.832 2.777c-.685.38-.913 1.256-.532 1.94.38.686 1.255.914 1.94.533l2.701-1.56v3.12c0 .8.647 1.408 1.446 1.408.799 0 1.407-.647 1.407-1.408v-5.592c0-.761-.57-1.37-1.293-1.408zm4.946-6.088c.266.038.57-.038.837-.19l4.832-2.777c.685-.38.913-1.256.532-1.94-.38-.686-1.255-.914-1.94-.533l-2.701 1.56V1.975c0-.799-.647-1.408-1.446-1.408-.799 0-1.446.609-1.446 1.408V7.53c0 .76.609 1.37 1.332 1.407zM3.265 5.97l4.832 2.777c.266.152.533.19.837.19.723-.038 1.331-.684 1.331-1.407V1.975c0-.799-.646-1.408-1.407-1.408-.799 0-1.446.647-1.446 1.408v3.12l-2.701-1.56c-.685-.38-1.56-.152-1.94.533-.419.646-.19 1.521.494 1.902zm9.093 6.011a.412.412 0 00-.114-.266l-.57-.571a.346.346 0 00-.267-.114.412.412 0 00-.266.114l-.571.57a.411.411 0 00-.114.267c0 .076.038.19.114.267l.57.57a.345.345 0 00.267.114c.076 0 .19-.038.266-.114l.571-.57a.412.412 0 00.114-.267zm1.598.533L11.94 14.53c-.039.038-.153.114-.229.114h-.608a.411.411 0 01-.267-.114L8.82 12.514a.408.408 0 01-.076-.229v-.608c0-.076.038-.19.114-.267l2.016-2.016a.41.41 0 01.267-.114h.608a.41.41 0 01.267.114l2.016 2.016a.347.347 0 01.114.267v.608c-.076.077-.114.19-.19.229zm5.593 5.44l-4.832-2.777c-.266-.152-.57-.19-.837-.152-.723.038-1.332.684-1.332 1.408v5.554c0 .8.647 1.408 1.408 1.408.799 0 1.446-.647 1.446-1.408v-3.12l2.7 1.56c.686.38 1.561.152 1.941-.533.419-.646.19-1.521-.494-1.94zm2.549-7.533l-2.701 1.56 2.7 1.56c.686.38.914 1.256.533 1.94-.38.685-1.255.913-1.94.533l-4.832-2.778a1.644 1.644 0 01-.647-.798c-.037-.153-.076-.305-.076-.457 0-.114.039-.228.039-.342.114-.343.342-.647.646-.837l4.832-2.778c.685-.38 1.56-.152 1.94.533.457.609.19 1.484-.494 1.864"/>
+      </svg>
+      <span>Built on Snowflake Cortex AI &nbsp;·&nbsp; AI Snowcamp Hands-On Lab</span>
+    </footer>
 
   </main>
 </div>

@@ -1,11 +1,14 @@
 -- ============================================================
 -- AI Snowcamp — Synthetic Data Generation Script
 -- Run this in your SE demo account (SYSADMIN or ACCOUNTADMIN)
--- Output: 4 CSV files in @payer_export stage ready for Azure upload
+-- Output: 4 CSV files in the @payer_export stage
 --
--- After running, download the CSV files and upload to Azure Blob:
---   azure://sfselabs.blob.core.windows.net/ai-snowcamp/data/
--- Then generate a SAS token and update assets/sql/setup.sql
+-- Only needed if you want to change the dataset. The lab itself does
+-- NOT run this — setup.sql loads the CSVs already committed under
+-- assets/data/ directly from the Git repository stage.
+--
+-- To refresh the dataset: run this, download the 4 CSVs from
+-- @payer_export, and commit them to assets/data/ on main.
 -- ============================================================
 
 USE ROLE SYSADMIN;

@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Cortex Code / CoCo local state
+.snowflake/
+
+# NOTE: assets/data/*.csv are intentionally COMMITTED, not ignored.
+# setup.sql loads them directly from the Git repository stage via
+# COPY FILES FROM @SNOWCAMP_LAB_REPO/branches/main/assets/data/
+# Excluding them would break lab setup for every attendee.

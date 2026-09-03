@@ -12,6 +12,7 @@
 --   Warehouse:  OPTUM_LAB_WH (MEDIUM)
 --   Database:   SNOWFLAKE_INTELLIGENCE
 --   Schema:     SNOWFLAKE_INTELLIGENCE.AGENTS
+--   CoWork obj: SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT (account-level)
 --   Stages:     OPTUM_LAB_DB.PAYER.SEMANTIC_MODELS (internal)
 --               OPTUM_LAB_DB.PAYER.POLICY_DOCS (internal)
 -- ============================================================
@@ -156,9 +157,26 @@ GRANT CREATE TABLE             ON SCHEMA OPTUM_LAB_DB.PAYER TO ROLE OPTUM_LAB_RO
 GRANT CREATE FILE FORMAT       ON SCHEMA OPTUM_LAB_DB.PAYER TO ROLE OPTUM_LAB_ROLE;
 GRANT CREATE SEMANTIC VIEW     ON SCHEMA OPTUM_LAB_DB.PAYER TO ROLE OPTUM_LAB_ROLE;
 GRANT CREATE CORTEX SEARCH SERVICE ON SCHEMA OPTUM_LAB_DB.PAYER TO ROLE OPTUM_LAB_ROLE;
+GRANT CREATE FUNCTION          ON SCHEMA OPTUM_LAB_DB.PAYER TO ROLE OPTUM_LAB_ROLE;
 
--- Cortex AI functions (Analyst, Search, Intelligence)
+-- Cortex AI functions (Analyst, Search, CoWork)
 GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER TO ROLE OPTUM_LAB_ROLE;
+
+-- Belt and braces for the May 2026 shift to per-AI-function privileges.
+-- CORTEX_USER has historically covered everything this lab needs, but agent
+-- invocation and AI_* functions now have narrower roles of their own. Granting
+-- them costs nothing where CORTEX_USER already suffices, and prevents a
+-- privilege error mid-lab where it does not. Each is granted separately so one
+-- unavailable role on a given account cannot block the others.
+BEGIN
+  GRANT DATABASE ROLE SNOWFLAKE.CORTEX_AGENT_USER TO ROLE OPTUM_LAB_ROLE;
+EXCEPTION WHEN OTHER THEN NULL;
+END;
+
+BEGIN
+  GRANT DATABASE ROLE SNOWFLAKE.AI_FUNCTIONS_USER TO ROLE OPTUM_LAB_ROLE;
+EXCEPTION WHEN OTHER THEN NULL;
+END;
 
 -- ── 7. SNOWFLAKE INTELLIGENCE SCHEMA ──────────────────────────────────────────
 -- In some trial accounts SNOWFLAKE_INTELLIGENCE is pre-provisioned as a
@@ -171,6 +189,33 @@ BEGIN
   GRANT USAGE ON DATABASE SNOWFLAKE_INTELLIGENCE             TO ROLE OPTUM_LAB_ROLE;
   GRANT USAGE ON SCHEMA   SNOWFLAKE_INTELLIGENCE.AGENTS      TO ROLE OPTUM_LAB_ROLE;
   GRANT CREATE AGENT ON SCHEMA SNOWFLAKE_INTELLIGENCE.AGENTS TO ROLE OPTUM_LAB_ROLE;
+EXCEPTION
+  WHEN OTHER THEN NULL;
+END;
+
+-- ── 7b. SNOWFLAKE COWORK OBJECT ───────────────────────────────────────────────
+-- The Snowflake CoWork object is an account-level object that controls which
+-- agents are visible in Snowflake CoWork (ai.snowflake.com).
+--
+-- Why this block exists: agent visibility is CONDITIONAL. If an account has a
+-- CoWork object, an agent is only listed in CoWork when it has been explicitly
+-- added to that object. If the account has no CoWork object, all accessible
+-- agents are listed automatically.
+--
+-- The trap: opening CoWork Settings in Snowsight AUTO-CREATES the object. An
+-- attendee who explores Settings would silently lose their agent from the list
+-- with no error message. We therefore create the object up front so that every
+-- attendee is on the same, known code path — the agent is registered in Step 6
+-- and behaviour does not depend on whether anyone clicked Settings.
+--
+-- CREATE SNOWFLAKE INTELLIGENCE ON ACCOUNT is granted to ACCOUNTADMIN by default.
+-- The exception handler mirrors the block above: trial account provisioning
+-- varies, and setup must not abort if this is unavailable. If it does fail,
+-- Step 7 documents the Snowsight route, which works regardless of this object.
+BEGIN
+  CREATE SNOWFLAKE INTELLIGENCE IF NOT EXISTS SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT;
+  GRANT USAGE  ON SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT TO ROLE OPTUM_LAB_ROLE;
+  GRANT MODIFY ON SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT TO ROLE OPTUM_LAB_ROLE;
 EXCEPTION
   WHEN OTHER THEN NULL;
 END;
@@ -190,12 +235,95 @@ CREATE OR REPLACE STAGE OPTUM_LAB_DB.PAYER.POLICY_DOCS
   ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE')
   DIRECTORY  = (ENABLE = TRUE);
 
--- ── 9. VERIFY ─────────────────────────────────────────────────────────────────
-USE ROLE ACCOUNTADMIN;
+-- ── 9. SEED QUERY HISTORY FOR AUTOPILOT ──────────────────────────────────────
+-- Semantic View Autopilot uses query history to suggest better dimensions,
+-- metrics, and relationships. These queries exercise the key payer analytics
+-- patterns so Autopilot has signal to work with when attendees run it in Step 4.
+-- Results are discarded — only the query history matters.
 
-SELECT 'MEMBERS'         AS tbl, COUNT(*) AS row_count FROM MEMBERS
-UNION ALL SELECT 'MEDICAL_CLAIMS',  COUNT(*) FROM MEDICAL_CLAIMS
-UNION ALL SELECT 'PHARMACY_CLAIMS', COUNT(*) FROM PHARMACY_CLAIMS
-UNION ALL SELECT 'PROVIDERS',       COUNT(*) FROM PROVIDERS;
+-- Cost of care by chronic condition
+SELECT m.chronic_condition, COUNT(DISTINCT mc.claim_id) AS claims, SUM(mc.paid_amt) AS total_paid
+FROM OPTUM_LAB_DB.PAYER.MEMBERS m
+JOIN OPTUM_LAB_DB.PAYER.MEDICAL_CLAIMS mc ON m.member_id = mc.member_id
+WHERE mc.claim_status = 'Approved'
+GROUP BY 1 ORDER BY 3 DESC;
+
+-- Monthly medical spend trend
+SELECT DATE_TRUNC('MONTH', mc.service_date) AS month, SUM(mc.paid_amt) AS total_paid, COUNT(DISTINCT mc.claim_id) AS claim_count
+FROM OPTUM_LAB_DB.PAYER.MEDICAL_CLAIMS mc
+WHERE mc.claim_status = 'Approved'
+GROUP BY 1 ORDER BY 1;
+
+-- Pharmacy spend by drug class
+SELECT pc.drug_class, SUM(pc.paid_amt) AS total_spend, COUNT(DISTINCT pc.rx_id) AS fills
+FROM OPTUM_LAB_DB.PAYER.PHARMACY_CLAIMS pc
+GROUP BY 1 ORDER BY 2 DESC;
+
+-- Members without a preventive visit in the last 12 months
+SELECT COUNT(DISTINCT m.member_id) AS members_without_preventive
+FROM OPTUM_LAB_DB.PAYER.MEMBERS m
+WHERE m.enrollment_end IS NULL
+  AND NOT EXISTS (
+    SELECT 1 FROM OPTUM_LAB_DB.PAYER.MEDICAL_CLAIMS mc
+    WHERE mc.member_id = m.member_id AND mc.service_type = 'Preventive'
+      AND mc.service_date >= DATEADD(YEAR, -1, CURRENT_DATE())
+  );
+
+-- Provider specialty cost comparison (in-network only)
+SELECT p.specialty, ROUND(AVG(mc.paid_amt), 2) AS avg_paid_per_claim, COUNT(DISTINCT mc.claim_id) AS claims
+FROM OPTUM_LAB_DB.PAYER.PROVIDERS p
+JOIN OPTUM_LAB_DB.PAYER.MEDICAL_CLAIMS mc ON p.provider_id = mc.provider_id
+WHERE p.network_status = 'In-Network' AND mc.claim_status = 'Approved'
+GROUP BY 1 ORDER BY 2 DESC;
+
+-- Top 10 diabetes members by pharmacy spend
+SELECT m.member_id, m.name, SUM(pc.paid_amt) AS total_rx_spend, COUNT(DISTINCT pc.rx_id) AS fills
+FROM OPTUM_LAB_DB.PAYER.MEMBERS m
+JOIN OPTUM_LAB_DB.PAYER.PHARMACY_CLAIMS pc ON m.member_id = pc.member_id
+WHERE m.chronic_condition = 'Diabetes'
+GROUP BY 1, 2 ORDER BY 3 DESC LIMIT 10;
+
+-- Service type utilization breakdown
+SELECT mc.service_type, COUNT(DISTINCT mc.claim_id) AS claims, COUNT(DISTINCT mc.member_id) AS unique_members,
+       SUM(mc.paid_amt) AS total_paid
+FROM OPTUM_LAB_DB.PAYER.MEDICAL_CLAIMS mc
+GROUP BY 1 ORDER BY 4 DESC;
+
+-- Plan type enrollment and cost summary
+SELECT m.plan_type, COUNT(DISTINCT m.member_id) AS members, SUM(mc.paid_amt) AS medical_cost
+FROM OPTUM_LAB_DB.PAYER.MEMBERS m
+JOIN OPTUM_LAB_DB.PAYER.MEDICAL_CLAIMS mc ON m.member_id = mc.member_id
+WHERE m.enrollment_end IS NULL AND mc.claim_status = 'Approved'
+GROUP BY 1 ORDER BY 3 DESC;
+
+-- Monthly pharmacy trend for chronic condition members
+SELECT DATE_TRUNC('MONTH', pc.fill_date) AS month, m.chronic_condition,
+       SUM(pc.paid_amt) AS rx_spend, COUNT(DISTINCT pc.rx_id) AS fills
+FROM OPTUM_LAB_DB.PAYER.MEMBERS m
+JOIN OPTUM_LAB_DB.PAYER.PHARMACY_CLAIMS pc ON m.member_id = pc.member_id
+WHERE m.chronic_condition != 'None'
+GROUP BY 1, 2 ORDER BY 1, 4 DESC;
+
+-- Denied claims analysis
+SELECT mc.service_type, COUNT(DISTINCT mc.claim_id) AS denied_claims, SUM(mc.billed_amt) AS denied_billed
+FROM OPTUM_LAB_DB.PAYER.MEDICAL_CLAIMS mc
+WHERE mc.claim_status = 'Denied'
+GROUP BY 1 ORDER BY 2 DESC;
+
+-- ── 10. VERIFY ─────────────────────────────────────────────────────────────────
+USE ROLE ACCOUNTADMIN;
+USE DATABASE OPTUM_LAB_DB;
+USE SCHEMA   PAYER;
+
+SELECT 'MEMBERS'         AS tbl, COUNT(*) AS row_count FROM OPTUM_LAB_DB.PAYER.MEMBERS
+UNION ALL SELECT 'MEDICAL_CLAIMS',  COUNT(*) FROM OPTUM_LAB_DB.PAYER.MEDICAL_CLAIMS
+UNION ALL SELECT 'PHARMACY_CLAIMS', COUNT(*) FROM OPTUM_LAB_DB.PAYER.PHARMACY_CLAIMS
+UNION ALL SELECT 'PROVIDERS',       COUNT(*) FROM OPTUM_LAB_DB.PAYER.PROVIDERS;
+
+-- Confirm the CoWork object exists. Expect exactly one row named
+-- SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT. If this returns no rows, section 7b
+-- was skipped by its exception handler — the lab still works, but follow the
+-- Snowsight route in Step 7 rather than expecting the agent in CoWork.
+SHOW SNOWFLAKE INTELLIGENCES;
 
 SELECT 'Setup complete. Switch your role to OPTUM_LAB_ROLE.' AS status;
