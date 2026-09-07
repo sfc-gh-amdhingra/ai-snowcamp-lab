@@ -1154,7 +1154,13 @@ Also generate:
      - When to use Analyst vs Search vs both
      - How to format responses (use tables for structured data, prose for policy questions)
      - How to cite sources (mention the document name for policy answers)
-  b) 5 starter <span class="hl">example questions</span> to show users what the agent can do
+  b) These exact 5 <span class="hl">sample_questions</span>, so the starter prompts shown in
+     CoWork match the ones in the lab guide. Use them verbatim:
+     - "Show me the monthly trend in total medical spend over the last two years, split by plan type."
+     - "What are the top 5 diagnosis categories by total paid amount this year, and how does each compare to last year?"
+     - "What does our formulary say about prior authorization requirements for GLP-1 medications?"
+     - "Classify these claims: 1) ER visit with diagnosis I21.0, 2) Office Visit with E11.9, 3) Preventive visit with Z00.00"
+     - "Pull the top 5 members by total cost of care, classify their highest-cost claim, and tell me what the plan says about coverage for that service type."
   c) A <span class="hl">display name and persona</span> appropriate for a payer organization
 
 Use warehouse <span class="hl2">OPTUM_LAB_WH</span> for the Analyst tool. Include it as an
@@ -1278,9 +1284,14 @@ involves member-level cost analysis.</pre>
         <span class="mins">10 min</span>
       </div>
 
-      <p>Use the questions below to explore what your agent can do. They span all three payer use cases: cost-of-care analytics, quality/Stars gap identification, and member policy support. Share the most interesting answers with your table.</p>
+      <p>Use the questions below to explore what your agent can do. They span all three payer use cases: cost-of-care analytics, quality/Stars gap identification, and member policy support. Questions tagged <strong>📈 chart</strong> return a visualization alongside the table — the rest return tables or prose, which is the correct output for a member list or a policy answer. Share the most interesting answers with your table.</p>
 
       <div class="query-grid">
+        <div class="query-card">
+          <div class="q-icon">📈</div>
+          <div class="q-text">"Show me the monthly trend in total medical spend over the last two years, split by plan type."</div>
+          <div class="q-tag">Spend Trend · Analyst · 📈 chart</div>
+        </div>
         <div class="query-card">
           <div class="q-icon">💊</div>
           <div class="q-text">"Which members with a diabetes diagnosis had a gap in their medication in the last 6 months?"</div>
@@ -1289,7 +1300,7 @@ involves member-level cost analysis.</pre>
         <div class="query-card">
           <div class="q-icon">💰</div>
           <div class="q-text">"What are the top 5 diagnosis categories by total paid amount this year, and how does each compare to last year?"</div>
-          <div class="q-tag">Cost of Care · Cortex Analyst</div>
+          <div class="q-tag">Cost of Care · Analyst · 📈 chart</div>
         </div>
         <div class="query-card">
           <div class="q-icon">📋</div>
@@ -1304,7 +1315,7 @@ involves member-level cost analysis.</pre>
         <div class="query-card">
           <div class="q-icon">🏥</div>
           <div class="q-text">"Which provider specialties have the highest average cost per claim, and are they in-network?"</div>
-          <div class="q-tag">Provider Analytics · Cortex Analyst</div>
+          <div class="q-tag">Provider Analytics · Analyst · 📈 chart</div>
         </div>
         <div class="query-card">
           <div class="q-icon">🏷️</div>
