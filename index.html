@@ -1143,7 +1143,10 @@ Also add the built-in <span class="hl">data_to_chart</span> tool so the agent ca
          "legend": { "labelFont": "sans-serif", "titleFont": "sans-serif" }
        },
        "encoding": {
-         "color": { "scale": { "range": ["#29B5E8","#1B3A6B","#FFC130","#11567F","#7D44CF"] } }
+         "color": { "scale": { "range": [
+           "#29B5E8","#1B3A6B","#FFC130","#7D44CF","#11567F",
+           "#2EC4A6","#FF6B6B","#75CDF0","#E8743B","#6B7A99"
+         ] } }
        },
        "usermeta": { "merge": "extend" }
      }
@@ -1154,12 +1157,13 @@ Also generate:
      - When to use Analyst vs Search vs both
      - How to format responses (use tables for structured data, prose for policy questions)
      - How to cite sources (mention the document name for policy answers)
-  b) These exact 5 <span class="hl">sample_questions</span>, so the starter prompts shown in
-     CoWork match the ones in the lab guide. Use them verbatim:
+  b) These exact 4 <span class="hl">sample_questions</span>, so the starter prompts shown in
+     CoWork match the ones in the lab guide. Use them verbatim. Each one was
+     chosen because it exercises more than one tool or produces a multi-series
+     chart:
      - "Show me the monthly trend in total medical spend over the last two years, split by plan type."
-     - "What are the top 5 diagnosis categories by total paid amount this year, and how does each compare to last year?"
-     - "What does our formulary say about prior authorization requirements for GLP-1 medications?"
-     - "Classify these claims: 1) ER visit with diagnosis I21.0, 2) Office Visit with E11.9, 3) Preventive visit with Z00.00"
+     - "Show me monthly pharmacy spend by drug class over the last year."
+     - "Which service types have the most denied claims, and what does our policy say about how a member appeals a denial?"
      - "Pull the top 5 members by total cost of care, classify their highest-cost claim, and tell me what the plan says about coverage for that service type."
   c) A <span class="hl">display name and persona</span> appropriate for a payer organization
 
@@ -1284,38 +1288,50 @@ involves member-level cost analysis.</pre>
         <span class="mins">10 min</span>
       </div>
 
-      <p>Use the questions below to explore what your agent can do. They span all three payer use cases: cost-of-care analytics, quality/Stars gap identification, and member policy support. Questions tagged <strong>📈 chart</strong> return a visualization alongside the table — the rest return tables or prose, which is the correct output for a member list or a policy answer. Share the most interesting answers with your table.</p>
+      <p>Use the questions below to explore what your agent can do. They span all three payer use cases: cost-of-care analytics, quality/Stars gap identification, and member policy support.</p>
+
+      <p>The four marked <strong>⭐ starter</strong> are the same ones your agent offers as suggested prompts in CoWork, so you can click them there instead of typing. Questions marked <strong>📈 chart</strong> return a visualization alongside the table. The rest return a table or prose, which is the right answer for a member list or a policy lookup.</p>
+
+      <div class="callout callout-tip">
+        <span class="icon">💡</span>
+        <div><strong>Why some charts are one colour.</strong> A chart only gets multiple colours when your question asks for a <em>breakdown</em> — two dimensions, not one. "Top 5 chronic conditions by spend" has a single dimension, so every bar is the same colour. Add "…<em>by plan type</em>" and the agent has something to colour by. Worth knowing when you build your own: say what you want split, not just what you want ranked.</div>
+      </div>
 
       <div class="query-grid">
         <div class="query-card">
           <div class="q-icon">📈</div>
           <div class="q-text">"Show me the monthly trend in total medical spend over the last two years, split by plan type."</div>
-          <div class="q-tag">Spend Trend · Analyst · 📈 chart</div>
+          <div class="q-tag">⭐ starter · Spend Trend · Analyst · 📈 chart</div>
         </div>
         <div class="query-card">
           <div class="q-icon">💊</div>
-          <div class="q-text">"Which members with a diabetes diagnosis had a gap in their medication in the last 6 months?"</div>
-          <div class="q-tag">Medication Adherence · Cortex Analyst</div>
+          <div class="q-text">"Show me monthly pharmacy spend by drug class over the last year."</div>
+          <div class="q-tag">⭐ starter · Pharmacy Trend · Analyst · 📈 chart</div>
+        </div>
+        <div class="query-card">
+          <div class="q-icon">🚫</div>
+          <div class="q-text">"Which service types have the most denied claims, and what does our policy say about how a member appeals a denial?"</div>
+          <div class="q-tag">⭐ starter · Denials · Analyst + Search · 📈 chart</div>
+        </div>
+        <div class="query-card">
+          <div class="q-icon">🔬</div>
+          <div class="q-text">"Pull the top 5 members by total cost of care, classify their highest-cost claim, and tell me what the plan says about coverage for that service type."</div>
+          <div class="q-tag">⭐ starter · Hybrid · Analyst + AI_CLASSIFY + Search</div>
         </div>
         <div class="query-card">
           <div class="q-icon">💰</div>
-          <div class="q-text">"What are the top 5 diagnosis categories by total paid amount this year, and how does each compare to last year?"</div>
+          <div class="q-text">"What are the top 5 chronic conditions by total paid amount, broken down by plan type?"</div>
           <div class="q-tag">Cost of Care · Analyst · 📈 chart</div>
-        </div>
-        <div class="query-card">
-          <div class="q-icon">📋</div>
-          <div class="q-text">"What does our formulary say about prior authorization requirements for GLP-1 medications?"</div>
-          <div class="q-tag">Benefits Policy · Cortex Search</div>
-        </div>
-        <div class="query-card">
-          <div class="q-icon">🩺</div>
-          <div class="q-text">"Show me members who haven't had a preventive wellness visit in over 12 months."</div>
-          <div class="q-tag">Care Gap · Stars · Cortex Analyst</div>
         </div>
         <div class="query-card">
           <div class="q-icon">🏥</div>
           <div class="q-text">"Which provider specialties have the highest average cost per claim, and are they in-network?"</div>
           <div class="q-tag">Provider Analytics · Analyst · 📈 chart</div>
+        </div>
+        <div class="query-card">
+          <div class="q-icon">📋</div>
+          <div class="q-text">"What does our formulary say about prior authorization requirements for GLP-1 medications?"</div>
+          <div class="q-tag">Benefits Policy · Cortex Search</div>
         </div>
         <div class="query-card">
           <div class="q-icon">🏷️</div>
@@ -1326,11 +1342,6 @@ involves member-level cost analysis.</pre>
           <div class="q-icon">⭐</div>
           <div class="q-text">"What are the HEDIS measures we track for colorectal cancer screening, and which members are eligible but not yet compliant?"</div>
           <div class="q-tag">Stars / HEDIS · Search + Analyst</div>
-        </div>
-        <div class="query-card">
-          <div class="q-icon">🔬</div>
-          <div class="q-text">"Pull the top 5 members by total cost of care, classify their highest-cost claim, and tell me what the plan says about coverage for that service type."</div>
-          <div class="q-tag">Hybrid · Analyst + AI_CLASSIFY + Search</div>
         </div>
       </div>
 
