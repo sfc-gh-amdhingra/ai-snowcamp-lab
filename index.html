@@ -1100,7 +1100,8 @@
           <span class="coco-header-text">CoCo Prompt — Create Agent</span>
           <span class="coco-header-sub">Paste into CoCo in Snowsight</span>
         </div>
-        <pre>Create a Snowflake <span class="hl">Cortex Agent</span> for a healthcare payer (Optum/UHG) in schema <span class="hl2">SNOWFLAKE_INTELLIGENCE.AGENTS</span>.
+        <pre>Create a Snowflake <span class="hl">Cortex Agent</span> for a healthcare payer (Optum/UHG) in schema <span class="hl2">OPTUM_LAB_DB.AGENTS</span>.
+Create it in exactly that schema — do not use SNOWFLAKE_INTELLIGENCE.AGENTS.
 
 The agent has access to two tools:
   1. <span class="hl">Cortex Analyst</span> tool using semantic view at:
@@ -1124,20 +1125,55 @@ In addition, create a custom tool for the agent:
      Then add this UDF as a <span class="hl">generic tool</span> on the agent so it can classify
      claims on demand during a conversation.
 
+Also add the built-in <span class="hl">data_to_chart</span> tool so the agent can visualize results:
+  4. <span class="hl2">data_to_chart</span> — no resources needed, just the tool_spec.
+     In the orchestration instructions, tell the agent to return a chart alongside
+     the table whenever a result has several rows and a numeric measure.
+
+     Include a <span class="hl2">&lt;chart_customization&gt;</span> block inside instructions.orchestration
+     so the charts are on-brand rather than default Vega colors:
+
+     <span class="hl2">&lt;chart_customization&gt;</span>
+     vega_template:
+     {
+       "config": {
+         "title":  { "font": "sans-serif", "fontSize": 16, "fontWeight": "bold" },
+         "axis":   { "labelFont": "sans-serif", "titleFont": "sans-serif" },
+         "legend": { "labelFont": "sans-serif", "titleFont": "sans-serif" }
+       },
+       "encoding": {
+         "color": { "scale": { "range": [
+           "#29B5E8","#1B3A6B","#FFC130","#7D44CF","#11567F",
+           "#2EC4A6","#FF6B6B","#75CDF0","#E8743B","#6B7A99"
+         ] } }
+       },
+       "usermeta": { "merge": "extend" }
+     }
+     <span class="hl2">&lt;/chart_customization&gt;</span>
+
 Also generate:
   a) A set of <span class="hl2">orchestration instructions</span> that tell the agent:
      - When to use Analyst vs Search vs both
      - How to format responses (use tables for structured data, prose for policy questions)
      - How to cite sources (mention the document name for policy answers)
-  b) 5 starter <span class="hl">example questions</span> to show users what the agent can do
+  b) These exact 4 <span class="hl">sample_questions</span>, so the starter prompts shown in
+     CoWork match the ones in the lab guide. Use them verbatim. Each one was
+     chosen because it exercises more than one tool or produces a multi-series
+     chart:
+     - "Show me the monthly trend in total medical spend over the last two years, split by plan type."
+     - "Show me monthly pharmacy spend by drug class over the last year."
+     - "Which service types have the most denied claims, and what does our policy say about how a member appeals a denial?"
+     - "Pull the top 5 members by total cost of care, classify their highest-cost claim, and tell me what the plan says about coverage for that service type."
   c) A <span class="hl">display name and persona</span> appropriate for a payer organization
 
-Use warehouse <span class="hl2">OPTUM_LAB_WH</span> for the Analyst tool.
+Use warehouse <span class="hl2">OPTUM_LAB_WH</span> for the Analyst tool. Include it as an
+<span class="hl2">execution_environment</span> on the Analyst tool_resources entry — the agent errors
+without it.
 
 Finally, after the CREATE AGENT statement, also generate the statement that
 registers the agent on the Snowflake CoWork object so it appears in CoWork:
   <span class="hl2">ALTER SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT
-    ADD AGENT SNOWFLAKE_INTELLIGENCE.AGENTS.&lt;agent_name&gt;;</span></pre>
+    ADD AGENT OPTUM_LAB_DB.AGENTS.&lt;agent_name&gt;;</span></pre>
       </div>
 
       <div class="callout callout-info">
@@ -1157,12 +1193,16 @@ registers the agent on the Snowflake CoWork object so it appears in CoWork:
 SHOW AGENTS IN SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT;</pre>
       </div>
 
-      <p>Your agent should be listed. If it is not, register it explicitly — substitute your own agent name:</p>
+      <p>Your agent should be listed. If it is not, first confirm where CoCo actually created it, then register that exact path:</p>
 
       <div class="code-block">
         <div class="code-header"><span class="code-lang">SQL — Register Agent Manually</span><span class="code-hint">Only if the check above did not list your agent</span></div>
-        <pre>ALTER SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT
-  ADD AGENT SNOWFLAKE_INTELLIGENCE.AGENTS.&lt;your_agent_name&gt;;</pre>
+        <pre><span class="comment">-- Find the agent and note its database and schema columns</span>
+<span class="keyword">SHOW AGENTS IN ACCOUNT</span>;
+
+<span class="comment">-- Register it using the path shown above</span>
+<span class="keyword">ALTER SNOWFLAKE INTELLIGENCE</span> SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT
+  <span class="keyword">ADD AGENT</span> OPTUM_LAB_DB.AGENTS.&lt;your_agent_name&gt;;</pre>
       </div>
 
       <div class="callout callout-tip">
@@ -1247,33 +1287,50 @@ involves member-level cost analysis.</pre>
         <span class="mins">10 min</span>
       </div>
 
-      <p>Use the questions below to explore what your agent can do. They span all three payer use cases: cost-of-care analytics, quality/Stars gap identification, and member policy support. Share the most interesting answers with your table.</p>
+      <p>Use the questions below to explore what your agent can do. They span all three payer use cases: cost-of-care analytics, quality/Stars gap identification, and member policy support.</p>
+
+      <p>The four marked <strong>⭐ starter</strong> are the same ones your agent offers as suggested prompts in CoWork, so you can click them there instead of typing. Questions marked <strong>📈 chart</strong> return a visualization alongside the table. The rest return a table or prose, which is the right answer for a member list or a policy lookup.</p>
+
+      <div class="callout callout-tip">
+        <span class="icon">💡</span>
+        <div><strong>Why some charts are one colour.</strong> A chart only gets multiple colours when your question asks for a <em>breakdown</em> — two dimensions, not one. "Top 5 chronic conditions by spend" has a single dimension, so every bar is the same colour. Add "…<em>by plan type</em>" and the agent has something to colour by. Worth knowing when you build your own: say what you want split, not just what you want ranked.</div>
+      </div>
 
       <div class="query-grid">
         <div class="query-card">
+          <div class="q-icon">📈</div>
+          <div class="q-text">"Show me the monthly trend in total medical spend over the last two years, split by plan type."</div>
+          <div class="q-tag">⭐ starter · Spend Trend · Analyst · 📈 chart</div>
+        </div>
+        <div class="query-card">
           <div class="q-icon">💊</div>
-          <div class="q-text">"Which members with a diabetes diagnosis had a gap in their medication in the last 6 months?"</div>
-          <div class="q-tag">Medication Adherence · Cortex Analyst</div>
+          <div class="q-text">"Show me monthly pharmacy spend by drug class over the last year."</div>
+          <div class="q-tag">⭐ starter · Pharmacy Trend · Analyst · 📈 chart</div>
+        </div>
+        <div class="query-card">
+          <div class="q-icon">🚫</div>
+          <div class="q-text">"Which service types have the most denied claims, and what does our policy say about how a member appeals a denial?"</div>
+          <div class="q-tag">⭐ starter · Denials · Analyst + Search · 📈 chart</div>
+        </div>
+        <div class="query-card">
+          <div class="q-icon">🔬</div>
+          <div class="q-text">"Pull the top 5 members by total cost of care, classify their highest-cost claim, and tell me what the plan says about coverage for that service type."</div>
+          <div class="q-tag">⭐ starter · Hybrid · Analyst + AI_CLASSIFY + Search</div>
         </div>
         <div class="query-card">
           <div class="q-icon">💰</div>
-          <div class="q-text">"What are the top 5 diagnosis categories by total paid amount this year, and how does each compare to last year?"</div>
-          <div class="q-tag">Cost of Care · Cortex Analyst</div>
+          <div class="q-text">"What are the top 5 chronic conditions by total paid amount, broken down by plan type?"</div>
+          <div class="q-tag">Cost of Care · Analyst · 📈 chart</div>
+        </div>
+        <div class="query-card">
+          <div class="q-icon">🏥</div>
+          <div class="q-text">"Which provider specialties have the highest average cost per claim, and are they in-network?"</div>
+          <div class="q-tag">Provider Analytics · Analyst · 📈 chart</div>
         </div>
         <div class="query-card">
           <div class="q-icon">📋</div>
           <div class="q-text">"What does our formulary say about prior authorization requirements for GLP-1 medications?"</div>
           <div class="q-tag">Benefits Policy · Cortex Search</div>
-        </div>
-        <div class="query-card">
-          <div class="q-icon">🩺</div>
-          <div class="q-text">"Show me members who haven't had a preventive wellness visit in over 12 months."</div>
-          <div class="q-tag">Care Gap · Stars · Cortex Analyst</div>
-        </div>
-        <div class="query-card">
-          <div class="q-icon">🏥</div>
-          <div class="q-text">"Which provider specialties have the highest average cost per claim, and are they in-network?"</div>
-          <div class="q-tag">Provider Analytics · Cortex Analyst</div>
         </div>
         <div class="query-card">
           <div class="q-icon">🏷️</div>
@@ -1285,12 +1342,11 @@ involves member-level cost analysis.</pre>
           <div class="q-text">"What are the HEDIS measures we track for colorectal cancer screening, and which members are eligible but not yet compliant?"</div>
           <div class="q-tag">Stars / HEDIS · Search + Analyst</div>
         </div>
-        <div class="query-card">
-          <div class="q-icon">🔬</div>
-          <div class="q-text">"Pull the top 5 members by total cost of care, classify their highest-cost claim, and tell me what the plan says about coverage for that service type."</div>
-          <div class="q-tag">Hybrid · Analyst + AI_CLASSIFY + Search</div>
-        </div>
       </div>
+
+      <h3>Save a Chart as an Artifact</h3>
+      <p>Because your agent has the <code>data_to_chart</code> tool, trend and ranking questions come back with a chart as well as a table. When one is worth keeping, select <strong>Save</strong> on the chart to turn it into an <strong>artifact</strong>.</p>
+      <p>An artifact is not a screenshot. It stores the query and the chart specification, so it re-runs against live data when you open it later — and it re-runs under <em>each viewer's</em> credentials. Share one with a colleague and they see the same chart filtered through their own permissions, which is what makes this safe to pass around in a payer setting. Your saved artifacts live in the artifacts hub in the left nav.</p>
 
       <div class="callout callout-note">
         <span class="icon">✨</span>
