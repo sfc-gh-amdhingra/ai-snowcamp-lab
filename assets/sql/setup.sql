@@ -7,11 +7,10 @@
 -- Objects created:
 --   Database:   OPTUM_LAB_DB
 --   Schema:     OPTUM_LAB_DB.PAYER
+--   Schema:     OPTUM_LAB_DB.AGENTS (holds the Cortex Agent built in Step 6)
 --   Tables:     MEMBERS, MEDICAL_CLAIMS, PHARMACY_CLAIMS, PROVIDERS
 --   Role:       OPTUM_LAB_ROLE
 --   Warehouse:  OPTUM_LAB_WH (MEDIUM)
---   Database:   SNOWFLAKE_INTELLIGENCE
---   Schema:     SNOWFLAKE_INTELLIGENCE.AGENTS
 --   CoWork obj: SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT (account-level)
 --   Stages:     OPTUM_LAB_DB.PAYER.SEMANTIC_MODELS (internal)
 --               OPTUM_LAB_DB.PAYER.POLICY_DOCS (internal)
@@ -138,6 +137,38 @@ COPY INTO PROVIDERS
   FILE_FORMAT  = (FORMAT_NAME = PAYER_CSV_FORMAT)
   ON_ERROR     = CONTINUE;
 
+-- ── 5b. ROLL DATES FORWARD TO TODAY ───────────────────────────────────────────
+-- The committed CSVs hold three full years of history ending 2025-12-30. Left
+-- as-is, every time-relative question an attendee asks ("this year", "last
+-- month", "recent trend") returns nothing, because CoWork resolves rolling
+-- windows against the real current date. Cortex Analyst and the agent both look
+-- broken when the honest answer is that the data is old.
+--
+-- This shifts every transactional date forward so the most recent claim lands
+-- five days ago, preserving the exact three-year shape and all distributions.
+-- The shift is computed from CURRENT_DATE rather than hardcoded, so the lab
+-- stays current at every future delivery with no CSV regeneration.
+--
+-- Tables are CREATE OR REPLACE above, so re-running setup reloads the original
+-- 2023-2025 data and recomputes the shift correctly. It never double-shifts.
+--
+-- DOB is deliberately left alone: shifting it would hold every member's age
+-- frozen, whereas leaving it lets members age naturally with the calendar.
+SET date_shift_days = (
+  SELECT DATEDIFF(day, MAX(service_date), DATEADD(day, -5, CURRENT_DATE()))
+  FROM OPTUM_LAB_DB.PAYER.MEDICAL_CLAIMS
+);
+
+UPDATE OPTUM_LAB_DB.PAYER.MEDICAL_CLAIMS
+  SET service_date = DATEADD(day, $date_shift_days, service_date);
+
+UPDATE OPTUM_LAB_DB.PAYER.PHARMACY_CLAIMS
+  SET fill_date = DATEADD(day, $date_shift_days, fill_date);
+
+UPDATE OPTUM_LAB_DB.PAYER.MEMBERS
+  SET enrollment_start = DATEADD(day, $date_shift_days, enrollment_start),
+      enrollment_end   = DATEADD(day, $date_shift_days, enrollment_end);
+
 -- ── 6. ROLE AND GRANTS ────────────────────────────────────────────────────────
 CREATE OR REPLACE ROLE OPTUM_LAB_ROLE;
 
@@ -178,20 +209,22 @@ BEGIN
 EXCEPTION WHEN OTHER THEN NULL;
 END;
 
--- ── 7. SNOWFLAKE INTELLIGENCE SCHEMA ──────────────────────────────────────────
--- In some trial accounts SNOWFLAKE_INTELLIGENCE is pre-provisioned as a
--- platform database and grants fail with "Insufficient privileges to operate on
--- account". The exception handler prevents setup from aborting — attendees can
--- still create agents via the Snowsight UI in Step 6 using ACCOUNTADMIN.
-BEGIN
-  CREATE DATABASE IF NOT EXISTS SNOWFLAKE_INTELLIGENCE;
-  CREATE SCHEMA  IF NOT EXISTS SNOWFLAKE_INTELLIGENCE.AGENTS;
-  GRANT USAGE ON DATABASE SNOWFLAKE_INTELLIGENCE             TO ROLE OPTUM_LAB_ROLE;
-  GRANT USAGE ON SCHEMA   SNOWFLAKE_INTELLIGENCE.AGENTS      TO ROLE OPTUM_LAB_ROLE;
-  GRANT CREATE AGENT ON SCHEMA SNOWFLAKE_INTELLIGENCE.AGENTS TO ROLE OPTUM_LAB_ROLE;
-EXCEPTION
-  WHEN OTHER THEN NULL;
-END;
+-- ── 7. AGENT SCHEMA ───────────────────────────────────────────────────────────
+-- In earlier versions of this lab the agent lived in a top-level
+-- SNOWFLAKE_INTELLIGENCE database, because that schema was how agents were made
+-- visible in the UI. That is no longer the case: visibility is now controlled by
+-- the CoWork object (section 7b), and SNOWFLAKE_INTELLIGENCE.AGENTS is
+-- deprecated for that purpose.
+--
+-- Keeping the agent in OPTUM_LAB_DB also removes a trial failure mode. Creating
+-- an account-level database could fail with "Insufficient privileges to operate
+-- on account" on some trials, which is why this block used to need an exception
+-- handler. A schema inside a database we just created cannot fail that way, so
+-- the handler is gone and a genuine error will now surface instead of passing
+-- silently.
+CREATE SCHEMA IF NOT EXISTS OPTUM_LAB_DB.AGENTS;
+GRANT USAGE        ON SCHEMA OPTUM_LAB_DB.AGENTS TO ROLE OPTUM_LAB_ROLE;
+GRANT CREATE AGENT ON SCHEMA OPTUM_LAB_DB.AGENTS TO ROLE OPTUM_LAB_ROLE;
 
 -- ── 7b. SNOWFLAKE COWORK OBJECT ───────────────────────────────────────────────
 -- The Snowflake CoWork object is an account-level object that controls which

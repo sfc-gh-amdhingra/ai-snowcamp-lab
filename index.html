@@ -1100,7 +1100,8 @@
           <span class="coco-header-text">CoCo Prompt — Create Agent</span>
           <span class="coco-header-sub">Paste into CoCo in Snowsight</span>
         </div>
-        <pre>Create a Snowflake <span class="hl">Cortex Agent</span> for a healthcare payer (Optum/UHG) in schema <span class="hl2">SNOWFLAKE_INTELLIGENCE.AGENTS</span>.
+        <pre>Create a Snowflake <span class="hl">Cortex Agent</span> for a healthcare payer (Optum/UHG) in schema <span class="hl2">OPTUM_LAB_DB.AGENTS</span>.
+Create it in exactly that schema — do not use SNOWFLAKE_INTELLIGENCE.AGENTS.
 
 The agent has access to two tools:
   1. <span class="hl">Cortex Analyst</span> tool using semantic view at:
@@ -1124,6 +1125,30 @@ In addition, create a custom tool for the agent:
      Then add this UDF as a <span class="hl">generic tool</span> on the agent so it can classify
      claims on demand during a conversation.
 
+Also add the built-in <span class="hl">data_to_chart</span> tool so the agent can visualize results:
+  4. <span class="hl2">data_to_chart</span> — no resources needed, just the tool_spec.
+     In the orchestration instructions, tell the agent to return a chart alongside
+     the table whenever a result has several rows and a numeric measure.
+
+     Include a <span class="hl2">&lt;chart_customization&gt;</span> block inside instructions.orchestration
+     so the charts are on-brand rather than default Vega colors:
+
+     <span class="hl2">&lt;chart_customization&gt;</span>
+     Prefer line charts for time series and horizontal bar charts for ranked data.
+     vega_template:
+     {
+       "config": {
+         "title":  { "font": "sans-serif", "fontSize": 16, "fontWeight": "bold" },
+         "axis":   { "labelFont": "sans-serif", "titleFont": "sans-serif" },
+         "legend": { "labelFont": "sans-serif", "titleFont": "sans-serif" }
+       },
+       "encoding": {
+         "color": { "scale": { "range": ["#29B5E8","#1B3A6B","#FFC130","#11567F","#7D44CF"] } }
+       },
+       "usermeta": { "merge": "extend" }
+     }
+     <span class="hl2">&lt;/chart_customization&gt;</span>
+
 Also generate:
   a) A set of <span class="hl2">orchestration instructions</span> that tell the agent:
      - When to use Analyst vs Search vs both
@@ -1132,12 +1157,14 @@ Also generate:
   b) 5 starter <span class="hl">example questions</span> to show users what the agent can do
   c) A <span class="hl">display name and persona</span> appropriate for a payer organization
 
-Use warehouse <span class="hl2">OPTUM_LAB_WH</span> for the Analyst tool.
+Use warehouse <span class="hl2">OPTUM_LAB_WH</span> for the Analyst tool. Include it as an
+<span class="hl2">execution_environment</span> on the Analyst tool_resources entry — the agent errors
+without it.
 
 Finally, after the CREATE AGENT statement, also generate the statement that
 registers the agent on the Snowflake CoWork object so it appears in CoWork:
   <span class="hl2">ALTER SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT
-    ADD AGENT SNOWFLAKE_INTELLIGENCE.AGENTS.&lt;agent_name&gt;;</span></pre>
+    ADD AGENT OPTUM_LAB_DB.AGENTS.&lt;agent_name&gt;;</span></pre>
       </div>
 
       <div class="callout callout-info">
@@ -1157,12 +1184,16 @@ registers the agent on the Snowflake CoWork object so it appears in CoWork:
 SHOW AGENTS IN SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT;</pre>
       </div>
 
-      <p>Your agent should be listed. If it is not, register it explicitly — substitute your own agent name:</p>
+      <p>Your agent should be listed. If it is not, first confirm where CoCo actually created it, then register that exact path:</p>
 
       <div class="code-block">
         <div class="code-header"><span class="code-lang">SQL — Register Agent Manually</span><span class="code-hint">Only if the check above did not list your agent</span></div>
-        <pre>ALTER SNOWFLAKE INTELLIGENCE SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT
-  ADD AGENT SNOWFLAKE_INTELLIGENCE.AGENTS.&lt;your_agent_name&gt;;</pre>
+        <pre><span class="comment">-- Find the agent and note its database and schema columns</span>
+<span class="keyword">SHOW AGENTS IN ACCOUNT</span>;
+
+<span class="comment">-- Register it using the path shown above</span>
+<span class="keyword">ALTER SNOWFLAKE INTELLIGENCE</span> SNOWFLAKE_INTELLIGENCE_OBJECT_DEFAULT
+  <span class="keyword">ADD AGENT</span> OPTUM_LAB_DB.AGENTS.&lt;your_agent_name&gt;;</pre>
       </div>
 
       <div class="callout callout-tip">
@@ -1291,6 +1322,10 @@ involves member-level cost analysis.</pre>
           <div class="q-tag">Hybrid · Analyst + AI_CLASSIFY + Search</div>
         </div>
       </div>
+
+      <h3>Save a Chart as an Artifact</h3>
+      <p>Because your agent has the <code>data_to_chart</code> tool, trend and ranking questions come back with a chart as well as a table. When one is worth keeping, select <strong>Save</strong> on the chart to turn it into an <strong>artifact</strong>.</p>
+      <p>An artifact is not a screenshot. It stores the query and the chart specification, so it re-runs against live data when you open it later — and it re-runs under <em>each viewer's</em> credentials. Share one with a colleague and they see the same chart filtered through their own permissions, which is what makes this safe to pass around in a payer setting. Your saved artifacts live in the artifacts hub in the left nav.</p>
 
       <div class="callout callout-note">
         <span class="icon">✨</span>

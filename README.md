@@ -15,7 +15,7 @@ The lab guide is published at: **https://sfc-gh-amdhingra.github.io/ai-snowcamp-
 | Path | Description |
 |------|-------------|
 | `index.html` | GitHub Pages lab guide (step-by-step instructions for attendees) |
-| `assets/sql/setup.sql` | Snowflake setup script — creates database, warehouse, role, tables, loads data from the Git repo stage, grants the Cortex AI roles, provisions the Snowflake CoWork object, and runs ten reporting-style seed queries so Step 4 Autopilot has query history to learn from |
+| `assets/sql/setup.sql` | Snowflake setup script — creates database, warehouse, role, tables, the `AGENTS` schema the Step 6 agent is built in, loads data from the Git repo stage, grants the Cortex AI roles, provisions the Snowflake CoWork object, and runs ten reporting-style seed queries so Step 4 Autopilot has query history to learn from |
 | `assets/sql/generate_data.sql` | Synthetic data generation script — regenerates the CSV files for members, medical_claims, pharmacy_claims, and providers. Only needed if changing the dataset; the committed CSVs are what the lab loads |
 | `assets/semantic_models/member_intelligence.yaml` | Pre-built Cortex Analyst semantic model. **Fallback only** — attendees normally generate a semantic view with Autopilot in Step 4. Retained for the Step 4c manual path |
 | `assets/data/*.csv` | The four payer tables the lab loads. **Must stay committed** — `setup.sql` reads them from the Git repository stage, so excluding them would break setup for every attendee |
@@ -59,7 +59,7 @@ Most of this was validated on a fresh AWS Tokyo trial (Sept 2026). Confirmed res
 | Does **AI & ML → Agents → Preview in Snowflake CoWork** work? | **Open** | Route 2 in Step 7, the registration-independent fallback. |
 | Does the chosen region support the required models with cross-region inference enabled? | **Yes** (Tokyo) | Step 3a sets `CORTEX_ENABLED_CROSS_REGION = 'ANY_REGION'`. Re-confirm for Frankfurt before Dublin. |
 | **Step 4 Autopilot in Snowsight** | **Open** | Cannot be driven from SQL. Confirm the wizard flow, the Suggestions tab, and that the saved view carries the three join keys. |
-| **Step 6a CoCo prompt** | **Open** | The prompt now asks CoCo for three things: build the `CLASSIFY_CLAIM` UDF, wire it as a generic agent tool, and emit the `ADD AGENT` statement. Confirm all three land — in particular that `tool_resources` includes `execution_environment` with the warehouse, since omitting it makes the agent error rather than degrade. |
+| **Step 6a CoCo prompt** | **Open** | The prompt asks CoCo for three things: build the `CLASSIFY_CLAIM` UDF, wire it as a generic agent tool, and emit the `ADD AGENT` statement. Confirm all three land. Two specifics to watch: that `tool_resources` includes `execution_environment` with the warehouse (omitting it makes the agent error rather than degrade), and that the agent is created in `OPTUM_LAB_DB.AGENTS` rather than `SNOWFLAKE_INTELLIGENCE.AGENTS`, which CoCo may prefer from older training data. |
 | Are the Snowsight nav labels as written? | **Open** | Labels changed with the CoWork rename; the guide says **AI & ML → Agents**, **→ Analyst**, **→ Search**. Correct them if the live UI differs. |
 | Is the MEDIUM warehouse comfortable within trial credits for ~95 min? | Unverified | Trials have a fixed credit allowance. |
 | Do any payer or clinical prompts trip AI guardrails? | Partly | The Step 8 questions tested so far returned clean. Worth running the full set. |
@@ -71,7 +71,8 @@ Most of this was validated on a fresh AWS Tokyo trial (Sept 2026). Confirmed res
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | Agent missing from the CoWork list | Not registered on the CoWork object. Opening CoWork **Settings** can create that object, after which only registered agents appear. | Re-run the `ADD AGENT` statement in Step 6b. Or use Step 7 Route 2, which is unaffected. |
-| `Insufficient privileges to operate on account` during setup | Trial account provisioning variance. | Expected and handled — sections 7 and 7b catch it. Setup continues; use Step 7 Route 2. |
+| `ADD AGENT` fails with an object-not-found error | CoCo created the agent in a different schema than the guide asked for — most likely `SNOWFLAKE_INTELLIGENCE.AGENTS`, which older docs and training data still favour. | Run `SHOW AGENTS IN ACCOUNT`, read the actual database and schema, and register that path. Step 6b includes this. |
+| `Insufficient privileges to operate on account` during setup | Trial account provisioning variance. | Expected and handled — section 7b catches it. Setup continues; use Step 7 Route 2. |
 | Autopilot suggests no relationships, or different metrics than the guide shows | Model output is non-deterministic and has changed since April. | Expected. Step 4c documents the manual fallback for all three join keys. |
 | Cortex Search returns no results | Embedding index still building (1–2 min), or `POLICY_DOCS` stage is empty. | `LIST @POLICY_DOCS` should show 4 files (3 `.txt` plus the PDF). Re-run the Step 5a `COPY FILES`. |
 | `Invalid UTF8 detected in string` on `pa_denial_letter.pdf` during Step 5b | The stage read is picking up the PDF and trying to decode binary as text. | The Step 5b `SELECT` must include `pattern => '.*[.]txt'` on the stage read. If an attendee is on a cached copy of the guide without it, add it. |
