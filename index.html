@@ -997,11 +997,12 @@
 <span class="keyword">USE WAREHOUSE</span> OPTUM_LAB_WH;
 
 <span class="comment">-- Parse staged policy docs into a searchable table (one row per line)</span>
+<span class="comment">-- pattern skips the PDF: it is binary, and Step 5d reads it with AI_EXTRACT instead</span>
 <span class="keyword">CREATE OR REPLACE TABLE</span> POLICY_DOCUMENTS <span class="keyword">AS</span>
 <span class="keyword">SELECT</span>
   <span class="fn">REPLACE</span>(METADATA$FILENAME, <span class="string">'.txt'</span>, <span class="string">''</span>) <span class="keyword">AS</span> doc_name,
   <span class="fn">$1</span>::<span class="keyword">VARCHAR</span>                              <span class="keyword">AS</span> content
-<span class="keyword">FROM</span> @POLICY_DOCS (file_format => TEXT_FORMAT)
+<span class="keyword">FROM</span> @POLICY_DOCS (file_format => TEXT_FORMAT, pattern => <span class="string">'.*[.]txt'</span>)
 <span class="keyword">WHERE</span> <span class="fn">$1</span> <span class="keyword">IS NOT NULL</span>;
 
 <span class="comment">-- Create Cortex Search service over policy content</span>
