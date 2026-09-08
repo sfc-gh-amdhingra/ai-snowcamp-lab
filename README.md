@@ -24,8 +24,8 @@ The lab guide is published at: **https://sfc-gh-amdhingra.github.io/ai-snowcamp-
 | `assets/documents/quality_stars_measures.txt` | Synthetic quality/Stars measures reference — HEDIS measure specs, benchmarks, care gap definitions |
 | `assets/documents/pa_denial_letter.pdf` | Synthetic prior authorization denial letter (2 pages, tables, SAMPLE watermark) — the source document for the `AI_EXTRACT` demo in Step 5d |
 | `assets/documents/generate_pa_denial_pdf.py` | Regenerates the PDF above. Not run by the lab; use it only to change the document. Requires `pip install fpdf2` |
-| `assets/img/signup_csp_dub.png` | Trial signup screenshot for **Dublin** (AWS, EU Frankfurt) — currently referenced by the guide |
-| `assets/img/signup_csp_blr.png` | Trial signup screenshot for **Bangalore** (AWS, AP Tokyo) — swap this in and change the region text before that event |
+| `assets/img/signup_csp_blr.png` | Trial signup screenshot for **Bangalore** (AWS, Asia Pacific Tokyo) — currently referenced by the guide |
+| `assets/img/signup_csp_dub.png` | Trial signup screenshot for **Dublin** (AWS, EU Frankfurt) — retained from the Dublin delivery; swap this back in and change the region text if the lab runs in Europe again |
 
 ---
 
@@ -57,7 +57,7 @@ Most of this was validated on a fresh AWS Tokyo trial (Sept 2026). Confirmed res
 | Does the agent orchestrate all three tools? | **Yes** | Verified: Analyst SQL, then five parallel `ClassifyClaim` calls, then Search for coverage policy, synthesized into one answer. |
 | Does the agent appear at `ai.snowflake.com`? | **Open** | Route 1 in Step 7. |
 | Does **AI & ML → Agents → Preview in Snowflake CoWork** work? | **Open** | Route 2 in Step 7, the registration-independent fallback. |
-| Does the chosen region support the required models with cross-region inference enabled? | **Yes** (Tokyo) | Step 3a sets `CORTEX_ENABLED_CROSS_REGION = 'ANY_REGION'`. Re-confirm for Frankfurt before Dublin. |
+| Does the chosen region support the required models with cross-region inference enabled? | **Yes** | Step 3a sets `CORTEX_ENABLED_CROSS_REGION = 'ANY_REGION'`. Confirmed on a Tokyo trial, and in Frankfurt at the Dublin delivery. |
 | **Step 4 Autopilot in Snowsight** | **Open** | Cannot be driven from SQL. Confirm the wizard flow, the Suggestions tab, and that the saved view carries the three join keys. |
 | **Step 6a CoCo prompt** | **Open** | The prompt asks CoCo for three things: build the `CLASSIFY_CLAIM` UDF, wire it as a generic agent tool, and emit the `ADD AGENT` statement. Confirm all three land. Two specifics to watch: that `tool_resources` includes `execution_environment` with the warehouse (omitting it makes the agent error rather than degrade), and that the agent is created in `OPTUM_LAB_DB.AGENTS` rather than `SNOWFLAKE_INTELLIGENCE.AGENTS`, which CoCo may prefer from older training data. |
 | Are the Snowsight nav labels as written? | **Open** | Labels changed with the CoWork rename; the guide says **AI & ML → Agents**, **→ Analyst**, **→ Search**. Correct them if the live UI differs. |
